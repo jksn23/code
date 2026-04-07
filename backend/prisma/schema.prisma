@@ -1,0 +1,194 @@
+// This is your Prisma schema file (Prisma v5)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Kategori {
+  id        Int        @id @default(autoincrement())
+  nama      String     @unique @db.VarChar(100)
+  kriteria  Kriteria[]
+  aset      Aset[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("kategori")
+}
+
+model Kriteria {
+  id          Int          @id @default(autoincrement())
+  kategoriId  Int          @map("kategori_id")
+  nama        String       @db.VarChar(150)
+  tipe        TipeKriteria
+  kategori    Kategori     @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
+  nilaiAset   NilaiAset[]
+  bobotAhp    BobotAHP[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("kriteria")
+}
+
+model Aset {
+  id           Int         @id @default(autoincrement())
+  nama         String      @db.VarChar(200)
+  kategoriId   Int         @map("kategori_id")
+  penjualId    Int?        @map("penjual_id")
+  deskripsi    String?     @db.Text
+  dokumenUrl   String?     @map("dokumen_url") @db.VarChar(255)
+  statusLelang StatusLelang @default(DRAFT) @map("status_lelang")
+  hargaPasar   Decimal     @map("harga_pasar") @db.Decimal(20, 2)
+  
+  kategori     Kategori    @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
+  penjual      Penjual?    @relation(fields: [penjualId], references: [id], onDelete: SetNull)
+  nilaiAset    NilaiAset[]
+  hasil        Hasil[]
+  lelang       Lelang[]
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("aset")
+}
+
+model NilaiAset {
+  id          Int       @id @default(autoincrement())
+  asetId      Int       @map("aset_id")
+  kriteriaId  Int       @map("kriteria_id")
+  nilai       Decimal   @db.Decimal(15, 4)
+  aset        Aset      @relation(fields: [asetId], references: [id], onDelete: Cascade)
+  kriteria    Kriteria  @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([asetId, kriteriaId])
+  @@map("nilai_aset")
+}
+
+model BobotAHP {
+  id          Int       @id @default(autoincrement())
+  kriteriaId  Int       @map("kriteria_id")
+  bobot       Decimal   @db.Decimal(10, 6)
+  cr          Decimal   @db.Decimal(10, 6)
+  kriteria    Kriteria  @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("bobot_ahp")
+}
+
+model Hasil {
+  id               Int      @id @default(autoincrement())
+  asetId           Int      @map("aset_id")
+  nilaiPreferensi  Decimal  @map("nilai_preferensi") @db.Decimal(15, 6)
+  nilaiLimit       Decimal  @map("nilai_limit") @db.Decimal(20, 2)
+  aset             Aset     @relation(fields: [asetId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("hasil")
+}
+
+enum TipeKriteria {
+  benefit
+  cost
+}
+
+enum Role {
+  ADMIN
+  PENJUAL
+  PEMBELI
+}
+
+enum StatusLelang {
+  DRAFT
+  PENDING
+  ACTIVE
+  FINISHED
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique @db.VarChar(100)
+  password  String    @db.VarChar(255)
+  nama      String    @db.VarChar(150)
+  role      Role      @default(PEMBELI)
+  ktpUrl    String?   @map("ktp_url") @db.VarChar(255) // Optional utk mengakomodasi Pembeli
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  penjual   Penjual?
+  penawaran Penawaran[]
+  lelangDimenangkan Lelang[] @relation("LelangPemenang")
+  verifiedPayments  Lelang[] @relation("PaymentVerifier")
+
+  @@map("users")
+}
+
+model Penjual {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique @map("user_id")
+  ktpUrl         String?  @map("ktp_url") @db.VarChar(255)
+  npwpUrl        String?  @map("npwp_url") @db.VarChar(255)
+  rekeningBank   String?  @map("rekening_bank") @db.VarChar(100)
+  nomorRekening  String?  @map("nomor_rekening") @db.VarChar(100)
+  isVerified     Boolean  @default(false) @map("is_verified")
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aset        Aset[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("penjual")
+}
+
+model Lelang {
+  id               Int          @id @default(autoincrement())
+  asetId           Int          @map("aset_id")
+  waktuBuka        DateTime?    @map("waktu_buka")
+  waktuTutup       DateTime?    @map("waktu_tutup")
+  durasiMenit      Int          @default(60) @map("durasi_menit")
+  status           StatusLelang @default(PENDING)
+  pemenangId       Int?         @map("pemenang_id")
+  statusPembayaran String       @default("UNPAID") @map("status_pembayaran") @db.VarChar(20)
+  invoiceNumber    String?      @unique @map("invoice_number") @db.VarChar(80)
+  invoiceGeneratedAt DateTime?  @map("invoice_generated_at")
+  paymentDueDate   DateTime?    @map("payment_due_date")
+  buktiBayarUrl    String?      @map("bukti_bayar_url") @db.VarChar(255)
+  tanggalUploadBukti DateTime?  @map("tanggal_upload_bukti")
+  tanggalVerifikasiPembayaran DateTime? @map("tanggal_verifikasi_pembayaran")
+  catatanPembayaran String?     @map("catatan_pembayaran") @db.Text
+  verifiedBy       Int?         @map("verified_by")
+  statusBarang     String       @default("PENDING") @map("status_barang") @db.VarChar(20)
+  
+  aset        Aset         @relation(fields: [asetId], references: [id], onDelete: Cascade)
+  penawaran   Penawaran[]
+  pemenang    User?        @relation("LelangPemenang", fields: [pemenangId], references: [id], onDelete: SetNull)
+  verifikatorPembayaran User? @relation("PaymentVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("lelang")
+}
+
+model Penawaran {
+  id          Int      @id @default(autoincrement())
+  lelangId    Int      @map("lelang_id")
+  userId      Int      @map("user_id")
+  nominal     Decimal  @db.Decimal(20, 2)
+  
+  lelang      Lelang   @relation(fields: [lelangId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("penawaran")
+}

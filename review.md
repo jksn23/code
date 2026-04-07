@@ -1,0 +1,7 @@
+**Fitur Proses Lelang**
+- pada proses lelang, ketika admin melakukan penjadwalan lelang, objek yang dilelang akan otomatis masuk ke dalam antrian lelang. proses antrian tersebut menggunakan urutan lelang pada form awal ketika admin membuat jadwal lelang. jadi timer pada lelang berikutnya tidak akan berjalan sebelum lelang sebelumnya selesai.
+- setelah salah satu proses lelang selesai (timer berakhir), akan langsung masuk ke objek lelang selanjutnya tanpa memperlihatkan detail pemenang lelang, detail pemenang lelang akan diperlihatkan ketika keseluruhan objek lelang pada jadwal lelang selesai dan akan masuk ke halaman ringkasan lelang dan menampilkan detail lelang tersebut. pada halaman tersebut akan menampilkan detail lelang, detail objek lelang, detail penawaran, detail pemenang, dan detail pembayaran dan menampilkan total nilai aset yang dilelang dan yang didapatkan.  
+
+
+**validasi umum**
+- perlu diperbaiki dimana ketika penjual mendaftarkan akun, penjual belum bisa langsung membuat aset lelang, sebelum akunnya diverifikasi oleh admin. berikan halaman tunggu bagi penjual yang belum terverifikasi akunnya. dan pada halaman admin bisa melihat daftar penjual yang belum terverifikasi dan bisa memverifikasi akun penjual tersebut, buatkan halaman khusus untuk memperlihatkan detail informasi penjual yang belum terverifikasi. 

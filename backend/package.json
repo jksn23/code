@@ -1,0 +1,40 @@
+{
+  "name": "backend-lelang-spk",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "db:push": "prisma db push",
+    "migrate": "prisma migrate dev",
+    "migrate:prod": "prisma migrate deploy",
+    "generate": "prisma generate",
+    "studio": "prisma studio",
+    "test": "node src/tests/test_algoritma.js"
+  },
+  "keywords": [
+    "lelang",
+    "spk",
+    "ahp",
+    "saw"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "Backend API untuk Sistem Pendukung Keputusan Lelang Online menggunakan AHP dan SAW",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "mysql2": "^3.20.0",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14",
+    "prisma": "^5.22.0"
+  }
+}

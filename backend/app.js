@@ -1,0 +1,151 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { PrismaClient } from '@prisma/client';
+
+// Routes
+import authRoutes from './src/routes/auth.routes.js';
+import penjualRoutes from './src/routes/penjual.routes.js';
+import kategoriRoutes from './src/routes/kategori.routes.js';
+import kriteriaRoutes from './src/routes/kriteria.routes.js';
+import asetRoutes from './src/routes/aset.routes.js';
+import nilaiRoutes from './src/routes/nilai.routes.js';
+import spkRoutes from './src/routes/spk.routes.js';
+import lelangRoutes from './src/routes/lelang.routes.js';
+import laporanRoutes from './src/routes/laporan.routes.js';
+
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config();
+
+const app = express();
+const prisma = new PrismaClient();
+
+// Middleware
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Health Check
+app.get('/health', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ok', database: 'connected', timestamp: new Date().toISOString() });
+  } catch (error) {
+    res.status(500).json({ status: 'error', database: 'disconnected', message: error.message });
+  }
+});
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/penjual', penjualRoutes);
+app.use('/api/kategori', kategoriRoutes);
+app.use('/api/kriteria', kriteriaRoutes);
+app.use('/api/aset', asetRoutes);
+app.use('/api/nilai', nilaiRoutes);
+app.use('/api/spk', spkRoutes);
+app.use('/api/lelang', lelangRoutes);
+app.use('/api/laporan', laporanRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+  });
+});
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
+});
+
+const PORT = process.env.PORT || 5000;
+
+// Setup Socket.io
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('🔗 Client connected via WebSocket:', socket.id);
+  
+  socket.on('join_lelang', (lelangId) => {
+    socket.join(`lelang_${lelangId}`);
+    console.log(`Socket ${socket.id} joined room lelang_${lelangId}`);
+  });
+
+  socket.on('submit_bid', async (payload, callback) => {
+    try {
+       const { lelangId, userId, nominal } = payload;
+       
+       const lelang = await prisma.lelang.findUnique({ 
+         where: { id: Number(lelangId) }, 
+         include: { aset: { include: { hasil: true } } } 
+       });
+       
+       if (!lelang || lelang.status !== 'ACTIVE') throw new Error("Lelang tidak valid atau sudah ditutup");
+       
+       const now = new Date();
+       if (now > lelang.waktuTutup) throw new Error("Waktu lelang sudah habis");
+
+       const limit = lelang.aset.hasil?.[0]?.nilaiLimit || 0;
+       
+       const highestBid = await prisma.penawaran.findFirst({
+          where: { lelangId: lelang.id },
+          orderBy: { nominal: 'desc' }
+       });
+       
+       const currentMax = highestBid ? Number(highestBid.nominal) : Number(limit);
+       if (Number(nominal) <= currentMax) {
+          throw new Error(`Penawaran harus lebih tinggi dari ${new Intl.NumberFormat('id-ID', {currency: 'IDR', style:'currency'}).format(currentMax)}`);
+       }
+       
+       const newBid = await prisma.penawaran.create({
+          data: {
+             lelangId: lelang.id,
+             userId: Number(userId),
+             nominal: Number(nominal)
+          },
+          include: { user: { select: { nama: true } } }
+       });
+       
+       // Broadcast the new bid to everyone in the room
+       io.to(`lelang_${lelangId}`).emit('new_bid', newBid);
+       if (callback) callback({ success: true });
+       
+    } catch(err) {
+       console.error('Bid error:', err.message);
+       if (callback) callback({ success: false, message: err.message });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('❌ Client disconnected:', socket.id);
+  });
+});
+
+app.set('io', io); // inject to express app
+
+server.listen(PORT, () => {
+  console.log(`✅ Server & WebSocket berjalan di http://localhost:${PORT}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
+
+export default app;

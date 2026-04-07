@@ -1,0 +1,143 @@
+import React, { useState, useEffect } from 'react';
+import { getKriteria, getKategori, createKriteria, updateKriteria, deleteKriteria } from '../services/api.js';
+
+function KriteriaModal({ item, kategoriList, onClose, onSave }) {
+  const [form, setForm] = useState({ nama: item?.nama || '', kategori_id: item?.kategoriId || '', tipe: item?.tipe || 'benefit' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.nama || !form.kategori_id) return setError('Semua field wajib diisi');
+    setLoading(true); setError('');
+    try {
+      if (item) await updateKriteria(item.id, form);
+      else await createKriteria(form);
+      onSave();
+    } catch (err) { setError(err.message); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modal">
+        <div className="modal-header">
+          <h3>{item ? '✏️ Edit Kriteria' : '➕ Tambah Kriteria'}</h3>
+          <button className="btn btn-secondary btn-sm" onClick={onClose}>✕</button>
+        </div>
+        {error && <div className="alert alert-danger">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Kategori</label>
+            <select className="form-control" value={form.kategori_id} onChange={(e) => setForm({ ...form, kategori_id: e.target.value })}>
+              <option value="">-- Pilih Kategori --</option>
+              {kategoriList.map((k) => <option key={k.id} value={k.id}>{k.nama}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Nama Kriteria</label>
+            <input className="form-control" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} placeholder="Contoh: Kondisi Fisik" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Tipe Kriteria</label>
+            <select className="form-control" value={form.tipe} onChange={(e) => setForm({ ...form, tipe: e.target.value })}>
+              <option value="benefit">Benefit (Semakin besar semakin baik)</option>
+              <option value="cost">Cost (Semakin kecil semakin baik)</option>
+            </select>
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? <span className="spinner" /> : '💾 Simpan'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default function KriteriaPage() {
+  const [data, setData] = useState([]);
+  const [kategoriList, setKategoriList] = useState([]);
+  const [filterKategori, setFilterKategori] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(null);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const [kriteriaRes, kategoriRes] = await Promise.all([getKriteria(filterKategori || null), getKategori()]);
+      setData(kriteriaRes.data);
+      setKategoriList(kategoriRes.data);
+    } finally { setLoading(false); }
+  };
+
+  useEffect(() => { load(); }, [filterKategori]);
+
+  const handleDelete = async (id) => {
+    if (!confirm('Hapus kriteria ini?')) return;
+    try { await deleteKriteria(id); load(); } catch (e) { alert(e.message); }
+  };
+
+  return (
+    <div>
+      <div className="page-header flex-between">
+        <div>
+          <h2>📋 Manajemen Kriteria</h2>
+          <p>Kelola kriteria penilaian aset berdasarkan kategori (dinamis per kategori)</p>
+        </div>
+        <button className="btn btn-primary" onClick={() => setModal('add')}>➕ Tambah</button>
+      </div>
+
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">Filter by Kategori</label>
+          <select className="form-control" value={filterKategori} onChange={(e) => setFilterKategori(e.target.value)}>
+            <option value="">Semua Kategori</option>
+            {kategoriList.map((k) => <option key={k.id} value={k.id}>{k.nama}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div className="card">
+        {loading ? <div className="empty-state"><span className="spinner" /></div> :
+          data.length === 0 ? <div className="empty-state"><div className="icon">📋</div><p>Belum ada kriteria.</p></div> :
+          <div className="table-wrapper">
+            <table>
+              <thead><tr><th>No</th><th>Nama Kriteria</th><th>Kategori</th><th>Tipe</th><th>Aksi</th></tr></thead>
+              <tbody>
+                {data.map((item, i) => (
+                  <tr key={item.id}>
+                    <td>{i + 1}</td>
+                    <td><strong>{item.nama}</strong></td>
+                    <td>{item.kategori?.nama}</td>
+                    <td>
+                      <span className={`badge ${item.tipe === 'benefit' ? 'badge-success' : 'badge-warning'}`}>
+                        {item.tipe === 'benefit' ? '↑ Benefit' : '↓ Cost'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex gap-2">
+                        <button className="btn btn-secondary btn-sm" onClick={() => setModal(item)}>✏️ Edit</button>
+                        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(item.id)}>🗑️ Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>}
+      </div>
+
+      {modal && (
+        <KriteriaModal
+          item={modal === 'add' ? null : modal}
+          kategoriList={kategoriList}
+          onClose={() => setModal(null)}
+          onSave={() => { setModal(null); load(); }}
+        />
+      )}
+    </div>
+  );
+}
