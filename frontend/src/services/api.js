@@ -68,10 +68,21 @@ export const deleteAset = (id) => api.delete(`/aset/${id}`);
 export const getSemuaPenjual = () => api.get('/penjual');
 export const getPenjualById = (id) => api.get(`/penjual/${id}`);
 export const verifikasiPenjual = (id, isVerified) => api.put(`/penjual/${id}/verify`, { isVerified });
+export const approvePenjual = (id, data = {}) => api.put(`/penjual/${id}/approve`, data);
+export const rejectPenjual = (id, data) => api.put(`/penjual/${id}/reject`, data);
+export const reuploadDokumenPenjual = (formData) => api.put('/penjual/me/reupload-dokumen', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
 export const ajukanLelang = (asetId) => api.put(`/aset/${asetId}/ajukan`);
 export const createLelangAndApprove = (asetId, data) => api.post(`/aset/${asetId}/verifikasi-lelang`, data);
 export const getLelangSelesaiAdmin = () => api.get('/lelang/admin/selesai');
-export const verifikasiPembayaranLelang = (id) => api.put(`/lelang/${id}/pembayaran`);
+export const getRiwayatPembayaranPembeli = () => api.get('/lelang/pemenang/saya');
+export const getInvoiceLelang = (id) => api.get(`/lelang/${id}/invoice`);
+export const uploadBuktiPembayaranLelang = (id, formData) => api.post(`/lelang/${id}/upload-bukti`, formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+export const verifikasiPembayaranLelang = (id, data = {}) => api.put(`/lelang/${id}/pembayaran/verifikasi`, data);
+export const tolakPembayaranLelang = (id, data) => api.put(`/lelang/${id}/pembayaran/tolak`, data);
 export const konfirmasiTerimaBarang = (id) => api.put(`/lelang/${id}/terima-barang`);
 export const getNextLelang = (currentId) => api.get(`/lelang/next/${currentId}`);
 export const getLelangSummary = (date) => api.get(`/lelang/summary/${date}`);

@@ -24,7 +24,6 @@ import SellerWaitingPage from './pages/SellerWaitingPage';
 import AuctionSummaryPage from './pages/AuctionSummaryPage';
 import './index.css';
 
-// Rute yang TIDAK menggunakan sidebar
 const NO_SIDEBAR_PATHS = ['/login', '/register'];
 
 const Layout = ({ children }) => {
@@ -39,26 +38,15 @@ const Layout = ({ children }) => {
   );
 };
 
-/**
- * Guard utama yang dipakai oleh SEMUA protected route.
- * - Jika tidak login → redirect ke /login
- * - Jika penjual belum diverifikasi → tampilkan SellerWaitingPage (full screen, z-index tinggi)
- * (Kecuali admin dan pembeli yang tidak perlu verifikasi)
- */
 const AuthGuard = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  // Penjual belum diverifikasi → tampilkan halaman tunggu di atas segalanya
-  if (user.role === 'PENJUAL' && user.isVerified === false) {
+  if (user.role === 'PENJUAL' && user.verificationStatus !== 'APPROVED') {
     return <SellerWaitingPage />;
   }
   return <Outlet />;
 };
 
-/**
- * Guard untuk rute yang hanya boleh diakses role tertentu.
- * Gunakan SETELAH AuthGuard (nested di bawahnya).
- */
 const RoleRoute = ({ allowedRoles }) => {
   const { user } = useAuth();
   if (!allowedRoles.includes(user?.role)) return <Navigate to="/lelang" replace />;
@@ -71,30 +59,21 @@ export default function App() {
       <BrowserRouter>
         <Layout>
           <Routes>
-            {/* ===== Fully Public Routes ===== */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/lelang" element={<LelangPublikPage />} />
-            {/*
-              PENTING: /lelang/summary HARUS sebelum /lelang/:id
-              agar React Router tidak menganggap "summary" sebagai dynamic :id
-            */}
             <Route path="/lelang/summary" element={<AuctionSummaryPage />} />
             <Route path="/lelang/:id" element={<LelangRoomPage />} />
 
-            {/* ===== Protected Routes (semua butuh login + penjual harus verified) ===== */}
             <Route element={<AuthGuard />}>
-              {/* Dashboard: semua role yang login */}
               <Route path="/" element={<DashboardPage />} />
 
-              {/* Halaman Aset & SPK: ADMIN + PENJUAL */}
               <Route element={<RoleRoute allowedRoles={['ADMIN', 'PENJUAL']} />}>
                 <Route path="/aset" element={<AsetPage />} />
                 <Route path="/input-nilai" element={<InputNilaiPage />} />
                 <Route path="/hasil" element={<HasilPage />} />
               </Route>
 
-              {/* Halaman Admin only */}
               <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
                 <Route path="/penjual" element={<PenjualPage />} />
                 <Route path="/penjual/:id" element={<AdminSellerDetailPage />} />

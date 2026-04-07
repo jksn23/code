@@ -68,7 +68,9 @@ export const createAset = async (req, res) => {
     if (req.userRole === 'PENJUAL') {
       const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
       if (!penjual) return res.status(403).json({ success: false, message: "Akses ditolak. Profil penjual tidak ditemukan." });
-      if (!penjual.isVerified) return res.status(403).json({ success: false, message: "Akun Anda belum diverifikasi oleh Admin. Silakan tunggu proses verifikasi." });
+      if (penjual.verificationStatus !== 'APPROVED') {
+        return res.status(403).json({ success: false, message: "Akun penjual Anda belum disetujui Admin. Selesaikan proses verifikasi dokumen terlebih dahulu." });
+      }
       penjualId = penjual.id;
     }
 
@@ -141,6 +143,9 @@ export const ajukanLelang = async (req, res) => {
   try {
     const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
     if (!penjual) return res.status(403).json({ message: "Profil penjual tidak ditemukan" });
+    if (penjual.verificationStatus !== 'APPROVED') {
+      return res.status(403).json({ message: "Akun penjual belum disetujui Admin. Anda tidak dapat mengajukan lelang." });
+    }
 
     const aset = await prisma.aset.findUnique({ where: { id: Number(req.params.id) } });
     if (!aset) return res.status(404).json({ message: "Aset tidak ditemukan" });
@@ -220,4 +225,3 @@ export const createLelangOlehAdmin = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-

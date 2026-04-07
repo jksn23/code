@@ -4,6 +4,25 @@ import prisma from '../models/prisma.client.js';
 
 const SECRET = process.env.JWT_SECRET || 'secret_key_lelang_spk_2026';
 
+const buildUserPayload = (user) => {
+  const seller = user.penjual || null;
+  const verificationStatus = seller?.verificationStatus || null;
+
+  return {
+    id: user.id,
+    nama: user.nama,
+    email: user.email,
+    role: user.role,
+    isVerified: seller ? seller.isVerified : true,
+    verificationStatus: seller ? verificationStatus : 'APPROVED',
+    verificationNote: seller?.verificationNote || null,
+    verifiedAt: seller?.verifiedAt || null,
+    revisionCount: seller?.revisionCount || 0,
+    rekeningBank: seller?.rekeningBank || '',
+    nomorRekening: seller?.nomorRekening || '',
+  };
+};
+
 export const register = async (req, res) => {
   try {
     const { email, password, nama, role } = req.body;
@@ -52,7 +71,10 @@ export const register = async (req, res) => {
             npwpUrl,
             rekeningBank: rekeningBank || null,
             nomorRekening: nomorRekening || null,
-            isVerified: false
+            isVerified: false,
+            verificationStatus: 'PENDING',
+            verificationNote: null,
+            revisionCount: 0,
           }
         });
       }
@@ -95,13 +117,7 @@ export const login = async (req, res) => {
       success: true,
       message: 'Login berhasil',
       token,
-      user: {
-        id: user.id,
-        nama: user.nama,
-        email: user.email,
-        role: user.role,
-        isVerified: user.penjual ? user.penjual.isVerified : true
-      }
+      user: buildUserPayload(user)
     });
 
   } catch (error) {
@@ -118,7 +134,13 @@ export const getProfile = async (req, res) => {
 
     if (!user) return res.status(404).json({ success: false, message: 'User tidak ditemukan' });
     
-    res.json({ success: true, data: user });
+    res.json({
+      success: true,
+      data: {
+        ...user,
+        userSummary: buildUserPayload(user),
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -20,6 +20,13 @@ const STATUS_COLORS = {
   SELESAI: { bg: '#dbeafe', color: '#1d4ed8' },
 };
 
+const PAYMENT_COLORS = {
+  UNPAID: { bg: '#fef3c7', color: '#92400e' },
+  PENDING_VERIFICATION: { bg: '#dbeafe', color: '#1d4ed8' },
+  LUNAS: { bg: '#dcfce7', color: '#166534' },
+  DITOLAK: { bg: '#fee2e2', color: '#b91c1c' },
+};
+
 export default function LaporanPage() {
   const [activeTab, setActiveTab] = useState('aset');
   const [data, setData] = useState([]);
@@ -76,11 +83,11 @@ export default function LaporanPage() {
       ]);
     } else if (activeTab === 'lelang') {
       title = 'LAPORAN HASIL LELANG';
-      head = [['No', 'Nama Aset', 'Kategori', 'Nilai Limit', 'Waktu Buka', 'Waktu Tutup', 'Status', 'Pemenang', 'Harga Terjual']];
+      head = [['No', 'Invoice', 'Nama Aset', 'Kategori', 'Nilai Limit', 'Waktu Buka', 'Waktu Tutup', 'Status', 'Status Bayar', 'Pemenang', 'Harga Terjual']];
       rows = data.map((d, i) => [
-        i + 1, d.namaAset, d.kategori, formatRp(d.nilaiLimit),
+        i + 1, d.invoiceNumber || '-', d.namaAset, d.kategori, formatRp(d.nilaiLimit),
         formatDate(d.waktuBuka), formatDate(d.waktuTutup),
-        d.status, d.pemenang, d.hargaTerjual ? formatRp(d.hargaTerjual) : '-',
+        d.status, d.statusPembayaran || '-', d.pemenang, d.hargaTerjual ? formatRp(d.hargaTerjual) : '-',
       ]);
     } else {
       title = 'LAPORAN RIWAYAT TRANSAKSI / BIDDING';
@@ -139,12 +146,12 @@ export default function LaporanPage() {
         ['LAPORAN HASIL LELANG'],
         [`Dicetak: ${new Date().toLocaleDateString('id-ID')} | Total: ${data.length} data`],
         [],
-        ['No', 'Nama Aset', 'Kategori', 'Penjual', 'Nilai Limit (Rp)', 'Waktu Buka', 'Waktu Tutup', 'Status', 'Pemenang', 'Harga Terjual (Rp)'],
+        ['No', 'Invoice', 'Nama Aset', 'Kategori', 'Penjual', 'Nilai Limit (Rp)', 'Waktu Buka', 'Waktu Tutup', 'Status Lelang', 'Status Bayar', 'Pemenang', 'Harga Terjual (Rp)'],
         ...data.map((d, i) => [
-          i + 1, d.namaAset, d.kategori, d.penjual,
+          i + 1, d.invoiceNumber || '-', d.namaAset, d.kategori, d.penjual,
           Number(d.nilaiLimit),
           formatDate(d.waktuBuka), formatDate(d.waktuTutup),
-          d.status, d.pemenang,
+          d.status, d.statusPembayaran || '-', d.pemenang,
           d.hargaTerjual > 0 ? Number(d.hargaTerjual) : '-',
         ]),
       ];
@@ -221,8 +228,8 @@ export default function LaporanPage() {
           <thead>
             <tr>
               <th>No</th><th>Nama Aset</th><th>Kategori</th><th>Penjual</th>
-              <th>Nilai Limit</th><th>Waktu Buka</th><th>Waktu Tutup</th>
-              <th>Status</th><th>Pemenang</th><th>Harga Terjual</th>
+              <th>Invoice</th><th>Nilai Limit</th><th>Waktu Buka</th><th>Waktu Tutup</th>
+              <th>Status</th><th>Status Bayar</th><th>Pemenang</th><th>Harga Terjual</th>
             </tr>
           </thead>
           <tbody>
@@ -232,12 +239,18 @@ export default function LaporanPage() {
                 <td style={{ fontWeight: 600 }}>{d.namaAset}</td>
                 <td><span className="badge badge-primary">{d.kategori}</span></td>
                 <td>{d.penjual}</td>
+                <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{d.invoiceNumber || '-'}</td>
                 <td style={{ color: '#10b981', fontWeight: 600 }}>{formatRp(d.nilaiLimit)}</td>
                 <td style={{ fontSize: 12 }}>{formatDate(d.waktuBuka)}</td>
                 <td style={{ fontSize: 12 }}>{formatDate(d.waktuTutup)}</td>
                 <td>
                   <span style={{ ...(STATUS_COLORS[d.status] || STATUS_COLORS.DRAFT), padding: '3px 10px', borderRadius: 99, fontSize: 12, fontWeight: 600 }}>
                     {d.status}
+                  </span>
+                </td>
+                <td>
+                  <span style={{ ...(PAYMENT_COLORS[d.statusPembayaran] || PAYMENT_COLORS.UNPAID), padding: '3px 10px', borderRadius: 99, fontSize: 12, fontWeight: 600 }}>
+                    {d.statusPembayaran || '-'}
                   </span>
                 </td>
                 <td style={{ fontWeight: 600, color: d.pemenang !== '-' ? '#2563eb' : 'var(--text-muted)' }}>{d.pemenang}</td>

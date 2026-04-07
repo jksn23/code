@@ -1,5 +1,38 @@
 import prisma from '../models/prisma.client.js';
 
+const generateInvoiceNumber = (lelangId, date = new Date()) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const seq = String(lelangId).padStart(6, '0');
+  return `INV-${y}${m}${d}-${seq}`;
+};
+
+const ensureInvoiceMetadata = async (lelang) => {
+  if (!lelang?.pemenangId) return lelang;
+  if (lelang.invoiceNumber) return lelang;
+
+  const baseDate = lelang.waktuTutup ? new Date(lelang.waktuTutup) : new Date();
+  const paymentDueDate = new Date(baseDate.getTime() + 24 * 60 * 60 * 1000);
+
+  const updated = await prisma.lelang.update({
+    where: { id: lelang.id },
+    data: {
+      invoiceNumber: generateInvoiceNumber(lelang.id),
+      invoiceGeneratedAt: new Date(),
+      paymentDueDate,
+    },
+    select: {
+      invoiceNumber: true,
+    },
+  });
+
+  return {
+    ...lelang,
+    invoiceNumber: updated.invoiceNumber,
+  };
+};
+
 // GET Laporan Aset - daftar semua aset beserta hasil SPK
 export const getLaporanAset = async (req, res) => {
   try {
@@ -33,7 +66,7 @@ export const getLaporanAset = async (req, res) => {
 // GET Laporan Lelang - daftar semua lelang dengan info pemenang
 export const getLaporanLelang = async (req, res) => {
   try {
-    const data = await prisma.lelang.findMany({
+    const rawData = await prisma.lelang.findMany({
       include: {
         aset: {
           include: {
@@ -50,6 +83,8 @@ export const getLaporanLelang = async (req, res) => {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    const data = await Promise.all(rawData.map(ensureInvoiceMetadata));
 
     const laporan = data.map(l => {
       const pemenang = l.penawaran?.[0];

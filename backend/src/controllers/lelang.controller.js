@@ -538,7 +538,20 @@ export const getLelangSelesai = async (req, res) => {
       orderBy: { waktuTutup: 'desc' },
     });
 
-    res.json({ success: true, data: list });
+    const enriched = await Promise.all(
+      list.map(async (item) => {
+        if (!item.pemenangId) return item;
+        const meta = await ensureInvoiceMetadata(item.id);
+        return {
+          ...item,
+          invoiceNumber: meta?.invoiceNumber || item.invoiceNumber,
+          invoiceGeneratedAt: meta?.invoiceGeneratedAt || item.invoiceGeneratedAt,
+          paymentDueDate: meta?.paymentDueDate || item.paymentDueDate,
+        };
+      })
+    );
+
+    res.json({ success: true, data: enriched });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

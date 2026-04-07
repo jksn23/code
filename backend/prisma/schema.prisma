@@ -112,6 +112,13 @@ enum StatusLelang {
   FINISHED
 }
 
+enum SellerVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVISION_REQUESTED
+}
+
 model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique @db.VarChar(100)
@@ -126,24 +133,31 @@ model User {
   penawaran Penawaran[]
   lelangDimenangkan Lelang[] @relation("LelangPemenang")
   verifiedPayments  Lelang[] @relation("PaymentVerifier")
+  verifiedSellers   Penjual[] @relation("SellerVerifier")
 
   @@map("users")
 }
 
 model Penjual {
-  id             Int      @id @default(autoincrement())
-  userId         Int      @unique @map("user_id")
-  ktpUrl         String?  @map("ktp_url") @db.VarChar(255)
-  npwpUrl        String?  @map("npwp_url") @db.VarChar(255)
-  rekeningBank   String?  @map("rekening_bank") @db.VarChar(100)
-  nomorRekening  String?  @map("nomor_rekening") @db.VarChar(100)
-  isVerified     Boolean  @default(false) @map("is_verified")
+  id                 Int                      @id @default(autoincrement())
+  userId             Int                      @unique @map("user_id")
+  ktpUrl             String?                  @map("ktp_url") @db.VarChar(255)
+  npwpUrl            String?                  @map("npwp_url") @db.VarChar(255)
+  rekeningBank       String?                  @map("rekening_bank") @db.VarChar(100)
+  nomorRekening      String?                  @map("nomor_rekening") @db.VarChar(100)
+  isVerified         Boolean                  @default(false) @map("is_verified")
+  verificationStatus SellerVerificationStatus @default(PENDING) @map("verification_status")
+  verificationNote   String?                  @map("verification_note") @db.Text
+  verifiedAt         DateTime?                @map("verified_at")
+  verifiedBy         Int?                     @map("verified_by")
+  revisionCount      Int                      @default(0) @map("revision_count")
   
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  aset        Aset[]
+  user               User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifikator        User?                    @relation("SellerVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  aset               Aset[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
 
   @@map("penjual")
 }
