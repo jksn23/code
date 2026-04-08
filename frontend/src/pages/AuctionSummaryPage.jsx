@@ -142,7 +142,7 @@ export default function AuctionSummaryPage() {
           <h3 style={{ margin: 0 }}>📦 Detail Setiap Objek Lelang</h3>
         </div>
         <div className="table-wrapper">
-          <table>
+          <table className="table">
             <thead>
               <tr>
                 <th style={{ width: 40 }}>No</th>

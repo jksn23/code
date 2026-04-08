@@ -105,6 +105,13 @@ enum Role {
   PEMBELI
 }
 
+enum BuyerVerificationStatus {
+  UNVERIFIED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum StatusLelang {
   DRAFT
   PENDING
@@ -113,19 +120,26 @@ enum StatusLelang {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique @db.VarChar(100)
-  password  String    @db.VarChar(255)
-  nama      String    @db.VarChar(150)
-  role      Role      @default(PEMBELI)
-  ktpUrl    String?   @map("ktp_url") @db.VarChar(255) // Optional utk mengakomodasi Pembeli
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                     Int                     @id @default(autoincrement())
+  email                  String                  @unique @db.VarChar(100)
+  password               String                  @db.VarChar(255)
+  nama                   String                  @db.VarChar(150)
+  role                   Role                    @default(PEMBELI)
+  ktpUrl                 String?                 @map("ktp_url") @db.VarChar(255)
+  buyerVerificationStatus BuyerVerificationStatus @default(UNVERIFIED) @map("buyer_verification_status")
+  buyerVerificationNote  String?                 @map("buyer_verification_note") @db.Text
+  buyerVerifiedAt        DateTime?               @map("buyer_verified_at")
+  buyerVerifiedBy        Int?                    @map("buyer_verified_by")
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
 
-  penjual   Penjual?
-  penawaran Penawaran[]
-  lelangDimenangkan Lelang[] @relation("LelangPemenang")
-  verifiedPayments  Lelang[] @relation("PaymentVerifier")
+  penjual               Penjual?
+  penawaran             Penawaran[]
+  lelangDimenangkan     Lelang[]        @relation("LelangPemenang")
+  verifiedPayments      Lelang[]        @relation("PaymentVerifier")
+  notifications         Notifikasi[]
+  buyerVerifier         User?           @relation("BuyerVerifier", fields: [buyerVerifiedBy], references: [id], onDelete: SetNull)
+  verifiedBuyers        User[]          @relation("BuyerVerifier")
 
   @@map("users")
 }
@@ -191,4 +205,22 @@ model Penawaran {
   updatedAt   DateTime @updatedAt
 
   @@map("penawaran")
+}
+
+model Notifikasi {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  judul         String   @db.VarChar(150)
+  pesan         String   @db.Text
+  tipe          String   @db.VarChar(50)
+  isRead        Boolean  @default(false) @map("is_read")
+  referenceType String?  @map("reference_type") @db.VarChar(50)
+  referenceId   Int?     @map("reference_id")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifikasi")
 }

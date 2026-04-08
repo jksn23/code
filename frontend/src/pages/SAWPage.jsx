@@ -62,7 +62,7 @@ export default function SAWPage() {
           <div className="card" style={{ marginBottom: 16 }}>
             <h3 style={{ fontSize: 15, marginBottom: 12 }}>Kriteria & Bobot AHP yang Digunakan</h3>
             <div className="table-wrapper">
-              <table>
+              <table className="table">
                 <thead><tr><th>Kriteria</th><th>Tipe</th><th>Bobot</th><th>Max Nilai</th><th>Min Nilai</th></tr></thead>
                 <tbody>
                   {hasil.detailKriteria?.map((k) => (
@@ -83,7 +83,7 @@ export default function SAWPage() {
           <div className="card">
             <h3 style={{ fontSize: 15, marginBottom: 16 }}>🏆 Hasil Perankingan & Nilai Limit Aset</h3>
             <div className="table-wrapper">
-              <table>
+              <table className="table">
                 <thead>
                   <tr><th>Rank</th><th>Nama Aset</th><th>Harga Pasar</th><th>Nilai Preferensi (Vi)</th><th>Nilai Limit</th><th>Detail</th></tr>
                 </thead>

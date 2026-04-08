@@ -1,4 +1,5 @@
 import prisma from '../models/prisma.client.js';
+import { createNotifications, createNotification } from '../utils/notification.util.js';
 
 const lelangDetailInclude = {
   aset: {
@@ -159,6 +160,95 @@ const paymentStatusLabels = {
   DITOLAK: 'DITOLAK',
 };
 
+export const syncLelangLifecycle = async (lelangId) => {
+  const lelang = await prisma.lelang.findUnique({
+    where: { id: Number(lelangId) },
+    include: {
+      aset: {
+        include: {
+          penjual: {
+            include: {
+              user: { select: { id: true, nama: true } },
+            },
+          },
+          hasil: true,
+        },
+      },
+      penawaran: {
+        orderBy: { nominal: 'desc' },
+        take: 1,
+        include: {
+          user: { select: { id: true, nama: true } },
+        },
+      },
+      pemenang: {
+        select: { id: true, nama: true },
+      },
+    },
+  });
+
+  if (!lelang) return null;
+
+  const now = new Date();
+  const waktuBuka = lelang.waktuBuka ? new Date(lelang.waktuBuka) : null;
+  const waktuTutup = lelang.waktuTutup ? new Date(lelang.waktuTutup) : null;
+
+  if (lelang.status === 'PENDING' && waktuBuka && now >= waktuBuka && (!waktuTutup || now < waktuTutup)) {
+    await prisma.lelang.update({
+      where: { id: lelang.id },
+      data: { status: 'ACTIVE' },
+    });
+    await prisma.aset.update({
+      where: { id: lelang.asetId },
+      data: { statusLelang: 'ACTIVE' },
+    });
+    return prisma.lelang.findUnique({ where: { id: lelang.id }, include: lelangDetailInclude });
+  }
+
+  if ((lelang.status === 'ACTIVE' || lelang.status === 'PENDING') && waktuTutup && now > waktuTutup) {
+    const topBid = lelang.penawaran?.[0] || null;
+
+    const updated = await prisma.lelang.update({
+      where: { id: lelang.id },
+      data: {
+        status: 'FINISHED',
+        pemenangId: topBid ? topBid.userId : null,
+      },
+      include: lelangDetailInclude,
+    });
+
+    await prisma.aset.update({
+      where: { id: lelang.asetId },
+      data: { statusLelang: 'FINISHED' },
+    });
+
+    if (topBid?.userId) {
+      await createNotifications([
+        {
+          userId: topBid.userId,
+          judul: 'Anda Menang Lelang',
+          pesan: `Selamat, Anda memenangkan lelang untuk aset "${lelang.aset?.nama}".`,
+          tipe: 'AUCTION_WON',
+          referenceType: 'LELANG',
+          referenceId: lelang.id,
+        },
+        {
+          userId: lelang.aset?.penjual?.user?.id,
+          judul: 'Aset Anda Memiliki Pemenang',
+          pesan: `Lelang untuk aset "${lelang.aset?.nama}" telah selesai dan memiliki pemenang.`,
+          tipe: 'AUCTION_SOLD',
+          referenceType: 'LELANG',
+          referenceId: lelang.id,
+        },
+      ]);
+    }
+
+    return updated;
+  }
+
+  return lelang;
+};
+
 const buildInvoiceResponse = (lelang) => {
   const topBid = lelang.penawaran?.[0];
   const nilaiLimit = Number(lelang.aset?.hasil?.[0]?.nilaiLimit || 0);
@@ -231,37 +321,10 @@ const ensureInvoiceMetadata = async (lelangId) => {
   });
 };
 
-// Helper: tutup lelang dan set pemenang
-const tutupLelangJikaSudahHabis = async (lelang) => {
-  if (lelang.status === 'ACTIVE' && new Date() > new Date(lelang.waktuTutup)) {
-    const topBid = await prisma.penawaran.findFirst({
-      where: { lelangId: lelang.id },
-      orderBy: { nominal: 'desc' },
-    });
-
-    await prisma.lelang.update({
-      where: { id: lelang.id },
-      data: {
-        status: 'FINISHED',
-        pemenangId: topBid ? topBid.userId : null,
-      },
-    });
-
-    await prisma.aset.update({
-      where: { id: lelang.asetId },
-      data: { statusLelang: 'FINISHED' },
-    });
-
-    return true;
-  }
-
-  return false;
-};
-
 export const getSemuaLelangAktif = async (req, res) => {
   try {
     const lelangList = await prisma.lelang.findMany({
-      where: { status: { in: ['ACTIVE', 'FINISHED'] } },
+      where: { status: { in: ['PENDING', 'ACTIVE', 'FINISHED'] } },
       include: {
         aset: { include: { kategori: true, hasil: true } },
         pemenang: { select: { id: true, nama: true, email: true } },
@@ -270,13 +333,19 @@ export const getSemuaLelangAktif = async (req, res) => {
     });
 
     for (const lelang of lelangList) {
-      if (lelang.status === 'ACTIVE' && new Date() > new Date(lelang.waktuTutup)) {
-        await tutupLelangJikaSudahHabis(lelang);
-        lelang.status = 'FINISHED';
-      }
+      await syncLelangLifecycle(lelang.id);
     }
 
-    res.json({ success: true, data: lelangList });
+    const refreshed = await prisma.lelang.findMany({
+      where: { status: { in: ['PENDING', 'ACTIVE', 'FINISHED'] } },
+      include: {
+        aset: { include: { kategori: true, hasil: true } },
+        pemenang: { select: { id: true, nama: true, email: true } },
+      },
+      orderBy: { waktuBuka: 'desc' },
+    });
+
+    res.json({ success: true, data: refreshed });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -284,6 +353,8 @@ export const getSemuaLelangAktif = async (req, res) => {
 
 export const getLelangById = async (req, res) => {
   try {
+    await syncLelangLifecycle(req.params.id);
+
     let lelang = await prisma.lelang.findUnique({
       where: { id: Number(req.params.id) },
       include: lelangDetailInclude,
@@ -291,14 +362,6 @@ export const getLelangById = async (req, res) => {
 
     if (!lelang) {
       return res.status(404).json({ success: false, message: 'Lelang tidak ditemukan' });
-    }
-
-    if (lelang.status === 'ACTIVE' && new Date() > new Date(lelang.waktuTutup)) {
-      await tutupLelangJikaSudahHabis(lelang);
-      lelang = await prisma.lelang.findUnique({
-        where: { id: Number(req.params.id) },
-        include: lelangDetailInclude,
-      });
     }
 
     if (lelang.status === 'FINISHED' && lelang.pemenangId) {
@@ -319,6 +382,8 @@ export const getLelangById = async (req, res) => {
 export const getInvoiceLelang = async (req, res) => {
   try {
     const lelangId = Number(req.params.id);
+
+    await syncLelangLifecycle(lelangId);
 
     let lelang = await prisma.lelang.findUnique({
       where: { id: lelangId },
@@ -358,6 +423,8 @@ export const getInvoiceLelang = async (req, res) => {
 export const uploadBuktiPembayaran = async (req, res) => {
   try {
     const lelangId = Number(req.params.id);
+
+    await syncLelangLifecycle(lelangId);
 
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'File bukti pembayaran wajib diunggah' });
@@ -445,6 +512,17 @@ export const verifikasiPembayaran = async (req, res) => {
       },
     });
 
+    if (lelang.pemenangId) {
+      await createNotification({
+        userId: lelang.pemenangId,
+        judul: 'Pembayaran Anda Diverifikasi',
+        pesan: `Pembayaran untuk lelang #${id} telah diverifikasi admin sebagai LUNAS.`,
+        tipe: 'PAYMENT_APPROVED',
+        referenceType: 'LELANG',
+        referenceId: Number(id),
+      });
+    }
+
     res.json({
       success: true,
       message: `Pembayaran untuk lelang #${id} telah diverifikasi sebagai LUNAS`,
@@ -488,6 +566,17 @@ export const tolakPembayaran = async (req, res) => {
         verifikatorPembayaran: { select: { nama: true } },
       },
     });
+
+    if (lelang.pemenangId) {
+      await createNotification({
+        userId: lelang.pemenangId,
+        judul: 'Bukti Pembayaran Ditolak',
+        pesan: `Bukti pembayaran untuk lelang #${id} ditolak admin. Catatan: ${catatan}`,
+        tipe: 'PAYMENT_REJECTED',
+        referenceType: 'LELANG',
+        referenceId: Number(id),
+      });
+    }
 
     res.json({
       success: true,
@@ -547,6 +636,11 @@ export const getLelangSelesai = async (req, res) => {
 export const getLelangSayaMenang = async (req, res) => {
   try {
     const userId = req.userId;
+
+    const buyer = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { buyerVerificationStatus: true },
+    });
 
     const list = await prisma.lelang.findMany({
       where: {

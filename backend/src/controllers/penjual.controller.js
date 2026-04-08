@@ -1,4 +1,5 @@
 import prisma from '../models/prisma.client.js';
+import { createNotification } from '../utils/notification.util.js';
 
 export const getSemuaPenjual = async (req, res) => {
   try {
@@ -42,6 +43,17 @@ export const verifikasiPenjual = async (req, res) => {
       where: { id: Number(id) },
       data: { isVerified: Boolean(isVerified) },
       include: { user: { select: { nama: true, email: true } } }
+    });
+
+    await createNotification({
+      userId: data.userId,
+      judul: Boolean(isVerified) ? 'Verifikasi Penjual Disetujui' : 'Verifikasi Penjual Ditolak',
+      pesan: Boolean(isVerified)
+        ? 'Akun penjual Anda telah diverifikasi. Anda sekarang dapat mengajukan aset ke lelang.'
+        : 'Dokumen penjual Anda belum disetujui admin. Silakan hubungi admin untuk detail revisi.',
+      tipe: Boolean(isVerified) ? 'SELLER_APPROVED' : 'SELLER_REJECTED',
+      referenceType: 'PENJUAL',
+      referenceId: data.id,
     });
 
     res.json({ success: true, message: `Status penjual ${data.user.nama} berhasil diperbarui`, data });

@@ -1,4 +1,36 @@
 import prisma from '../models/prisma.client.js';
+import { createNotification } from '../utils/notification.util.js';
+
+const calculateQueueSchedule = async (requestedStart, durasiMenit) => {
+  const scheduled = await prisma.lelang.findMany({
+    where: {
+      status: { in: ['PENDING', 'ACTIVE'] },
+      waktuTutup: { not: null },
+    },
+    orderBy: { waktuBuka: 'asc' },
+    select: {
+      id: true,
+      waktuBuka: true,
+      waktuTutup: true,
+    },
+  });
+
+  let actualWaktuBuka = new Date(requestedStart);
+  let queuePosition = 1;
+
+  for (const item of scheduled) {
+    const existingStart = new Date(item.waktuBuka);
+    const existingEnd = new Date(item.waktuTutup);
+
+    if (actualWaktuBuka >= existingStart && actualWaktuBuka < existingEnd) {
+      actualWaktuBuka = new Date(existingEnd);
+      queuePosition += 1;
+    }
+  }
+
+  const actualWaktuTutup = new Date(actualWaktuBuka.getTime() + durasiMenit * 60 * 1000);
+  return { actualWaktuBuka, actualWaktuTutup, queuePosition };
+};
 
 // GET semua aset (bisa filter by kategori_id. Jika role PENJUAL, otomatis filter by penjualId)
 export const getAllAset = async (req, res) => {
@@ -180,41 +212,62 @@ export const createLelangOlehAdmin = async (req, res) => {
     }
 
     const tBuka = new Date(waktuBuka);
+    if (isNaN(tBuka.getTime())) {
+      return res.status(400).json({ success: false, message: "Format waktuBuka tidak valid" });
+    }
+    if (tBuka.getTime() < Date.now()) {
+      return res.status(400).json({ success: false, message: "Waktu buka tidak boleh di masa lalu" });
+    }
 
-    // Hitung posisi antrian: berapa banyak lelang yang sudah dijadwalkan dengan waktuBuka sama
-    const existingAtSameTime = await prisma.lelang.count({
-      where: {
-        waktuBuka: tBuka,
-        status: { in: ['PENDING', 'ACTIVE'] }
-      }
-    });
-
-    // waktuBuka lelang ini = tBuka + (posisi * durasiMenit)
-    const offset = existingAtSameTime * durasi;
-    const actualWaktuBuka = new Date(tBuka.getTime() + offset * 60 * 1000);
-    const actualWaktuTutup = new Date(actualWaktuBuka.getTime() + durasi * 60 * 1000);
+    const { actualWaktuBuka, actualWaktuTutup, queuePosition } = await calculateQueueSchedule(tBuka, durasi);
 
     const result = await prisma.$transaction(async (tx) => {
-      await tx.aset.update({ where: { id: asetId }, data: { statusLelang: 'ACTIVE' } });
+      const updatedAset = await tx.aset.update({
+        where: { id: asetId },
+        data: { statusLelang: 'ACTIVE' },
+        include: {
+          penjual: {
+            include: {
+              user: { select: { id: true, nama: true } },
+            },
+          },
+        },
+      });
+
       const lelang = await tx.lelang.create({
         data: {
           asetId,
           waktuBuka: actualWaktuBuka,
           waktuTutup: actualWaktuTutup,
           durasiMenit: durasi,
-          status: 'ACTIVE'
-        }
+          status: actualWaktuBuka.getTime() > Date.now() ? 'PENDING' : 'ACTIVE'
+        },
       });
-      return lelang;
+
+      return { lelang, updatedAset };
     });
 
     const io = req.app.get('io');
-    if (io) io.emit('lelang_baru', result);
+    if (io) io.emit('lelang_baru', result.lelang);
+
+    if (result.updatedAset.penjual?.user?.id) {
+      await createNotification({
+        userId: result.updatedAset.penjual.user.id,
+        judul: 'Aset Dijadwalkan ke Lelang',
+        pesan: `Aset "${aset.nama}" telah dijadwalkan lelang pada ${actualWaktuBuka.toLocaleString('id-ID')}.`,
+        tipe: 'ASET_SCHEDULED',
+        referenceType: 'LELANG',
+        referenceId: result.lelang.id,
+      });
+    }
 
     res.json({ 
       success: true, 
-      message: `Lelang berhasil diterbitkan. Antrian ke-${existingAtSameTime + 1}. Buka: ${actualWaktuBuka.toLocaleString('id-ID')}, Tutup: ${actualWaktuTutup.toLocaleString('id-ID')}`, 
-      data: result 
+      message: `Lelang berhasil diterbitkan. Slot antrean ke-${queuePosition}. Buka: ${actualWaktuBuka.toLocaleString('id-ID')}, Tutup: ${actualWaktuTutup.toLocaleString('id-ID')}`, 
+      data: {
+        ...result.lelang,
+        queuePosition,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

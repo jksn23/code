@@ -104,7 +104,7 @@ export default function KriteriaPage() {
         {loading ? <div className="empty-state"><span className="spinner" /></div> :
           data.length === 0 ? <div className="empty-state"><div className="icon">📋</div><p>Belum ada kriteria.</p></div> :
           <div className="table-wrapper">
-            <table>
+            <table className="table">
               <thead><tr><th>No</th><th>Nama Kriteria</th><th>Kategori</th><th>Tipe</th><th>Aksi</th></tr></thead>
               <tbody>
                 {data.map((item, i) => (

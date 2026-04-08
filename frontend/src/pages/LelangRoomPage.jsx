@@ -1,13 +1,16 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import api, { konfirmasiTerimaBarang, getNextLelang } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import CurrencyInput from '../components/CurrencyInput';
 
-const formatRp = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+const formatRp = (value) => new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  maximumFractionDigits: 0,
+}).format(value || 0);
 
-// Quick increment options for bidding
 const QUICK_BIDS = [
   { label: '+500 Rb', value: 500000 },
   { label: '+1 Jt', value: 1000000 },
@@ -19,11 +22,10 @@ export default function LelangRoomPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [lelang, setLelang] = useState(null);
   const [bids, setBids] = useState([]);
   const [nominal, setNominal] = useState(0);
-  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState('');
@@ -32,16 +34,18 @@ export default function LelangRoomPage() {
   const [transitioning, setTransitioning] = useState(false);
   const [nextLelang, setNextLelang] = useState(null);
   const [nextCountdown, setNextCountdown] = useState('');
+  const [socketStatus, setSocketStatus] = useState('connecting');
+  const [syncMessage, setSyncMessage] = useState('');
 
   const socketRef = useRef(null);
-  // Gunakan ref untuk melacak sudah trigger atau belum (aman dari closure)
   const hasTriggeredEnd = useRef(false);
   const currentIdRef = useRef(id);
 
-  // Update ref setiap kali id berubah
   useEffect(() => {
     currentIdRef.current = id;
     hasTriggeredEnd.current = false;
+    setSocketStatus('connecting');
+    setSyncMessage('');
   }, [id]);
 
   const loadLelang = useCallback(async () => {
@@ -50,13 +54,16 @@ export default function LelangRoomPage() {
       const data = res.data;
       setLelang(data);
       setBids(data.penawaran || []);
-      // Jika sudah FINISHED saat load pertama (misal user refresh halaman)
+      setError('');
+      setSyncMessage(`Data sinkron ${new Date().toLocaleTimeString('id-ID')}`);
       if (data.status === 'FINISHED') {
         setIsClosed(true);
+      } else {
+        setIsClosed(false);
       }
       return data;
-    } catch (e) {
-      setError(e.message);
+    } catch (err) {
+      setError(err.message);
       return null;
     } finally {
       setLoading(false);
@@ -74,52 +81,72 @@ export default function LelangRoomPage() {
     }
   }, []);
 
-  // Dipanggil saat timer current lelang habis
   const handleTimerEnd = useCallback(async () => {
     setIsClosed(true);
     setTransitioning(true);
-    
-    // Refresh data untuk dapatkan pemenang terbaru dari backend
     await loadLelang();
-    
-    const currentId = currentIdRef.current;
-    const next = await fetchNextLelang(currentId);
-    
+
+    const next = await fetchNextLelang(currentIdRef.current);
     if (next) {
-      // Ada lelang berikutnya — tampilkan countdown 3 detik lalu navigate
-      setTimeout(() => {
-        navigate(`/lelang/${next.id}`);
-      }, 3500);
+      setTimeout(() => navigate(`/lelang/${next.id}`), 3500);
     } else {
-      // Tidak ada lelang berikutnya — navigate ke halaman ringkasan
       const today = new Date().toISOString().split('T')[0];
-      setTimeout(() => {
-        navigate(`/lelang/summary?date=${today}`);
-      }, 4000);
+      setTimeout(() => navigate(`/lelang/summary?date=${today}`), 4000);
     }
-  }, [loadLelang, fetchNextLelang, navigate]);
+  }, [fetchNextLelang, loadLelang, navigate]);
 
   useEffect(() => {
     loadLelang();
-    socketRef.current = io('http://localhost:5000');
-    socketRef.current.on('connect', () => {
-      socketRef.current.emit('join_lelang', id);
-    });
-    socketRef.current.on('new_bid', (newBid) => {
-      setBids((prev) => [newBid, ...prev].sort((a, b) => b.nominal - a.nominal));
-    });
-    return () => { if (socketRef.current) socketRef.current.disconnect(); };
-  }, [id]);
 
-  // Countdown timer utama
+    const socket = io('http://localhost:5000', {
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+    });
+
+    socketRef.current = socket;
+
+    socket.on('connect', async () => {
+      setSocketStatus('connected');
+      socket.emit('join_lelang', currentIdRef.current);
+      await loadLelang();
+    });
+
+    socket.on('disconnect', () => {
+      setSocketStatus('disconnected');
+    });
+
+    socket.on('connect_error', () => {
+      setSocketStatus('error');
+    });
+
+    socket.io.on('reconnect_attempt', () => {
+      setSocketStatus('reconnecting');
+    });
+
+    socket.io.on('reconnect', async () => {
+      setSocketStatus('connected');
+      socket.emit('join_lelang', currentIdRef.current);
+      await loadLelang();
+    });
+
+    socket.on('new_bid', (newBid) => {
+      setBids((prev) => [newBid, ...prev].sort((a, b) => Number(b.nominal) - Number(a.nominal)));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [id, loadLelang]);
+
   useEffect(() => {
     if (!lelang || isClosed) return;
-    
+
     const interval = setInterval(() => {
       const now = new Date().getTime();
       const end = new Date(lelang.waktuTutup).getTime();
       const distance = end - now;
-      
+
       if (distance < 0) {
         clearInterval(interval);
         setTimeLeft('WAKTU HABIS');
@@ -131,42 +158,52 @@ export default function LelangRoomPage() {
         const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const s = Math.floor((distance % (1000 * 60)) / 1000);
-        setTimeLeft(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
+        setTimeLeft(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`);
       }
     }, 1000);
+
     return () => clearInterval(interval);
   }, [lelang, isClosed, handleTimerEnd]);
 
-  // Countdown untuk transisi ke lelang berikutnya
   useEffect(() => {
     if (!nextLelang || !transitioning) return;
     let count = 3;
     setNextCountdown('3');
-    const tick = setInterval(() => {
+    const interval = setInterval(() => {
       count -= 1;
       setNextCountdown(String(count));
-      if (count <= 0) clearInterval(tick);
+      if (count <= 0) clearInterval(interval);
     }, 1000);
-    return () => clearInterval(tick);
+    return () => clearInterval(interval);
   }, [nextLelang, transitioning]);
 
-  const handleBid = (e) => {
-    e.preventDefault();
+  const handleBid = (event) => {
+    event.preventDefault();
     if (!user) return alert('Anda harus login untuk bidding');
     if (user.role === 'ADMIN') return alert('Admin tidak bisa bidding');
+    if (user.role === 'PENJUAL') return alert('Penjual tidak bisa bidding');
+    if (user.buyerVerificationStatus !== 'APPROVED') {
+      return alert('Akun pembeli Anda belum lolos verifikasi KYC. Bidding dikunci sampai admin menyetujui identitas Anda.');
+    }
+    if (socketStatus !== 'connected') {
+      return alert('Koneksi realtime belum stabil. Tunggu sampai room kembali terhubung.');
+    }
     if (isClosed) return alert('Lelang sudah ditutup');
     if (!nominal || nominal <= 0) return alert('Masukkan nominal yang valid');
+
     socketRef.current.emit('submit_bid', { lelangId: id, userId: user.id, nominal }, (response) => {
-      if (!response.success) { alert(response.message); }
-      else { setNominal(0); }
+      if (!response.success) {
+        alert(response.message);
+      } else {
+        setNominal(0);
+      }
     });
   };
 
   const handleQuickBid = (increment) => {
     const highest = bids.length > 0 ? Number(bids[0].nominal) : 0;
     const limit = Number(lelang?.aset?.hasil?.[0]?.nilaiLimit || 0);
-    const base = Math.max(highest, limit);
-    setNominal(base + increment);
+    setNominal(Math.max(highest, limit) + increment);
   };
 
   const handleKonfirmasiBarang = async () => {
@@ -174,7 +211,7 @@ export default function LelangRoomPage() {
     setKonfirmLoading(true);
     try {
       await konfirmasiTerimaBarang(id);
-      alert('Konfirmasi penerimaan barang berhasil!');
+      alert('Konfirmasi penerimaan barang berhasil.');
       loadLelang();
     } catch (err) {
       alert(err.message);
@@ -191,246 +228,213 @@ export default function LelangRoomPage() {
   const isWinner = isClosed && (lelang.pemenangId === user?.id || highestBid?.userId === user?.id);
   const isPaid = lelang.statusPembayaran === 'LUNAS';
   const isReceived = lelang.statusBarang === 'DITERIMA';
+  const buyerBlocked = user?.role === 'PEMBELI' && user?.buyerVerificationStatus !== 'APPROVED';
 
   return (
-    <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+    <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <div style={{ flex: '1 1 600px' }}>
+        <div className="card" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Status koneksi room</div>
+            <div style={{ fontWeight: 700 }}>
+              {socketStatus === 'connected' && '🟢 Connected'}
+              {socketStatus === 'connecting' && '🟡 Connecting'}
+              {socketStatus === 'reconnecting' && '🟠 Reconnecting'}
+              {socketStatus === 'disconnected' && '🔴 Disconnected'}
+              {socketStatus === 'error' && '🔴 Error'}
+            </div>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{syncMessage || 'Menunggu sinkronisasi data'}</div>
+        </div>
 
-      {/* ===== Kolom Detail ===== */}
-      <div style={{ flex: 2 }}>
+        {buyerBlocked && (
+          <div className="alert alert-danger">
+            Bidding dikunci karena status KYC pembeli Anda masih <strong>{user?.buyerVerificationStatus}</strong>. Tunggu verifikasi admin sebelum ikut menawar.
+          </div>
+        )}
 
-        {/* ===== WINNER CARD (big) ===== */}
         {isClosed && (
-          <div style={{
-            marginBottom: 24,
-            borderRadius: 16,
-            overflow: 'hidden',
-            background: isWinner
-              ? 'linear-gradient(135deg, #065f46 0%, #047857 50%, #10b981 100%)'
-              : 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-            padding: 0,
-          }}>
-            {/* Header banner */}
-            <div style={{ padding: '28px 32px', textAlign: 'center' }}>
-              <div style={{ fontSize: 48, marginBottom: 8 }}>🏁</div>
-              <h2 style={{ color: '#fff', fontSize: 28, margin: 0, fontWeight: 800 }}>LELANG DITUTUP</h2>
+          <div
+            className="card"
+            style={{
+              marginBottom: 32,
+              padding: 0,
+              overflow: 'hidden',
+              border: isWinner ? '1px solid var(--success)' : '1px solid var(--border)',
+              background: isWinner ? 'var(--success-bg)' : 'var(--surface-light)',
+            }}
+          >
+            <div style={{ padding: '32px', textAlign: 'center' }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>{isWinner ? '🎉' : '🏁'}</div>
+              <h2 style={{ color: 'var(--text)', fontSize: 24, margin: 0, fontWeight: 700, letterSpacing: '1px' }}>LELANG DITUTUP</h2>
               {highestBid ? (
                 <>
-                  <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 16, marginTop: 8, marginBottom: 16 }}>
-                    Pemenang:
+                  <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 12, marginBottom: 4, fontWeight: 600 }}>Dimenangkan Oleh:</div>
+                  <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)' }}>
+                    {lelang.pemenang?.nama || highestBid.user?.nama || '—'}
                   </div>
-                  <div style={{ fontSize: 32, fontWeight: 800, color: '#fef3c7' }}>
-                    🏆 {lelang.pemenang?.nama || highestBid.user?.nama || '—'}
-                  </div>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: '#fff', marginTop: 8, letterSpacing: 1 }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', marginTop: 8, display: 'inline-block', borderBottom: '2px solid var(--border)' }}>
                     {formatRp(highestBid.nominal)}
                   </div>
 
-                  {/* Status pills */}
-                  <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 20, flexWrap: 'wrap' }}>
-                    <div style={{ background: isPaid ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)', border: `1px solid ${isPaid ? '#10b981' : '#f59e0b'}`, borderRadius: 99, padding: '8px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 20 }}>{isPaid ? '✅' : '⏳'}</span>
-                      <div style={{ textAlign: 'left' }}>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>PEMBAYARAN</div>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{isPaid ? 'LUNAS' : 'BELUM LUNAS'}</div>
-                      </div>
+                  <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24, flexWrap: 'wrap' }}>
+                    <div className={`badge ${isPaid ? 'badge-success' : 'badge-warning'}`} style={{ padding: '8px 16px', fontSize: 12 }}>
+                      STATUS PEMBAYARAN: {isPaid ? 'LUNAS' : lelang.statusPembayaran}
                     </div>
                     {isPaid && (
-                      <div style={{ background: isReceived ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)', border: `1px solid ${isReceived ? '#10b981' : '#6366f1'}`, borderRadius: 99, padding: '8px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 20 }}>{isReceived ? '📦' : '🚚'}</span>
-                        <div style={{ textAlign: 'left' }}>
-                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>STATUS BARANG</div>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{isReceived ? 'DITERIMA' : 'DALAM PROSES'}</div>
-                        </div>
+                      <div className={`badge ${isReceived ? 'badge-success' : 'badge-primary'}`} style={{ padding: '8px 16px', fontSize: 12 }}>
+                        STATUS BARANG: {isReceived ? 'DITERIMA' : 'DALAM PROSES'}
                       </div>
                     )}
                   </div>
                 </>
               ) : (
-                <p style={{ color: 'rgba(255,255,255,0.7)', marginTop: 12 }}>Tidak ada penawaran masuk.</p>
+                <p style={{ color: 'var(--text-muted)', marginTop: 24 }}>Tidak ada partisipan penawar.</p>
               )}
             </div>
 
-            {/* Winner action area */}
             {isWinner && highestBid && (
-              <div style={{ background: 'rgba(0,0,0,0.35)', padding: '24px 32px', borderTop: '1px solid rgba(255,255,255,0.15)' }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: '#fef08a', marginBottom: 12, textAlign: 'center' }}>
-                  🎉 SELAMAT! ANDA PEMENANG LELANG INI
-                </div>
-
+              <div style={{ background: 'var(--surface)', padding: '24px', borderTop: '1px solid var(--border)' }}>
                 {!isPaid && (
-                  <div style={{ textAlign: 'center' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: 16, fontSize: 15 }}>
-                      Silakan selesaikan pembayaran melalui Pejabat Lelang (Admin) via WhatsApp.
-                    </p>
-                    <a
-                      href={`https://wa.me/6281234567890?text=Halo%20Admin%20Lelang,%20saya%20pemenang%20untuk%20Aset%20${encodeURIComponent(lelang.aset.nama)}%20dengan%20nominal%20${highestBid.nominal}`}
-                      target="_blank" rel="noreferrer"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: '#25D366', color: '#fff', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 16 }}>
-                      📱 Konfirmasi Pembayaran via WhatsApp
-                    </a>
+                  <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
+                    Menunggu verifikasi pembayaran oleh admin.
                   </div>
                 )}
-
                 {isPaid && !isReceived && (
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ color: '#86efac', fontWeight: 700, fontSize: 18, marginBottom: 10 }}>✅ Pembayaran sudah diverifikasi!</div>
-                    <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: 16, fontSize: 14 }}>
-                      Setelah barang tiba, tekan tombol di bawah untuk konfirmasi penerimaan.
+                    <p style={{ color: 'var(--text-muted)', marginBottom: 16, fontSize: 14 }}>
+                      Barang sedang dikirim. Konfirmasi jika telah Anda terima dengan aman.
                     </p>
-                    <button
-                      onClick={handleKonfirmasiBarang} disabled={konfirmLoading}
-                      style={{ padding: '12px 28px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 16, cursor: 'pointer' }}>
-                      {konfirmLoading ? 'Memproses...' : '📦 Konfirmasi Barang Diterima'}
+                    <button onClick={handleKonfirmasiBarang} disabled={konfirmLoading} className="btn btn-primary" style={{ padding: '12px 24px', width: 'auto' }}>
+                      {konfirmLoading ? 'Memproses...' : '📦 Ya, Barang Diterima'}
                     </button>
                   </div>
                 )}
-
                 {isPaid && isReceived && (
-                  <div style={{ textAlign: 'center', color: '#86efac', fontWeight: 700, fontSize: 18 }}>
-                    ✅ Transaksi selesai. Terima kasih telah berpartisipasi!
+                  <div style={{ textAlign: 'center', color: 'var(--success)', fontWeight: 600, fontSize: 14 }}>
+                    ✅ Transaksi selesai sepenuhnya.
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* Transition Banner: Next Auction atau Summary */}
-            {transitioning && (
-              <div style={{ background: 'rgba(0,0,0,0.45)', padding: '20px 32px', borderTop: '1px solid rgba(255,255,255,0.15)', textAlign: 'center' }}>
-                {nextLelang ? (
-                  <>
-                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginBottom: 4 }}>BERPINDAH KE LELANG BERIKUTNYA DALAM</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: 52, fontWeight: 800, color: '#fef08a', lineHeight: 1 }}>
-                      {nextCountdown}
-                    </div>
-                    <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginTop: 8 }}>
-                      ➡️ {nextLelang.aset?.nama}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div style={{ fontSize: 28, marginBottom: 8 }}>📋</div>
-                    <div style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>Semua lelang dalam sesi ini telah selesai!</div>
-                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 4 }}>Mengarahkan ke halaman ringkasan sesi...</div>
-                    <div style={{
-                      width: 36, height: 36, borderRadius: '50%',
-                      border: '3px solid rgba(255,255,255,0.25)',
-                      borderTopColor: '#fff',
-                      animation: 'spin 0.8s linear infinite',
-                      margin: '14px auto 0'
-                    }} />
-                  </>
                 )}
               </div>
             )}
           </div>
         )}
 
-        {/* Aset detail */}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           {lelang.aset.dokumenUrl && (
-            <img src={`http://localhost:5000/${lelang.aset.dokumenUrl}`} alt="Aset" style={{ width: '100%', height: 300, objectFit: 'cover' }} />
+            <div style={{ borderBottom: '1px solid var(--border)' }}>
+              <img src={`http://localhost:5000/${lelang.aset.dokumenUrl}`} alt="Aset" style={{ width: '100%', height: 320, objectFit: 'cover' }} />
+            </div>
           )}
-          <div style={{ padding: 24 }}>
+          <div style={{ padding: 32 }}>
             <span className="badge badge-primary">{lelang.aset.kategori?.nama}</span>
-            <h2 style={{ fontSize: 26, marginTop: 10, marginBottom: 6 }}>{lelang.aset.nama}</h2>
-            <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 16 }}>Oleh: {lelang.aset.penjual?.user?.nama}</div>
-            <div style={{ padding: 16, background: 'var(--bg)', borderRadius: 8 }}>
-              <h4 style={{ margin: 0, marginBottom: 6 }}>Deskripsi Aset:</h4>
-              <p style={{ margin: 0, lineHeight: 1.6 }}>{lelang.aset.deskripsi || 'Tidak ada deskripsi'}</p>
+            <h2 style={{ fontSize: 28, marginTop: 16, marginBottom: 8, fontWeight: 700 }}>{lelang.aset.nama}</h2>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20, fontWeight: 500 }}>
+              Dirilis Oleh: <span style={{ color: 'var(--text)' }}>{lelang.aset.penjual?.user?.nama}</span>
+            </div>
+            <div style={{ padding: 16, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+              <h4 style={{ margin: 0, marginBottom: 8, fontSize: 12, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>Detail & Deskripsi</h4>
+              <p style={{ margin: 0, lineHeight: 1.6, fontSize: 14, color: 'var(--text)' }}>{lelang.aset.deskripsi || 'Tidak ada spesifikasi yang disertakan pada aset ini.'}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ===== Kolom Bidding ===== */}
-      <div style={{ flex: 1, position: 'sticky', top: 20 }}>
-        <div className="card" style={{ borderTop: `4px solid ${isClosed ? 'var(--text-muted)' : 'var(--primary)'}` }}>
-
-          {/* Timer */}
-          <div style={{ textAlign: 'center', marginBottom: 20 }}>
-            <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Sisa Waktu Lelang</div>
-            <div style={{ fontSize: 36, fontWeight: 800, color: isClosed ? 'var(--text-muted)' : '#ef4444', fontFamily: 'monospace' }}>
+      <div style={{ flex: '1 1 340px', position: 'sticky', top: 32 }}>
+        <div className="card" style={{ border: isClosed ? '1px solid var(--border)' : '1px solid var(--primary-light)' }}>
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Sisa Waktu Bidding</div>
+            <div style={{ fontSize: 36, fontWeight: 700, color: isClosed ? 'var(--text-muted)' : 'var(--danger)', fontFamily: 'monospace', marginTop: 4 }}>
               {timeLeft || '-- : -- : --'}
             </div>
+            {transitioning && nextLelang && (
+              <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-muted)' }}>
+                Beralih ke lelang berikutnya dalam {nextCountdown} detik.
+              </div>
+            )}
           </div>
 
-          {/* Nilai Limit */}
-          <div style={{ padding: 12, background: 'var(--bg)', borderRadius: 8, marginBottom: 12 }}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2 }}>Nilai Limit (Dasar)</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#10b981' }}>
+          <div style={{ padding: 16, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', marginBottom: 16, border: '1px solid var(--border)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Nilai Dasar Evaluasi SPK</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-muted)' }}>
               {formatRp(lelang.aset.hasil?.[0]?.nilaiLimit || 0)}
             </div>
           </div>
 
-          {/* Highest Bid */}
-          <div style={{ padding: 14, background: '#dcfce3', borderRadius: 8, marginBottom: 20, border: '1px solid #bbf7d0' }}>
-            <div style={{ fontSize: 11, color: '#166534', marginBottom: 2 }}>Penawaran Tertinggi Saat Ini</div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#16a34a' }}>
-              {highestBid ? formatRp(highestBid.nominal) : 'Belum Ada'}
+          <div style={{ padding: 16, background: 'var(--success-bg)', borderRadius: 'var(--radius-md)', marginBottom: 24, border: '1px solid rgba(52,211,153,0.3)' }}>
+            <div style={{ fontSize: 12, color: 'var(--success)', marginBottom: 4, fontWeight: 600, textTransform: 'uppercase' }}>Tertinggi Saat Ini</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--text)' }}>
+              {highestBid ? formatRp(highestBid.nominal) : 'Belum Ada Penawaran'}
             </div>
-            {highestBid && <div style={{ fontSize: 12, color: '#166534', marginTop: 2 }}>Oleh: {highestBid.user?.nama}</div>}
+            {highestBid && <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Pemegang: <strong>{highestBid.user?.nama}</strong></div>}
           </div>
 
-          {/* Bidding Form */}
           {!isClosed && user?.role === 'PEMBELI' && (
             <form onSubmit={handleBid}>
-              {/* Quick Bid Buttons */}
-              <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>Shortcut Penawaran Cepat:</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Tawaran Cepat (+):</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   {QUICK_BIDS.map(({ label, value }) => (
-                    <button
-                      key={value}
-                      type="button"
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => handleQuickBid(value)}
-                      style={{ fontSize: 13, fontWeight: 600, padding: '8px 4px' }}>
+                    <button key={value} type="button" className="btn btn-secondary btn-sm" onClick={() => handleQuickBid(value)} disabled={buyerBlocked || socketStatus !== 'connected'}>
                       {label}
                     </button>
                   ))}
                 </div>
               </div>
-
-              {/* Manual Input */}
-              <div className="form-group" style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Atau masukkan manual:</div>
+              <div className="form-group" style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Nilai Penawaran Anda:</div>
                 <CurrencyInput
                   value={nominal}
-                  onChange={(v) => setNominal(v)}
-                  style={{ fontSize: 18, fontWeight: 'bold', textAlign: 'right' }}
+                  onChange={(value) => setNominal(value)}
+                  style={{ fontSize: 18, fontWeight: '600', textAlign: 'center', height: 48, background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
                 />
               </div>
-
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: 14, fontSize: 16, fontWeight: 700 }}>
-                Kirim Penawaran 🔨
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 600 }}
+                disabled={buyerBlocked || socketStatus !== 'connected'}
+              >
+                {buyerBlocked ? 'KYC Belum Disetujui' : socketStatus !== 'connected' ? 'Menunggu Koneksi' : 'AJUKAN PENAWARAN'}
               </button>
             </form>
           )}
 
           {!user && (
-            <div style={{ textAlign: 'center', padding: 16, background: 'var(--bg)', borderRadius: 8 }}>
-              <p style={{ fontSize: 14, margin: 0, marginBottom: 8 }}>Login untuk mengikuti bidding</p>
-              <Link to="/login" className="btn btn-primary btn-sm">Login Pembeli</Link>
+            <div style={{ textAlign: 'center', padding: 20, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)' }}>
+              <p style={{ fontSize: 13, margin: 0, marginBottom: 12, color: 'var(--text-muted)' }}>Anda membutuhkan akun untuk mengikuti lelang ini.</p>
+              <Link to="/login" className="btn btn-secondary">Sign In Disini</Link>
             </div>
           )}
+
           {user?.role === 'PENJUAL' && (
-            <div className="alert alert-secondary" style={{ textAlign: 'center' }}>Mode Penjual: Hanya View</div>
+            <div className="alert alert-secondary" style={{ textAlign: 'center', margin: 0, padding: 12 }}>
+              Pemantauan aset publik
+            </div>
           )}
         </div>
 
-        {/* Live Bids History */}
-        <div className="card" style={{ marginTop: 20 }}>
-          <h4 style={{ margin: 0, marginBottom: 14 }}>Riwayat Penawaran ({bids.length})</h4>
-          <div style={{ maxHeight: 280, overflowY: 'auto' }}>
-            {bids.length === 0 ? <p style={{ color: 'var(--text-muted)' }}>Belum ada histori.</p> : (
-              bids.map((b, i) => (
-                <div key={b.id || i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 13 }}>{b.user?.nama || b.userId}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{new Date(b.createdAt).toLocaleTimeString('id-ID')}</div>
+        <div className="card" style={{ marginTop: 24, padding: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Log Aktivitas ({bids.length})</h4>
+          </div>
+
+          <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+            {bids.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>Belum ada riwayat tawaran...</p>
+            ) : (
+              bids.map((bid, index) => (
+                <div key={bid.id || index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 28, height: 28, background: index === 0 ? 'var(--success-bg)' : 'var(--surface-light)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: index === 0 ? 'var(--success)' : 'var(--text-muted)', fontSize: 12, fontWeight: 600 }}>
+                      {index + 1}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 13, color: index === 0 ? 'var(--text)' : 'var(--text-muted)' }}>{bid.user?.nama || bid.userId}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{new Date(bid.createdAt).toLocaleTimeString('id-ID')}</div>
+                    </div>
                   </div>
-                  <div style={{ fontWeight: 'bold', color: i === 0 ? '#10b981' : 'var(--text)' }}>{formatRp(b.nominal)}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: index === 0 ? 'var(--success)' : 'var(--text)' }}>{formatRp(bid.nominal)}</div>
                 </div>
               ))
             )}

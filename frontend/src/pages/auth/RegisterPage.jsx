@@ -95,6 +95,9 @@ export default function RegisterPage() {
                 <label className="form-label">Upload KTP (JPG/PNG/PDF)</label>
                 <input type="file" className="form-control" name="ktp_file" onChange={(e) => setFiles({ ...files, ktp_file: e.target.files[0] })} required accept=".jpg,.jpeg,.png,.pdf" />
               </div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                ℹ️ Akun pembeli tetap bisa login setelah daftar, tetapi fitur bidding baru aktif setelah KYC disetujui admin.
+              </div>
             </div>
           )}
 

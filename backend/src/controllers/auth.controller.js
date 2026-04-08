@@ -4,6 +4,22 @@ import prisma from '../models/prisma.client.js';
 
 const SECRET = process.env.JWT_SECRET || 'secret_key_lelang_spk_2026';
 
+const buildUserPayload = (user) => ({
+  id: user.id,
+  nama: user.nama,
+  email: user.email,
+  role: user.role,
+  isVerified: user.penjual ? user.penjual.isVerified : true,
+  rekeningBank: user.penjual?.rekeningBank || '',
+  nomorRekening: user.penjual?.nomorRekening || '',
+  buyerVerificationStatus: user.role === 'PEMBELI'
+    ? user.buyerVerificationStatus
+    : 'APPROVED',
+  buyerVerificationNote: user.role === 'PEMBELI' ? user.buyerVerificationNote : null,
+  buyerVerifiedAt: user.role === 'PEMBELI' ? user.buyerVerifiedAt : null,
+  ktpUrl: user.ktpUrl || null,
+});
+
 export const register = async (req, res) => {
   try {
     const { email, password, nama, role } = req.body;
@@ -23,10 +39,11 @@ export const register = async (req, res) => {
 
     const resultDb = await prisma.$transaction(async (tx) => {
       let ktpUrlUser = null;
+      let buyerVerificationStatus = 'UNVERIFIED';
       
-      // Jika mendaftar sebagai PEMBELI (via form multipart), simpan KTP ke user.ktpUrl
       if (assignedRole === 'PEMBELI') {
         ktpUrlUser = req.files?.ktp_file ? req.files.ktp_file[0].path : null;
+        buyerVerificationStatus = ktpUrlUser ? 'PENDING' : 'UNVERIFIED';
       }
 
       const user = await tx.user.create({
@@ -35,7 +52,8 @@ export const register = async (req, res) => {
           password: hashedPassword,
           nama,
           role: assignedRole,
-          ktpUrl: ktpUrlUser
+          ktpUrl: ktpUrlUser,
+          buyerVerificationStatus,
         }
       });
 
@@ -84,7 +102,6 @@ export const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Password salah' });
     }
 
-    // Cek jika penjual belum divefirikasi, apakah boleh login? Boleh, tapi batasi askes di FE.
     const token = jwt.sign(
       { id: user.id, role: user.role, email: user.email },
       SECRET,
@@ -95,13 +112,7 @@ export const login = async (req, res) => {
       success: true,
       message: 'Login berhasil',
       token,
-      user: {
-        id: user.id,
-        nama: user.nama,
-        email: user.email,
-        role: user.role,
-        isVerified: user.penjual ? user.penjual.isVerified : true
-      }
+      user: buildUserPayload(user),
     });
 
   } catch (error) {
@@ -113,12 +124,23 @@ export const getProfile = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
-      select: { id: true, email: true, nama: true, role: true, penjual: true }
+      include: {
+        penjual: true,
+        buyerVerifier: {
+          select: { id: true, nama: true, email: true },
+        },
+      },
     });
 
     if (!user) return res.status(404).json({ success: false, message: 'User tidak ditemukan' });
     
-    res.json({ success: true, data: user });
+    res.json({
+      success: true,
+      data: {
+        ...user,
+        userSummary: buildUserPayload(user),
+      },
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

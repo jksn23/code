@@ -27,43 +27,53 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg)' }}>
-      <div className="card" style={{ width: '100%', maxWidth: 400 }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <h2><span className="icon">⚖️</span> E-Lelang</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Login untuk melanjutkan</p>
+    <div className="auth-container">
+      <div className="auth-form-wrapper">
+        <div className="auth-form-card">
+          <div className="auth-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to access your dashboard</p>
+          </div>
+
+          {error && <div className="alert alert-danger">{error}</div>}
+
+          <form onSubmit={handleLogin}>
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <input
+                type="email"
+                className="form-control"
+                placeholder="Ex. admin@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '16px', padding: '12px' }} disabled={loading}>
+              {loading ? <span className="spinner" /> : 'Sign In'}
+            </button>
+          </form>
+
+          <div style={{ marginTop: 32, textAlign: 'center', fontSize: 14, color: 'var(--text-muted)' }}>
+            Belum punya akun? <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 600 }}>Daftar di sini</Link>
+          </div>
         </div>
-
-        {error && <div className="alert alert-danger">{error}</div>}
-
-        <form onSubmit={handleLogin}>
-          <div className="form-group">
-            <label className="form-label">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Login'}
-          </button>
-        </form>
-
-        <div style={{ marginTop: 24, textAlign: 'center', fontSize: 13, color: 'var(--text-muted)' }}>
-          Belum punya akun? <Link to="/register" style={{ color: 'var(--primary)' }}>Daftar sekarang</Link>
+      </div>
+      <div className="auth-banner">
+        <div className="auth-banner-content">
+          <h1>Sistem Pendukung<br/>Keputusan Lelang</h1>
+          <p>Navigasi tata kelola aset publik dengan fungsionalitas murni yang dirancang untuk keterbacaan tingkat tinggi.</p>
         </div>
       </div>
     </div>

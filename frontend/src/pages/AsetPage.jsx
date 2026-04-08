@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAset, getKategori, createAset, updateAset, deleteAset, ajukanLelang } from '../services/api.js';
 import { useAuth } from '../context/AuthContext';
 import CurrencyInput from '../components/CurrencyInput';
+import { Pencil, Trash2, Send, FileText, Lock, Plus, Tag } from 'lucide-react';
 
 function AsetModal({ item, kategoriList, onClose, onSave, role }) {
   const [form, setForm] = useState({
@@ -144,10 +145,12 @@ export default function AsetPage() {
     <div>
       <div className="page-header flex-between">
         <div>
-          <h2>🏷️ Manajemen Aset</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Tag size={24} /> Manajemen Aset</h2>
           <p>Kelola data aset {role === 'PENJUAL' ? 'yang akan Anda lelang' : 'dalam sistem'}</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setModal('add')}>➕ Tambah Aset Baru</button>
+        <button className="btn btn-primary" onClick={() => setModal('add')}>
+          <Plus size={16} strokeWidth={3} /> Tambah Aset Baru
+        </button>
       </div>
 
       <div className="card" style={{ marginBottom: 16 }}>
@@ -160,40 +163,56 @@ export default function AsetPage() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card" style={{ padding: 0 }}>
         {loading ? <div className="empty-state"><span className="spinner" /></div> :
-          data.length === 0 ? <div className="empty-state"><div className="icon">🏷️</div><p>Belum ada aset.</p></div> :
+          data.length === 0 ? <div className="empty-state"><FileText size={48} style={{opacity:0.2, marginBottom:16}} /><p>Belum ada aset.</p></div> :
           <div className="table-wrapper">
-            <table>
-              <thead><tr><th>No</th><th>Cek</th><th>Nama Aset</th><th>Kategori</th><th>Harga Pasar</th><th>Status</th><th>Aksi</th></tr></thead>
+            <table className="table">
+              <thead><tr><th width="5%">No</th><th width="10%">Dokumen</th><th>Nama Aset</th><th>Kategori</th><th>Harga Pasar</th><th>Status</th><th>Aksi</th></tr></thead>
               <tbody>
                 {data.map((item, i) => (
                   <tr key={item.id}>
-                    <td>{i + 1}</td>
+                    <td style={{ color: 'var(--text-muted)', fontWeight: 500 }}>{i + 1}</td>
                     <td>
-                       {item.dokumenUrl ? <a href={`http://localhost:5000/${item.dokumenUrl}`} target="_blank" rel="noreferrer" style={{color:'var(--primary)',fontSize:12}}>Lihat Doc</a> : '-'}
+                       {item.dokumenUrl ? (
+                         <a href={`http://localhost:5000/${item.dokumenUrl}`} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" title="Lihat Dokumen">
+                           <FileText size={14} /> Doc
+                         </a>
+                       ) : <span style={{ color: 'var(--text-muted)' }}>—</span>}
                     </td>
                     <td>
-                      <strong>{item.nama}</strong>
-                      {role === 'ADMIN' && item.penjual && <div style={{fontSize:11,color:'var(--text-muted)'}}>Oleh: {item.penjual.user.nama}</div>}
+                      <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>{item.nama}</div>
+                      {role === 'ADMIN' && item.penjual && <div style={{fontSize:11,color:'var(--text-muted)'}}>Penjual: {item.penjual.user.nama}</div>}
                     </td>
-                    <td>{item.kategori?.nama}</td>
-                    <td style={{ color: '#10b981', fontWeight: 600 }}>{formatRp(item.hargaPasar)}</td>
+                    <td><span className="badge" style={{ background: 'var(--surface-light)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>{item.kategori?.nama}</span></td>
+                    <td style={{ color: 'var(--success)', fontWeight: 600 }}>{formatRp(item.hargaPasar)}</td>
                     <td>
-                      <div>{statusBadge(item.statusLelang)}</div>
-                      {item.hasil?.length > 0 && <span className="badge badge-primary" style={{marginTop:4,display:'inline-block'}}>Nilai Limit Tersedia</span>}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
+                        {statusBadge(item.statusLelang)}
+                        {item.hasil?.length > 0 && <span className="badge badge-primary" style={{ fontSize: 9 }}>LIMIT: {formatRp(item.hasil[0].nilaiLimit || 0)}</span>}
+                      </div>
                     </td>
                     <td>
-                      <div className="flex gap-2">
-                        {item.statusLelang === 'DRAFT' && (
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        {item.statusLelang === 'DRAFT' ? (
                           <>
-                            <button className="btn btn-secondary btn-sm" onClick={() => setModal(item)}>✏️</button>
-                            <button className="btn btn-danger btn-sm" onClick={() => setConfirmModal({ type: 'delete', id: item.id })}>🗑️</button>
-                            {role === 'PENJUAL' && <button className="btn btn-primary btn-sm" onClick={() => setConfirmModal({ type: 'ajukan', id: item.id })}>🚀 Ajukan Lelang</button>}
+                            <button className="btn btn-secondary btn-sm" style={{ padding: '8px' }} onClick={() => setModal(item)} title="Edit">
+                              <Pencil size={14} />
+                            </button>
+                            <button className="btn btn-danger btn-sm" style={{ padding: '8px' }} onClick={() => setConfirmModal({ type: 'delete', id: item.id })} title="Hapus">
+                              <Trash2 size={14} />
+                            </button>
+                            {role === 'PENJUAL' && (
+                              <button className="btn btn-primary btn-sm" onClick={() => setConfirmModal({ type: 'ajukan', id: item.id })}>
+                                <Send size={14} /> Ajukan
+                              </button>
+                            )}
                           </>
-                        )}
-                        {item.statusLelang !== 'DRAFT' && (
-                           <span style={{fontSize: 12, color: 'var(--text-muted)'}}>LOCKED</span>
+                        ) : (
+                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, background: 'var(--surface-hover)', padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                             <Lock size={12} />
+                             LOCKED
+                           </div>
                         )}
                       </div>
                     </td>

@@ -1,16 +1,56 @@
-import React, { useState, useEffect } from 'react';
-import { getAset, createLelangAndApprove, getLelangSelesaiAdmin, verifikasiPembayaranLelang } from '../services/api.js';
+import React, { useEffect, useMemo, useState } from 'react';
+import { createLelangAndApprove, getAset, getLelangSelesaiAdmin, verifikasiPembayaranLelang } from '../services/api.js';
 
-const formatRp = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
-const formatDate = (d) => d ? new Date(d).toLocaleString('id-ID') : '-';
+const formatRp = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value || 0);
+const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
+
+const statusBadge = (status, options) => {
+  const map = options || {
+    ACTIVE: { color: '#16a34a', bg: '#dcfce3' },
+    PENDING: { color: '#b45309', bg: '#fef3c7' },
+    FINISHED: { color: '#2563eb', bg: '#dbeafe' },
+  };
+  const tone = map[status] || { color: '#555', bg: '#f3f4f6' };
+  return (
+    <span className="badge" style={{ backgroundColor: tone.bg, color: tone.color, fontWeight: 600 }}>
+      {status}
+    </span>
+  );
+};
+
+const estimateQueue = (asetList, waktuBuka, durasiMenit) => {
+  if (!waktuBuka || !durasiMenit) return null;
+
+  const requestedStart = new Date(waktuBuka);
+  if (Number.isNaN(requestedStart.getTime())) return null;
+
+  const scheduled = asetList
+    .flatMap((item) => item.lelang || [])
+    .filter((item) => ['PENDING', 'ACTIVE'].includes(item.status) && item.waktuBuka && item.waktuTutup)
+    .sort((a, b) => new Date(a.waktuBuka) - new Date(b.waktuBuka));
+
+  let actualWaktuBuka = new Date(requestedStart);
+  let queuePosition = 1;
+
+  scheduled.forEach((item) => {
+    const existingStart = new Date(item.waktuBuka);
+    const existingEnd = new Date(item.waktuTutup);
+    if (actualWaktuBuka >= existingStart && actualWaktuBuka < existingEnd) {
+      actualWaktuBuka = new Date(existingEnd);
+      queuePosition += 1;
+    }
+  });
+
+  const actualWaktuTutup = new Date(actualWaktuBuka.getTime() + Number(durasiMenit) * 60000);
+  return { queuePosition, actualWaktuBuka, actualWaktuTutup };
+};
 
 export default function LelangAdminPage() {
   const [data, setData] = useState([]);
   const [dataSelesai, setDataSelesai] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingSelesai, setLoadingSelesai] = useState(true);
-  const [activeTab, setActiveTab] = useState('aktif'); // 'aktif' | 'selesai'
-  
+  const [activeTab, setActiveTab] = useState('aktif');
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({ waktuBuka: '', durasiMenit: 60 });
   const [submitting, setSubmitting] = useState(false);
@@ -19,10 +59,10 @@ export default function LelangAdminPage() {
     setLoading(true);
     try {
       const res = await getAset();
-      const filtered = res.data.filter(a => a.statusLelang !== 'DRAFT');
+      const filtered = (res.data || []).filter((item) => item.statusLelang !== 'DRAFT');
       setData(filtered);
-    } catch (e) {
-      alert(e.message);
+    } catch (error) {
+      alert(error.message);
     } finally {
       setLoading(false);
     }
@@ -32,142 +72,151 @@ export default function LelangAdminPage() {
     setLoadingSelesai(true);
     try {
       const res = await getLelangSelesaiAdmin();
-      setDataSelesai(res.data);
-    } catch (e) {
-      alert(e.message);
+      setDataSelesai(res.data || []);
+    } catch (error) {
+      alert(error.message);
     } finally {
       setLoadingSelesai(false);
     }
   };
 
-  useEffect(() => { load(); loadSelesai(); }, []);
+  useEffect(() => {
+    load();
+    loadSelesai();
+  }, []);
 
-  const handleApprove = async (e) => {
-    e.preventDefault();
-    if (!form.waktuBuka || !form.durasiMenit) return alert("Isi tanggal buka dan durasi lelang");
-    
+  const scheduleEstimate = useMemo(() => estimateQueue(data, form.waktuBuka, form.durasiMenit), [data, form]);
+  const formError = useMemo(() => {
+    if (!form.waktuBuka) return '';
+    const requested = new Date(form.waktuBuka);
+    if (Number.isNaN(requested.getTime())) return 'Format waktu buka tidak valid.';
+    if (requested.getTime() < Date.now()) return 'Waktu buka tidak boleh di masa lalu.';
+    if (!Number(form.durasiMenit) || Number(form.durasiMenit) <= 0) return 'Durasi wajib lebih dari 0 menit.';
+    return '';
+  }, [form]);
+
+  const handleApprove = async (event) => {
+    event.preventDefault();
+    if (formError) {
+      alert(formError);
+      return;
+    }
+
     setSubmitting(true);
     try {
-      await createLelangAndApprove(modal.id, form);
-      const antrianMsg = `Jadwal berhasil dibuat! Waktu buka & tutup dihitung berdasarkan antrian.`;
-      alert(antrianMsg);
+      const res = await createLelangAndApprove(modal.id, form);
+      alert(res.message || 'Lelang berhasil dijadwalkan.');
       setModal(null);
+      setForm({ waktuBuka: '', durasiMenit: 60 });
       load();
-    } catch (err) {
-      alert(err.message);
+    } catch (error) {
+      alert(error.message);
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleVerifikasiPembayaran = async (lelang) => {
-    if (!window.confirm(`Verifikasi pembayaran LUNAS untuk Aset "${lelang.aset?.nama}"?`)) return;
+    if (!window.confirm(`Verifikasi pembayaran LUNAS untuk aset "${lelang.aset?.nama}"?`)) return;
     try {
       await verifikasiPembayaranLelang(lelang.id);
-      alert('Pembayaran berhasil diverifikasi sebagai LUNAS!');
+      alert('Pembayaran berhasil diverifikasi sebagai LUNAS.');
       loadSelesai();
-    } catch (err) {
-      alert(err.message);
+    } catch (error) {
+      alert(error.message);
     }
-  };
-
-  const statusBadge = (status, options) => {
-    const map = options || {
-      ACTIVE: { color: '#16a34a', bg: '#dcfce3' },
-      PENDING: { color: '#b45309', bg: '#fef3c7' },
-      FINISHED: { color: '#2563eb', bg: '#dbeafe' },
-    };
-    const s = map[status] || { color: '#555', bg: '#f3f4f6' };
-    return (
-      <span className="badge" style={{ backgroundColor: s.bg, color: s.color, fontWeight: 600 }}>
-        {status}
-      </span>
-    );
   };
 
   return (
     <div>
       <div className="page-header">
         <h2>⏱️ Manajemen Lelang</h2>
-        <p>Verifikasi pengajuan lelang dari penjual dan verifikasi pembayaran pemenang</p>
+        <p>Atur slot lelang dengan validasi jadwal yang lebih aman dan pantau transaksi pasca lelang.</p>
       </div>
 
-      {/* Tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        <button
-          className={`btn ${activeTab === 'aktif' ? 'btn-primary' : 'btn-secondary'}`}
-          onClick={() => setActiveTab('aktif')}>
+        <button className={`btn ${activeTab === 'aktif' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setActiveTab('aktif')}>
           📋 Jadwalkan Lelang
         </button>
-        <button
-          className={`btn ${activeTab === 'selesai' ? 'btn-primary' : 'btn-secondary'}`}
-          onClick={() => setActiveTab('selesai')}>
+        <button className={`btn ${activeTab === 'selesai' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setActiveTab('selesai')}>
           ✅ Verifikasi Pembayaran ({dataSelesai.length})
         </button>
       </div>
 
-      {/* Tab: Aktif / Jadwalkan */}
       {activeTab === 'aktif' && (
         <div className="card">
-          {loading ? <div className="empty-state"><span className="spinner"/></div> :
-            data.length === 0 ? <div className="empty-state"><p>Belum ada pengajuan lelang.</p></div> :
+          {loading ? (
+            <div className="empty-state"><span className="spinner" /></div>
+          ) : data.length === 0 ? (
+            <div className="empty-state"><p>Belum ada pengajuan lelang.</p></div>
+          ) : (
             <div className="table-wrapper">
-              <table>
+              <table className="table">
                 <thead>
                   <tr>
                     <th>No</th>
                     <th>Aset</th>
                     <th>Penjual</th>
-                    <th>Nilai Limit Dasar</th>
+                    <th>Nilai Limit</th>
                     <th>Status</th>
-                    <th>Jadwal</th>
+                    <th>Jadwal Terakhir</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((item, i) => {
-                    const hasil = item.hasil?.[0];
-                    const lelang = item.lelang?.[item.lelang.length - 1];
-                    
+                  {data.map((item, index) => {
+                    const latestLelang = item.lelang?.[item.lelang.length - 1];
                     return (
                       <tr key={item.id}>
-                        <td>{i + 1}</td>
-                        <td><strong>{item.nama}</strong><br/><small>{item.kategori?.nama}</small></td>
-                        <td>{item.penjual?.user?.nama || '-'}</td>
-                        <td style={{ color: '#10b981', fontWeight: 600 }}>
-                           {hasil ? formatRp(hasil.nilaiLimit) : 'Belum Dihitung'}
-                        </td>
-                        <td>{statusBadge(item.statusLelang)}</td>
+                        <td>{index + 1}</td>
                         <td>
-                          {lelang ? (
-                            <div style={{fontSize: 12}}>
-                              Buka: {formatDate(lelang.waktuBuka)}<br/>
-                              Tutup: {formatDate(lelang.waktuTutup)}
-                            </div>
-                          ) : '-'}
+                          <strong>{item.nama}</strong>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.kategori?.nama}</div>
+                        </td>
+                        <td>{item.penjual?.user?.nama || '-'}</td>
+                        <td style={{ color: '#16a34a', fontWeight: 700 }}>{formatRp(item.hasil?.[0]?.nilaiLimit || 0)}</td>
+                        <td>{statusBadge(item.statusLelang)}</td>
+                        <td style={{ fontSize: 12 }}>
+                          {latestLelang ? (
+                            <>
+                              Buka: {formatDate(latestLelang.waktuBuka)}<br />
+                              Tutup: {formatDate(latestLelang.waktuTutup)}
+                            </>
+                          ) : 'Belum dijadwalkan'}
                         </td>
                         <td>
                           {item.statusLelang === 'PENDING' && (
-                            <button className="btn btn-primary btn-sm" onClick={() => setModal(item)}>Sahkan & Jadwalkan</button>
+                            <button
+                              type="button"
+                              className="btn btn-primary btn-sm"
+                              onClick={() => {
+                                setModal(item);
+                                setForm({ waktuBuka: '', durasiMenit: 60 });
+                              }}
+                            >
+                              Sahkan & Jadwalkan
+                            </button>
                           )}
                         </td>
                       </tr>
-                    )
+                    );
                   })}
                 </tbody>
               </table>
             </div>
-          }
+          )}
         </div>
       )}
 
-      {/* Tab: Selesai / Verifikasi Pembayaran */}
       {activeTab === 'selesai' && (
         <div className="card">
-          {loadingSelesai ? <div className="empty-state"><span className="spinner"/></div> :
-            dataSelesai.length === 0 ? <div className="empty-state"><p>Belum ada lelang yang selesai.</p></div> :
+          {loadingSelesai ? (
+            <div className="empty-state"><span className="spinner" /></div>
+          ) : dataSelesai.length === 0 ? (
+            <div className="empty-state"><p>Belum ada lelang yang selesai.</p></div>
+          ) : (
             <div className="table-wrapper">
-              <table>
+              <table className="table">
                 <thead>
                   <tr>
                     <th>No</th>
@@ -181,66 +230,45 @@ export default function LelangAdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {dataSelesai.map((l, i) => {
-                    const topBid = l.penawaran?.[0];
-                    const isPaid = l.statusPembayaran === 'LUNAS';
-                    const isReceived = l.statusBarang === 'DITERIMA';
-
+                  {dataSelesai.map((item, index) => {
+                    const topBid = item.penawaran?.[0];
+                    const isPaid = item.statusPembayaran === 'LUNAS';
+                    const isReceived = item.statusBarang === 'DITERIMA';
                     return (
-                      <tr key={l.id}>
-                        <td>{i + 1}</td>
+                      <tr key={item.id}>
+                        <td>{index + 1}</td>
                         <td>
-                          <strong>{l.aset?.nama}</strong><br/>
-                          <small>{l.aset?.kategori?.nama}</small>
+                          <strong>{item.aset?.nama}</strong>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.aset?.kategori?.nama}</div>
                         </td>
                         <td>
-                          {l.pemenang ? (
-                            <div>
-                              <div style={{fontWeight:600}}>{l.pemenang.nama}</div>
-                              <small style={{color:'var(--text-muted)'}}>{l.pemenang.email}</small>
-                            </div>
-                          ) : <span style={{color:'var(--text-muted)'}}>Tidak ada penawaran</span>}
+                          {item.pemenang ? (
+                            <>
+                              <div style={{ fontWeight: 700 }}>{item.pemenang.nama}</div>
+                              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.pemenang.email}</div>
+                            </>
+                          ) : 'Tidak ada penawaran'}
                         </td>
-                        <td style={{fontWeight:600, color:'#10b981'}}>
-                          {topBid ? formatRp(topBid.nominal) : '-'}
-                        </td>
-                        <td style={{fontSize:12}}>{formatDate(l.waktuTutup)}</td>
+                        <td style={{ fontWeight: 700, color: '#16a34a' }}>{topBid ? formatRp(topBid.nominal) : '-'}</td>
+                        <td style={{ fontSize: 12 }}>{formatDate(item.waktuTutup)}</td>
                         <td>
-                          <span style={{padding:'4px 10px', borderRadius:20, fontSize:12, fontWeight:600,
-                            background: isPaid ? '#dcfce3' : '#fef3c7',
-                            color: isPaid ? '#16a34a' : '#b45309'}}>
-                            {isPaid ? '✅ LUNAS' : '⏳ BELUM LUNAS'}
+                          <span className="badge" style={{ background: isPaid ? '#dcfce7' : '#fef3c7', color: isPaid ? '#166534' : '#92400e' }}>
+                            {item.statusPembayaran}
                           </span>
                         </td>
                         <td>
-                          <span style={{padding:'4px 10px', borderRadius:20, fontSize:12, fontWeight:600,
-                            background: isReceived ? '#dcfce3' : '#e0e7ff',
-                            color: isReceived ? '#16a34a' : '#4f46e5'}}>
-                            {isReceived ? '📦 DITERIMA' : '🚚 DALAM PROSES'}
+                          <span className="badge" style={{ background: isReceived ? '#dcfce7' : '#dbeafe', color: isReceived ? '#166534' : '#1d4ed8' }}>
+                            {item.statusBarang}
                           </span>
                         </td>
                         <td>
-                          {l.pemenang && !isPaid && (
-                            <div style={{display:'flex', gap:6, flexDirection:'column'}}>
-                              <a
-                                href={`https://wa.me/${l.pemenang.email ? '' : '6281234567890'}?text=Halo%20${encodeURIComponent(l.pemenang.nama)},%20konfirmasi%20pembayaran%20untuk%20Aset%20${encodeURIComponent(l.aset?.nama)}%20senilai%20${topBid?.nominal}`}
-                                target="_blank" rel="noreferrer"
-                                style={{display:'inline-block', padding:'5px 10px', background:'#25D366', color:'#fff', borderRadius:5, textDecoration:'none', fontSize:12, fontWeight:'bold', textAlign:'center'}}>
-                                📱 WhatsApp
-                              </a>
-                              <button
-                                className="btn btn-primary btn-sm"
-                                onClick={() => handleVerifikasiPembayaran(l)}>
-                                ✅ Tandai Lunas
-                              </button>
-                            </div>
+                          {!isPaid && item.pemenang && (
+                            <button type="button" className="btn btn-primary btn-sm" onClick={() => handleVerifikasiPembayaran(item)}>
+                              ✅ Tandai Lunas
+                            </button>
                           )}
-                          {isPaid && !isReceived && (
-                            <span style={{fontSize:12, color:'var(--text-muted)'}}>Menunggu konfirmasi pembeli</span>
-                          )}
-                          {isPaid && isReceived && (
-                            <span style={{fontSize:12, color:'#10b981', fontWeight:600}}>🎉 Selesai</span>
-                          )}
+                          {isPaid && !isReceived && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Menunggu konfirmasi pembeli</span>}
+                          {isPaid && isReceived && <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 700 }}>🎉 Selesai</span>}
                         </td>
                       </tr>
                     );
@@ -248,39 +276,67 @@ export default function LelangAdminPage() {
                 </tbody>
               </table>
             </div>
-          }
+          )}
         </div>
       )}
 
-      {/* Modal: Jadwalkan Lelang */}
       {modal && (
-        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setModal(null)}>
+        <div className="modal-overlay" onClick={(event) => event.target === event.currentTarget && setModal(null)}>
           <div className="modal">
             <div className="modal-header">
               <h3>Sahkan Jadwal Lelang</h3>
               <button className="btn btn-secondary btn-sm" onClick={() => setModal(null)}>✕</button>
             </div>
-            <div style={{marginBottom: 16}}>
+
+            <div style={{ marginBottom: 16 }}>
               <p>Aset: <strong>{modal.nama}</strong></p>
               <p>Nilai Limit: <strong>{formatRp(modal.hasil?.[0]?.nilaiLimit)}</strong></p>
             </div>
-            
+
+            {formError && <div className="alert alert-danger">{formError}</div>}
+
             <form onSubmit={handleApprove}>
               <div className="form-group">
-                <label className="form-label">Waktu Pembukaan Lelang (Slot Pertama)</label>
-                <input type="datetime-local" className="form-control" 
-                  value={form.waktuBuka} onChange={(e) => setForm({...form, waktuBuka: e.target.value})} required/>
-                <small style={{color:'var(--text-muted)', marginTop:4, display:'block'}}>Jika slot sudah terisi aset lain, waktu buka akan otomatis digeser ke antrian berikutnya.</small>
+                <label className="form-label">Waktu Pembukaan Slot Acuan</label>
+                <input
+                  type="datetime-local"
+                  className="form-control"
+                  value={form.waktuBuka}
+                  onChange={(event) => setForm((prev) => ({ ...prev, waktuBuka: event.target.value }))}
+                  required
+                />
+                <small style={{ color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                  Sistem akan menggeser slot otomatis jika bentrok dengan lelang aktif/pending lain.
+                </small>
               </div>
+
               <div className="form-group">
                 <label className="form-label">Durasi Lelang per Aset (menit)</label>
-                <input type="number" className="form-control" min="1" max="1440"
-                  value={form.durasiMenit} onChange={(e) => setForm({...form, durasiMenit: e.target.value})} required/>
-                <small style={{color:'var(--text-muted)', marginTop:4, display:'block'}}>Waktu tutup akan otomatis = Waktu Buka + Durasi ini.</small>
+                <input
+                  type="number"
+                  className="form-control"
+                  min="1"
+                  max="1440"
+                  value={form.durasiMenit}
+                  onChange={(event) => setForm((prev) => ({ ...prev, durasiMenit: event.target.value }))}
+                  required
+                />
               </div>
+
+              {scheduleEstimate && (
+                <div className="card" style={{ background: 'var(--surface-light)', marginBottom: 16 }}>
+                  <h4 style={{ marginBottom: 12 }}>Estimasi Slot</h4>
+                  <div style={{ display: 'grid', gap: 8, fontSize: 14 }}>
+                    <div>Posisi antrean: <strong>#{scheduleEstimate.queuePosition}</strong></div>
+                    <div>Mulai aktual: <strong>{formatDate(scheduleEstimate.actualWaktuBuka)}</strong></div>
+                    <div>Tutup aktual: <strong>{formatDate(scheduleEstimate.actualWaktuTutup)}</strong></div>
+                  </div>
+                </div>
+              )}
+
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setModal(null)}>Batal</button>
-                <button type="submit" className="btn btn-primary" disabled={submitting}>
+                <button type="submit" className="btn btn-primary" disabled={submitting || Boolean(formError)}>
                   {submitting ? 'Menyimpan...' : 'Terbitkan Lelang'}
                 </button>
               </div>

@@ -95,7 +95,7 @@ export default function PenjualPage() {
           </div>
         ) : (
           <div className="table-wrapper">
-            <table>
+            <table className="table">
               <thead>
                 <tr>
                   <th>No</th>

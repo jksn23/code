@@ -87,7 +87,7 @@ export default function KategoriPage() {
           <div className="empty-state"><div className="icon">🗂️</div><p>Belum ada kategori. Tambahkan kategori pertama!</p></div>
         ) : (
           <div className="table-wrapper">
-            <table>
+            <table className="table">
               <thead>
                 <tr><th>No</th><th>Nama Kategori</th><th>Kriteria</th><th>Aset</th><th>Aksi</th></tr>
               </thead>

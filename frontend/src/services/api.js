@@ -39,6 +39,10 @@ export const registerPenjual = (formData) => api.post('/auth/register/penjual', 
   headers: { 'Content-Type': 'multipart/form-data' }
 });
 export const getProfile = () => api.get('/auth/profile');
+export const getDashboardSummary = () => api.get('/dashboard/summary');
+export const getNotifikasi = () => api.get('/notifikasi');
+export const markNotifikasiRead = (id) => api.put(`/notifikasi/${id}/read`);
+export const markAllNotifikasiRead = () => api.put('/notifikasi/read-all');
 
 // ====== KATEGORI ======
 export const getKategori = () => api.get('/kategori');
@@ -68,6 +72,9 @@ export const deleteAset = (id) => api.delete(`/aset/${id}`);
 export const getSemuaPenjual = () => api.get('/penjual');
 export const getPenjualById = (id) => api.get(`/penjual/${id}`);
 export const verifikasiPenjual = (id, isVerified) => api.put(`/penjual/${id}/verify`, { isVerified });
+export const getSemuaPembeli = () => api.get('/pembeli');
+export const getPembeliById = (id) => api.get(`/pembeli/${id}`);
+export const verifikasiPembeli = (id, data) => api.put(`/pembeli/${id}/verifikasi`, data);
 export const ajukanLelang = (asetId) => api.put(`/aset/${asetId}/ajukan`);
 export const createLelangAndApprove = (asetId, data) => api.post(`/aset/${asetId}/verifikasi-lelang`, data);
 export const getLelangSelesaiAdmin = () => api.get('/lelang/admin/selesai');
@@ -75,6 +82,11 @@ export const verifikasiPembayaranLelang = (id) => api.put(`/lelang/${id}/pembaya
 export const konfirmasiTerimaBarang = (id) => api.put(`/lelang/${id}/terima-barang`);
 export const getNextLelang = (currentId) => api.get(`/lelang/next/${currentId}`);
 export const getLelangSummary = (date) => api.get(`/lelang/summary/${date}`);
+export const getInvoiceLelang = (id) => api.get(`/lelang/${id}/invoice`);
+export const uploadBuktiPembayaranLelang = (id, formData) => api.post(`/lelang/${id}/upload-bukti`, formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+export const tolakPembayaranLelang = (id, data) => api.put(`/lelang/${id}/pembayaran/tolak`, data);
 
 
 // ====== NILAI ASET ======

@@ -43,7 +43,7 @@ export default function HasilPage() {
       ) : data.length > 0 ? (
         <div className="card">
           <div className="table-wrapper">
-            <table>
+            <table className="table">
               <thead>
                 <tr>
                   <th>Rank</th>

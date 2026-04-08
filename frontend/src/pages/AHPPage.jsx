@@ -161,7 +161,7 @@ export default function AHPPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
             <div>
               <h4 style={{ fontSize: 14, marginBottom: 12, color: 'var(--text-muted)' }}>Bobot Kriteria (Eigen Vector)</h4>
-              <table>
+              <table className="table">
                 <thead><tr><th>Kriteria</th><th>Tipe</th><th>Bobot (Wi)</th></tr></thead>
                 <tbody>
                   {hasil.kriteria?.map((k) => (
@@ -177,7 +177,7 @@ export default function AHPPage() {
             </div>
             <div>
               <h4 style={{ fontSize: 14, marginBottom: 12, color: 'var(--text-muted)' }}>Indikator Konsistensi</h4>
-              <table>
+              <table className="table">
                 <tbody>
                   {[
                     ['n (Jumlah Kriteria)', hasil.n],
