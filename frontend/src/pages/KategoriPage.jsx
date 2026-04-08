@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getKategori, createKategori, updateKategori, deleteKategori } from '../services/api.js';
+import { PenSquare, Trash2, FolderTree } from 'lucide-react';
 
 function KategoriModal({ item, onClose, onSave }) {
   const [nama, setNama] = useState(item?.nama || '');
@@ -84,7 +85,7 @@ export default function KategoriPage() {
         {loading ? (
           <div className="empty-state"><span className="spinner" /><p>Memuat data...</p></div>
         ) : data.length === 0 ? (
-          <div className="empty-state"><div className="icon">🗂️</div><p>Belum ada kategori. Tambahkan kategori pertama!</p></div>
+          <div className="empty-state"><div style={{ marginBottom: 12 }}><FolderTree size={40} opacity={0.3} /></div><p>Belum ada kategori. Tambahkan kategori pertama!</p></div>
         ) : (
           <div className="table-wrapper">
             <table className="table">

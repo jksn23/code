@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { login as loginApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -8,13 +8,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const successMessage = useMemo(() => location.state?.successMessage || null, [location.state]);
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
       const res = await loginApi({ email, password });
       login(res.token, res.user);
@@ -35,6 +39,7 @@ export default function LoginPage() {
             <p>Sign in to access your dashboard</p>
           </div>
 
+          {successMessage && <div className="alert alert-success">{successMessage}</div>}
           {error && <div className="alert alert-danger">{error}</div>}
 
           <form onSubmit={handleLogin}>
@@ -45,7 +50,7 @@ export default function LoginPage() {
                 className="form-control"
                 placeholder="Ex. admin@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(event) => setEmail(event.target.value)}
                 required
               />
             </div>
@@ -54,13 +59,13 @@ export default function LoginPage() {
               <input
                 type="password"
                 className="form-control"
-                placeholder="••••••••"
+                placeholder="Masukkan password Anda"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(event) => setPassword(event.target.value)}
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '16px', padding: '12px' }} disabled={loading}>
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 16, padding: 12 }} disabled={loading}>
               {loading ? <span className="spinner" /> : 'Sign In'}
             </button>
           </form>
@@ -72,7 +77,7 @@ export default function LoginPage() {
       </div>
       <div className="auth-banner">
         <div className="auth-banner-content">
-          <h1>Sistem Pendukung<br/>Keputusan Lelang</h1>
+          <h1>Sistem Pendukung<br />Keputusan Lelang</h1>
           <p>Navigasi tata kelola aset publik dengan fungsionalitas murni yang dirancang untuk keterbacaan tingkat tinggi.</p>
         </div>
       </div>

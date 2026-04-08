@@ -112,6 +112,12 @@ enum BuyerVerificationStatus {
   REJECTED
 }
 
+enum SellerVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum StatusLelang {
   DRAFT
   PENDING
@@ -140,20 +146,26 @@ model User {
   notifications         Notifikasi[]
   buyerVerifier         User?           @relation("BuyerVerifier", fields: [buyerVerifiedBy], references: [id], onDelete: SetNull)
   verifiedBuyers        User[]          @relation("BuyerVerifier")
+  verifiedSellers       Penjual[]       @relation("SellerVerifier")
 
   @@map("users")
 }
 
 model Penjual {
-  id             Int      @id @default(autoincrement())
-  userId         Int      @unique @map("user_id")
-  ktpUrl         String?  @map("ktp_url") @db.VarChar(255)
-  npwpUrl        String?  @map("npwp_url") @db.VarChar(255)
-  rekeningBank   String?  @map("rekening_bank") @db.VarChar(100)
-  nomorRekening  String?  @map("nomor_rekening") @db.VarChar(100)
-  isVerified     Boolean  @default(false) @map("is_verified")
+  id                  Int                      @id @default(autoincrement())
+  userId              Int                      @unique @map("user_id")
+  ktpUrl              String?                  @map("ktp_url") @db.VarChar(255)
+  npwpUrl             String?                  @map("npwp_url") @db.VarChar(255)
+  rekeningBank        String?                  @map("rekening_bank") @db.VarChar(100)
+  nomorRekening       String?                  @map("nomor_rekening") @db.VarChar(100)
+  isVerified          Boolean                  @default(false) @map("is_verified")
+  verificationStatus  SellerVerificationStatus @default(PENDING) @map("verification_status")
+  verificationNote    String?                  @map("verification_note") @db.Text
+  verifiedAt          DateTime?                @map("verified_at")
+  verifiedBy          Int?                     @map("verified_by")
   
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifier    User?    @relation("SellerVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
   aset        Aset[]
 
   createdAt   DateTime @default(now())

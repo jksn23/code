@@ -1,24 +1,40 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../models/prisma.client.js';
+import {
+  SELLER_VERIFICATION_STATUS,
+  resolveSellerVerificationStatus,
+  toLegacySellerVerifiedFlag,
+} from '../utils/seller-verification.util.js';
 
 const SECRET = process.env.JWT_SECRET || 'secret_key_lelang_spk_2026';
 
-const buildUserPayload = (user) => ({
-  id: user.id,
-  nama: user.nama,
-  email: user.email,
-  role: user.role,
-  isVerified: user.penjual ? user.penjual.isVerified : true,
-  rekeningBank: user.penjual?.rekeningBank || '',
-  nomorRekening: user.penjual?.nomorRekening || '',
-  buyerVerificationStatus: user.role === 'PEMBELI'
-    ? user.buyerVerificationStatus
-    : 'APPROVED',
-  buyerVerificationNote: user.role === 'PEMBELI' ? user.buyerVerificationNote : null,
-  buyerVerifiedAt: user.role === 'PEMBELI' ? user.buyerVerifiedAt : null,
-  ktpUrl: user.ktpUrl || null,
-});
+const buildUserPayload = (user) => {
+  const sellerStatus = user.penjual
+    ? resolveSellerVerificationStatus(user.penjual)
+    : SELLER_VERIFICATION_STATUS.APPROVED;
+
+  return {
+    id: user.id,
+    nama: user.nama,
+    email: user.email,
+    role: user.role,
+    isVerified: user.penjual ? toLegacySellerVerifiedFlag(user.penjual) : true,
+    sellerVerificationStatus: sellerStatus,
+    sellerVerificationNote: user.penjual?.verificationNote || null,
+    sellerVerifiedAt: user.penjual?.verifiedAt || null,
+    rekeningBank: user.penjual?.rekeningBank || '',
+    nomorRekening: user.penjual?.nomorRekening || '',
+    sellerKtpUrl: user.penjual?.ktpUrl || null,
+    sellerNpwpUrl: user.penjual?.npwpUrl || null,
+    buyerVerificationStatus: user.role === 'PEMBELI'
+      ? user.buyerVerificationStatus
+      : 'APPROVED',
+    buyerVerificationNote: user.role === 'PEMBELI' ? user.buyerVerificationNote : null,
+    buyerVerifiedAt: user.role === 'PEMBELI' ? user.buyerVerifiedAt : null,
+    ktpUrl: user.ktpUrl || null,
+  };
+};
 
 export const register = async (req, res) => {
   try {
@@ -70,7 +86,8 @@ export const register = async (req, res) => {
             npwpUrl,
             rekeningBank: rekeningBank || null,
             nomorRekening: nomorRekening || null,
-            isVerified: false
+            isVerified: false,
+            verificationStatus: SELLER_VERIFICATION_STATUS.PENDING,
           }
         });
       }

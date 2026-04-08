@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { Gavel, Scale, Banknote, TrendingUp } from 'lucide-react';
 import { getLelangSummary } from '../services/api.js';
 
 const formatRp = (v) =>
@@ -97,28 +98,28 @@ export default function AuctionSummaryPage() {
             label: 'Total Objek Lelang',
             value: summary.totalLelang,
             sub: `${summary.totalTerjual} terjual`,
-            icon: '🔨',
+            icon: <Gavel size={28} />,
             color: '#6366f1',
           },
           {
             label: 'Total Nilai Limit (SPK)',
             value: formatRp(summary.totalNilaiLimit),
             sub: 'Berdasarkan hasil AHP-SAW',
-            icon: '⚖️',
+            icon: <Scale size={28} />,
             color: '#f59e0b',
           },
           {
             label: 'Total Pendapatan Lelang',
             value: formatRp(summary.totalPendapatan),
             sub: 'Harga penawaran tertinggi',
-            icon: '💰',
+            icon: <Banknote size={28} />,
             color: '#10b981',
           },
           {
             label: 'Surplus dari Nilai Limit',
             value: formatRp(surplus),
             sub: `+${surplusPercent}% di atas limit`,
-            icon: '📈',
+            icon: <TrendingUp size={28} />,
             color: surplus >= 0 ? '#10b981' : '#ef4444',
           },
         ].map((s) => (
@@ -128,7 +129,7 @@ export default function AuctionSummaryPage() {
             borderRadius: 12,
             padding: '20px 24px',
           }}>
-            <div style={{ fontSize: 28, marginBottom: 10 }}>{s.icon}</div>
+            <div style={{ color: s.color, marginBottom: 10 }}>{s.icon}</div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 4 }}>{s.label}</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: s.color, lineHeight: 1.2 }}>{s.value}</div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{s.sub}</div>

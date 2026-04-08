@@ -1,16 +1,21 @@
 import prisma from '../models/prisma.client.js';
+import {
+  SELLER_VERIFICATION_STATUS,
+  resolveSellerVerificationStatus,
+} from '../utils/seller-verification.util.js';
 
 const buildAdminSummary = async () => {
   const [
-    sellerPending,
     lelangAktif,
     pembayaranPending,
     totalLelangSelesai,
     lelangRevenue,
-    latestPendingSellers,
     latestFinishedAuctions,
+    allSellers,
+    latestSellers,
+    buyerKycPending,
+    asetPendingSchedule,
   ] = await Promise.all([
-    prisma.penjual.count({ where: { isVerified: false } }),
     prisma.lelang.count({ where: { status: { in: ['ACTIVE', 'PENDING'] } } }),
     prisma.lelang.count({ where: { statusPembayaran: 'PENDING_VERIFICATION' } }),
     prisma.lelang.count({ where: { status: 'FINISHED' } }),
@@ -24,14 +29,6 @@ const buildAdminSummary = async () => {
         },
       },
     }),
-    prisma.penjual.findMany({
-      where: { isVerified: false },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      include: {
-        user: { select: { id: true, nama: true, email: true, createdAt: true } },
-      },
-    }),
     prisma.lelang.findMany({
       where: { status: 'FINISHED' },
       orderBy: { waktuTutup: 'desc' },
@@ -41,7 +38,31 @@ const buildAdminSummary = async () => {
         pemenang: { select: { id: true, nama: true } },
       },
     }),
+    prisma.penjual.findMany({
+      include: {
+        verifier: { select: { id: true, nama: true, email: true } },
+        user: { select: { id: true, nama: true, email: true, createdAt: true } },
+      },
+    }),
+    prisma.penjual.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: {
+        verifier: { select: { id: true, nama: true, email: true } },
+        user: { select: { id: true, nama: true, email: true, createdAt: true } },
+      },
+    }),
+    prisma.user.count({ where: { role: 'PEMBELI', buyerVerificationStatus: 'PENDING' } }),
+    prisma.aset.count({ where: { statusLelang: 'PENDING' } }),
   ]);
+
+  const allPendingSellers = allSellers
+    .map((item) => ({ ...item, verificationStatus: resolveSellerVerificationStatus(item) }))
+    .filter((item) => item.verificationStatus === SELLER_VERIFICATION_STATUS.PENDING);
+
+  const pendingSellers = latestSellers
+    .map((item) => ({ ...item, verificationStatus: resolveSellerVerificationStatus(item) }))
+    .filter((item) => item.verificationStatus === SELLER_VERIFICATION_STATUS.PENDING);
 
   const totalPendapatan = lelangRevenue.reduce((sum, item) => {
     const highest = item.penawaran?.[0]?.nominal ? Number(item.penawaran[0].nominal) : 0;
@@ -50,14 +71,16 @@ const buildAdminSummary = async () => {
 
   return {
     stats: {
-      sellerPending,
+      sellerPending: allPendingSellers.length,
+      buyerKycPending,
+      asetPendingSchedule,
       lelangAktif,
       pembayaranPending,
       totalLelangSelesai,
       totalPendapatan,
     },
     highlights: {
-      sellerPendingList: latestPendingSellers,
+      sellerPendingList: pendingSellers.slice(0, 5),
       recentAuctions: latestFinishedAuctions,
     },
   };
@@ -66,7 +89,15 @@ const buildAdminSummary = async () => {
 const buildSellerSummary = async (userId) => {
   const seller = await prisma.penjual.findUnique({
     where: { userId },
-    select: { id: true, isVerified: true, rekeningBank: true, nomorRekening: true },
+    select: {
+      id: true,
+      isVerified: true,
+      verificationStatus: true,
+      verificationNote: true,
+      verifiedAt: true,
+      rekeningBank: true,
+      nomorRekening: true,
+    },
   });
 
   if (!seller) {
@@ -76,6 +107,7 @@ const buildSellerSummary = async (userId) => {
         asetPendingVerifikasi: 0,
         asetAktifLelang: 0,
         asetTerjual: 0,
+        totalHasilPenjualan: 0,
       },
       highlights: {
         recentAssets: [],
@@ -84,7 +116,7 @@ const buildSellerSummary = async (userId) => {
     };
   }
 
-  const [assets, soldAuctions] = await Promise.all([
+  const [assets, soldAuctions, finishedSellerAuctions] = await Promise.all([
     prisma.aset.findMany({
       where: { penjualId: seller.id },
       orderBy: { createdAt: 'desc' },
@@ -110,7 +142,27 @@ const buildSellerSummary = async (userId) => {
         pemenangId: { not: null },
       },
     }),
+    prisma.lelang.findMany({
+      where: {
+        aset: { penjualId: seller.id },
+        status: 'FINISHED',
+        pemenangId: { not: null },
+      },
+      select: {
+        id: true,
+        penawaran: {
+          orderBy: { nominal: 'desc' },
+          take: 1,
+          select: { nominal: true },
+        },
+      },
+    }),
   ]);
+
+  const totalHasilPenjualan = finishedSellerAuctions.reduce((sum, item) => {
+    const topBid = item.penawaran?.[0]?.nominal ? Number(item.penawaran[0].nominal) : 0;
+    return sum + topBid;
+  }, 0);
 
   return {
     stats: {
@@ -118,16 +170,20 @@ const buildSellerSummary = async (userId) => {
       asetPendingVerifikasi: assets.filter((item) => item.statusLelang === 'PENDING').length,
       asetAktifLelang: assets.filter((item) => item.statusLelang === 'ACTIVE').length,
       asetTerjual: soldAuctions,
+      totalHasilPenjualan,
     },
     highlights: {
       recentAssets: assets.slice(0, 5),
-      sellerProfile: seller,
+      sellerProfile: {
+        ...seller,
+        verificationStatus: resolveSellerVerificationStatus(seller),
+      },
     },
   };
 };
 
 const buildBuyerSummary = async (userId) => {
-  const [joinedAuctions, wonAuctions, paymentPending, pendingReceive, recentWins, buyer] = await Promise.all([
+  const [joinedAuctions, wonAuctions, paymentPending, pendingReceive, recentWins, upcomingJoinedAuctions, buyer] = await Promise.all([
     prisma.penawaran.findMany({
       where: { userId },
       distinct: ['lelangId'],
@@ -162,6 +218,17 @@ const buildBuyerSummary = async (userId) => {
         },
       },
     }),
+    prisma.lelang.findMany({
+      where: {
+        status: { in: ['PENDING', 'ACTIVE'] },
+        penawaran: { some: { userId } },
+      },
+      orderBy: { waktuBuka: 'asc' },
+      take: 5,
+      include: {
+        aset: { select: { id: true, nama: true } },
+      },
+    }),
     prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -178,9 +245,11 @@ const buildBuyerSummary = async (userId) => {
       lelangDimenangkan: wonAuctions,
       pembayaranPending: paymentPending,
       barangBelumDikonfirmasi: pendingReceive,
+      lelangSegeraDimulai: upcomingJoinedAuctions.length,
     },
     highlights: {
       recentWins,
+      upcomingJoinedAuctions,
       buyerProfile: buyer,
     },
   };

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { getKategori, getHasil } from '../services/api.js';
+import { getKategori, getHasil } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { Trophy, Scale } from 'lucide-react';
 
 const formatRp = (val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 
 export default function HasilPage() {
+  const { user } = useAuth();
   const [kategoriList, setKategoriList] = useState([]);
   const [selectedKategori, setSelectedKategori] = useState('');
   const [data, setData] = useState([]);
@@ -24,7 +27,7 @@ export default function HasilPage() {
   return (
     <div>
       <div className="page-header">
-        <h2>🏆 Hasil & Ranking Aset</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Trophy size={24} /> Hasil & Ranking Aset</h2>
         <p>Tampilan hasil akhir nilai limit aset berdasarkan kategori</p>
       </div>
 
@@ -70,7 +73,12 @@ export default function HasilPage() {
           </div>
         </div>
       ) : selectedKategori ? (
-        <div className="card"><div className="empty-state"><div className="icon">⚖️</div><p>Belum ada hasil. Jalankan perhitungan SAW terlebih dahulu.</p></div></div>
+        <div className="card">
+          <div className="empty-state">
+            <div style={{ marginBottom: 12 }}><Scale size={48} opacity={0.3} /></div>
+            <p>{user?.role === 'ADMIN' ? 'Belum ada hasil. Jalankan perhitungan SAW terlebih dahulu.' : 'Data Belum Tersedia'}</p>
+          </div>
+        </div>
       ) : null}
     </div>
   );

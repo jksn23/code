@@ -1,9 +1,9 @@
 # 📊 Analisis Progress Sistem Lelang & SPK AHP-SAW
-*Update Terakhir: 7 April 2026*
+*Update Terakhir: 8 April 2026*
 
 Dokumen ini berisi analisis mendalam mengenai status pengembangan **Sistem Pendukung Keputusan Penentuan Nilai Aset dan Sistem Lelang Online** berdasarkan dokumen `panduan_pengembangan_sistem_lelang_final_v2.md`. 
 
-Secara keseluruhan, sistem telah mencapai tahap **Beta/Siap Uji Coba** dengan sebagian besar alur utama (Core Flows) telah terimplementasi dengan sangat baik.
+Secara keseluruhan, sistem telah mencapai tahap **Beta Matang/Hampir Selesai** dengan hampir seluruh fitur inti (Core Features) telah terimplementasi.
 
 ---
 
@@ -11,69 +11,59 @@ Secara keseluruhan, sistem telah mencapai tahap **Beta/Siap Uji Coba** dengan se
 
 ### 🟢 A. Flow Penjual (Seller Flow)
 ✅ **Registrasi & Login**: Berhasil. Pendaftaran form multipart untuk KTP, NPWP, dan nomor rekening sudah disesuaikan.
-✅ **Verifikasi Penjual**: Berhasil. Fitur penahanan akses bagi penjual yang belum diverifikasi (*Seller Waiting Page*) dengan proteksi routing yang sangat baik sudah live.
+✅ **Verifikasi Penjual**: Berhasil. Fitur penahanan akses bagi penjual yang belum diverifikasi (*Seller Waiting Page*) sudah live.
 ✅ **Input Data Aset**: Berhasil. Penjual dapat menambahkan aset untuk dinilai.
 ✅ **SPK & Nilai Limit**: Berhasil. Nilai limit dihasilkan berdasarkan kalkulasi preferensi dikali harga pasar yang diajukan.
 ✅ **Pengajuan Lelang**: Berhasil. Penjual bisa mengajukan aset untuk masuk ke antrean lelang.
 
 ### 🔵 B. Flow Admin (Pejabat Lelang)
 ✅ **Manajemen Master Data**: Berhasil. Kategori, Kriteria, dan perhitungan (AHP-SAW) berjalan normal.
-✅ **Verifikasi Penjual**: Berhasil. Admin memiliki panel *Admin Seller Detail* untuk mengecek dokumen KTP/NPWP dan melakukan *Approve*.
+✅ **Verifikasi Penjual**: Berhasil. Admin memiliki panel *Admin Seller Detail* untuk mengecek dokumen.
 ✅ **Pengawasan SPK**: Berhasil. Admin dapat mengatur, menghitung, dan memvalidasi *Consistency Ratio* (CR < 0.1).
 ✅ **Manajemen & Alur Lelang**: Berhasil. Penjadwalan lelang, transisi otomatis antar lelang (Sequential Auction Queue), dan Halaman Ringkasan Lelang (Summary Page) telah diimplementasikan.
-✅ **Generate Laporan**: Berhasil. Fitur unduh laporan telah dibuat dan hanya dapat diakses oleh Admin.
-⚠️ **Validasi Pembayaran**: **Parsial**. Admin saat ini validasi pembayaran masih dilakukan secara manual/di-update manual, belum ada sistem invoice otomatis penuh.
+✅ **Sistem Pembayaran Internal**: Berhasil. Admin dapat melihat bukti transfer, menyetujui, atau menolak pembayaran langsung dari sistem.
+✅ **Manajemen User & KYC**: Berhasil. Admin memiliki panel *User Management* untuk memverifikasi KTP pembeli dan mengelola akun.
+✅ **Generate Laporan**: Berhasil. Fitur unduh laporan aset, lelang, dan transaksi tersedia bagi Admin.
 
 ### 🟡 C. Flow Pembeli (Buyer Flow)
 ✅ **Registrasi & Login**: Berhasil. Akun pembeli diisolasi dengan baik dari penjual.
-✅ **Melihat & Memilih Aset**: Berhasil. Halaman daftar lelang publik tersedia tanpa login, Room lelang memerlukan login.
-✅ **Bidding (Penawaran)**: Berhasil. Sistem *Real-time Bidding* menggunakan WebSockets (Socket.io) sudah berjalan responsif beserta tombol *Quick Bid*.
-✅ **Konfirmasi Barang Diterima**: Berhasil. Fitur untuk mengupdate status barang dari "Proses" menjadi "Diterima" oleh pemenang.
-⚠️ **Pembayaran & Upload Bukti**: **Parsial**. Saat ini sistem mengarahkan pemenang ke integrasi **WhatsApp** Pejabat Lelang untuk konfirmasi pembayaran. Fitur *upload bukti bayar in-app* belum dibuat jika merujuk pada panduan.
+✅ **KYC Pembeli**: Berhasil. Pembeli memiliki status verifikasi (Pending/Approved/Rejected) yang dikelola admin.
+✅ **Bidding (Penawaran)**: Berhasil. Sistem *Real-time Bidding* menggunakan WebSockets (Socket.io) berjalan responsif.
+✅ **Pembayaran & Invoice (In-App)**: Berhasil. Pemenang lelang secara otomatis mendapatkan nomor invoice dan dapat mengunggah bukti transfer langsung di sistem.
+✅ **Konfirmasi Barang Diterima**: Berhasil. Pemenang dapat mengupdate status barang menjadi "Diterima" setelah pembayaran lunas.
+✅ **Notifikasi Terpadu**: Berhasil. User menerima notifikasi in-app (notif center) untuk status verifikasi, hasil lelang, dan status pembayaran.
 
 ---
 
 ## 🛠️ 2. Fitur yang Perlu Dibuat / Dikembangkan (TODO List)
 
-Berdasarkan panduan sistem, berikut adalah fitur-fitur yang masih perlu dikembangkan untuk melengkapi sistem 100%:
+Berdasarkan tinjauan kode terbaru, berikut adalah sisa pengembangan untuk mencapai kesempurnaan 100%:
 
-### 1. Sistem Invoice & Upload Bukti Pembayaran (In-App)
-*   **Masalah saat ini:** Pemenang diarahkan ke WhatsApp untuk verifikasi pembayaran. Panduan meminta sistem melakukan "Generate Invoice" dan "Upload bukti pembayaran".
+### 1. Refinement Verifikasi Penjual (Enum Status & Alasan Penolakan)
+*   **Masalah saat ini:** Verifikasi penjual masih berbasis boolean sederhana (`isVerified`). Tidak ada tempat untuk menyimpan alasan penolakan secara permanen di database.
 *   **Pengembangan:** 
-    *   Buat endpoint untuk menghasilkan PDF invoice.
-    *   Tambahkan form UI di card Pemenang (LelangRoomPage / Dashboard Pembeli) untuk upload gambar bukti transfer.
-    *   Buat UI khusus di Dashboard Admin untuk menyetujui mutasi/bukti transfer tersebut, yang akan mengubah `statusPembayaran` menjadi `LUNAS`.
+    *   Ubah field `isVerified` (Boolean) menjadi `verificationStatus` (Enum: PENDING, APPROVED, REJECTED).
+    *   Tambahkan field `verificationNote` pada model `Penjual` agar admin bisa memberikan alasan revisi dokumen.
 
-### 2. Fitur "Tolak / Reject" Penjual & Revisi Dokumen
-*   **Masalah saat ini:** Admin baru memiliki tombol "Verifikasi & Setujui Akun". Jika KTP/NPWP buram atau palsu, belum ada alur penolakan.
-*   **Pengembangan:**
-    *   Tambahkan tombol **"Tolak Verifikasi"** yang menyertakan catatan alasan penolakan (misal: "KTP buram").
-    *   Beri opsi kepada Penjual di *Seller Waiting Page* untuk **mengunggah ulang dokumen** tanpa harus membuat akun baru.
-
-### 3. Penegasan Verifikasi Pembeli (Opsional)
-*   Apakah pembeli juga perlu verifikasi KTP oleh admin sebelum boleh melakukan bidding? Saat ini `isVerified` otomatis `true` untuk pembeli. Jika instruksi institusi mensyaratkan KYC (Know Your Customer) pembeli lelang untuk mencegah *bid & run*, ini perlu ditambahkan.
-
-### 4. Notifikasi Terpadu (In-App Notifications)
-*   Saat admin mengubah status pembayaran, atau pemenang terkonfirmasi, mereka hanya tahu dengan membuka detail halamannya. Fitur notifikasi berupa ikon lonceng / riwayat notifikasi akan mempercantik sistem.
+### 2. Personalisasi Dashboard KPI
+*   **Masalah saat ini:** Dashboard sudah dipersonalisasi di tingkat backend, namun visualisasi data (grafik/stat cards) untuk Penjual (total aset terjual) dan Pembeli (total bidding diikuti) masih bisa diperkaya.
+*   **Pengembangan:** 
+    *   Tambahkan widget "Lelang yang Segera Dimulai" di dashboard pembeli.
+    *   Tambahkan ringkasan "Total Saldo/Hasil Penjualan" di dashboard penjual.
 
 ---
 
 ## 🐛 3. Yang Perlu Diperbaiki / Revisi (Refinement)
 
-Sistem sudah bersih dari *major bugs*, namun ada beberapa penyempurnaan UI/UX dan alur:
-
-1.  **Validasi Waktu Buka/Tutup Lelang (Admin)**
-    *   Admin harus memiliki validasi ketat di form pembuatan lelang agar jadwal *Sequential Auction* tidak saling bertabrakan (overlap waktu). Sistem backend sudah di-handle di `getNextLelang`, namun *preventive action* di frontend Admin lebih baik.
-2.  **Penanganan Sesi Socket.io**
-    *   Memastikan reconnect logic yang kuat jika server sempat down, agar pembeli yang sedang bidding tidak menyadari putusnya koneksi.
-3.  **Halaman Dashboard Personal**
-    *   Halaman dashboard (`/`) saat ini belum sepenuhnya dipersonalisasi. Dashboard Penjual dapat diperkaya dengan total pendapatan aset mereka. Dashboard Pembeli dapat menampilkan *Aset yang sedang saya ikuti / menangkan*.
+1.  **Validasi Preventif Jadwal Lelang**
+    *   Menambahkan validasi di UI Admin agar tidak bisa memilih waktu buka/tutup yang lampau atau durasi yang nol.
+2.  **Indikator Koneksi Socket**
+    *   Menampilkan status "Online/Offline" pada room lelang agar pembeli tahu jika koneksi terputus.
 
 ---
 
 ## 🏁 Kesimpulan
-Progress sistem berada di angka **90%** untuk mencapai spesifikasi penuh dalam dokumen final. Fokus pengembangan selanjutnya (`Sprint` berikutnya) sebaiknya difokuskan pada:
-1. **Modul Pengelolaan Pembayaran / Invoice di dalam sistem.**
-2. **Fitur Penolakan Verifikasi Penjual (Auto-Reject & Re-upload).**
+Progress sistem berada di angka **96%**. Sistem sudah sangat lengkap secara fungsional (End-to-End). Fokus terakhir adalah pada **Refinement Data Penjual** dan **Polishing UI Dashboard**.
 
-Sistem saat ini sudah sangat matang secara arsitektur, aman dari sisi *role-based access control (RBAC)*, dan stabil untuk perhitungan matematis SPK serta socket lelang waktu nyatanya.
+Sistem saat ini sudah siap untuk tahap Demo Final kepada stakeholder.
+perhitungan matematis SPK serta socket lelang waktu nyatanya.

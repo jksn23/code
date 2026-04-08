@@ -1,5 +1,6 @@
 import prisma from '../models/prisma.client.js';
 import { createNotification } from '../utils/notification.util.js';
+import { isSellerApproved } from '../utils/seller-verification.util.js';
 
 const calculateQueueSchedule = async (requestedStart, durasiMenit) => {
   const scheduled = await prisma.lelang.findMany({
@@ -100,7 +101,7 @@ export const createAset = async (req, res) => {
     if (req.userRole === 'PENJUAL') {
       const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
       if (!penjual) return res.status(403).json({ success: false, message: "Akses ditolak. Profil penjual tidak ditemukan." });
-      if (!penjual.isVerified) return res.status(403).json({ success: false, message: "Akun Anda belum diverifikasi oleh Admin. Silakan tunggu proses verifikasi." });
+      if (!isSellerApproved(penjual)) return res.status(403).json({ success: false, message: "Akun seller Anda belum disetujui admin. Selesaikan verifikasi terlebih dahulu." });
       penjualId = penjual.id;
     }
 
@@ -173,6 +174,9 @@ export const ajukanLelang = async (req, res) => {
   try {
     const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
     if (!penjual) return res.status(403).json({ message: "Profil penjual tidak ditemukan" });
+    if (!isSellerApproved(penjual)) {
+      return res.status(403).json({ message: "Akun seller Anda belum aktif. Pengajuan lelang dikunci sampai verifikasi disetujui admin." });
+    }
 
     const aset = await prisma.aset.findUnique({ where: { id: Number(req.params.id) } });
     if (!aset) return res.status(404).json({ message: "Aset tidak ditemukan" });

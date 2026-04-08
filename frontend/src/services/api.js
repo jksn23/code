@@ -43,6 +43,11 @@ export const getDashboardSummary = () => api.get('/dashboard/summary');
 export const getNotifikasi = () => api.get('/notifikasi');
 export const markNotifikasiRead = (id) => api.put(`/notifikasi/${id}/read`);
 export const markAllNotifikasiRead = () => api.put('/notifikasi/read-all');
+export const getUsersAdmin = (params) => api.get('/users', { params });
+export const getUserAdminById = (id) => api.get(`/users/${id}`);
+export const createUserAdmin = (data) => api.post('/users', data);
+export const updateUserAdmin = (id, data) => api.put(`/users/${id}`, data);
+export const deleteUserAdmin = (id) => api.delete(`/users/${id}`);
 
 // ====== KATEGORI ======
 export const getKategori = () => api.get('/kategori');
@@ -71,7 +76,10 @@ export const deleteAset = (id) => api.delete(`/aset/${id}`);
 // ====== PENJUAL & LELANG ======
 export const getSemuaPenjual = () => api.get('/penjual');
 export const getPenjualById = (id) => api.get(`/penjual/${id}`);
-export const verifikasiPenjual = (id, isVerified) => api.put(`/penjual/${id}/verify`, { isVerified });
+export const verifikasiPenjual = (id, data) => api.put(`/penjual/${id}/verify`, data);
+export const resubmitSellerDocuments = (formData) => api.put('/penjual/me/documents', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
 export const getSemuaPembeli = () => api.get('/pembeli');
 export const getPembeliById = (id) => api.get(`/pembeli/${id}`);
 export const verifikasiPembeli = (id, data) => api.put(`/pembeli/${id}/verifikasi`, data);
@@ -82,6 +90,9 @@ export const verifikasiPembayaranLelang = (id) => api.put(`/lelang/${id}/pembaya
 export const konfirmasiTerimaBarang = (id) => api.put(`/lelang/${id}/terima-barang`);
 export const getNextLelang = (currentId) => api.get(`/lelang/next/${currentId}`);
 export const getLelangSummary = (date) => api.get(`/lelang/summary/${date}`);
+export const getBuyerOwnedAssets = () => api.get('/lelang/pemenang/aset-saya');
+export const getBuyerPendingPayments = () => api.get('/lelang/pemenang/pembayaran');
+export const getLelangSayaMenang = () => api.get('/lelang/pemenang/saya');
 export const getInvoiceLelang = (id) => api.get(`/lelang/${id}/invoice`);
 export const uploadBuktiPembayaranLelang = (id, formData) => api.post(`/lelang/${id}/upload-bukti`, formData, {
   headers: { 'Content-Type': 'multipart/form-data' }

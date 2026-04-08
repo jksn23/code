@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'rea
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 import Sidebar from './components/Sidebar';
+import Navbar from './components/Navbar';
 import DashboardPage from './pages/DashboardPage';
 import KategoriPage from './pages/KategoriPage';
 import KriteriaPage from './pages/KriteriaPage';
@@ -15,7 +16,10 @@ import HasilPage from './pages/HasilPage';
 import PenjualPage from './pages/PenjualPage';
 import AdminSellerDetailPage from './pages/AdminSellerDetailPage';
 import BuyerVerificationPage from './pages/BuyerVerificationPage';
+import UserManagementPage from './pages/UserManagementPage';
 import LelangAdminPage from './pages/LelangAdminPage';
+import BuyerAssetsPage from './pages/BuyerAssetsPage';
+import BuyerPaymentsPage from './pages/BuyerPaymentsPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import LelangPublikPage from './pages/LelangPublikPage';
@@ -23,18 +27,29 @@ import LelangRoomPage from './pages/LelangRoomPage';
 import LaporanPage from './pages/LaporanPage';
 import SellerWaitingPage from './pages/SellerWaitingPage';
 import AuctionSummaryPage from './pages/AuctionSummaryPage';
+import { isSellerApprovedStatus, resolveSellerStatus } from './utils/sellerVerification';
 import './index.css';
 
 const NO_SIDEBAR_PATHS = ['/login', '/register'];
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  // Close sidebar whenever route changes (mobile nav click)
+  React.useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
   const isNoSidebar = NO_SIDEBAR_PATHS.includes(location.pathname);
   if (isNoSidebar) return <>{children}</>;
   return (
     <div className="app-layout">
-      <Sidebar />
-      <main className="main-content">{children}</main>
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="main-wrapper">
+        <Navbar onMenuToggle={() => setSidebarOpen((p) => !p)} />
+        <main className="main-content">{children}</main>
+      </div>
     </div>
   );
 };
@@ -42,7 +57,7 @@ const Layout = ({ children }) => {
 const AuthGuard = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role === 'PENJUAL' && user.isVerified === false) {
+  if (user.role === 'PENJUAL' && !isSellerApprovedStatus(resolveSellerStatus(user))) {
     return <SellerWaitingPage />;
   }
   return <Outlet />;
@@ -71,14 +86,20 @@ export default function App() {
 
               <Route element={<RoleRoute allowedRoles={['ADMIN', 'PENJUAL']} />}>
                 <Route path="/aset" element={<AsetPage />} />
-                <Route path="/input-nilai" element={<InputNilaiPage />} />
                 <Route path="/hasil" element={<HasilPage />} />
               </Route>
 
+              <Route element={<RoleRoute allowedRoles={['PEMBELI']} />}>
+                <Route path="/aset-saya" element={<BuyerAssetsPage />} />
+                <Route path="/pembayaran" element={<BuyerPaymentsPage />} />
+              </Route>
+
               <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+                <Route path="/input-nilai" element={<InputNilaiPage />} />
                 <Route path="/penjual" element={<PenjualPage />} />
                 <Route path="/penjual/:id" element={<AdminSellerDetailPage />} />
                 <Route path="/pembeli-verifikasi" element={<BuyerVerificationPage />} />
+                <Route path="/users-admin" element={<UserManagementPage />} />
                 <Route path="/lelang-admin" element={<LelangAdminPage />} />
                 <Route path="/kategori" element={<KategoriPage />} />
                 <Route path="/kriteria" element={<KriteriaPage />} />

@@ -4,6 +4,8 @@ import {
   getLelangById,
   getLelangSelesai,
   getLelangSayaMenang,
+  getBuyerOwnedAssets,
+  getBuyerPendingPayments,
   getNextLelang,
   getLelangSummary,
   getInvoiceLelang,
@@ -25,6 +27,8 @@ router.get('/admin/selesai', verifyToken, verifyAdmin, getLelangSelesai);
 
 // Pembeli: riwayat lelang yang dimenangkan
 router.get('/pemenang/saya', verifyToken, verifyPembeli, getLelangSayaMenang);
+router.get('/pemenang/aset-saya', verifyToken, verifyPembeli, getBuyerOwnedAssets);
+router.get('/pemenang/pembayaran', verifyToken, verifyPembeli, getBuyerPendingPayments);
 
 // Public: ringkasan lelang berdasarkan tanggal (MUST be before /:id)
 router.get('/summary/:date', getLelangSummary);

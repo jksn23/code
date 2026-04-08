@@ -160,6 +160,62 @@ const paymentStatusLabels = {
   DITOLAK: 'DITOLAK',
 };
 
+const buildBuyerAuctionSummary = (item) => {
+  const topBid = item.penawaran?.[0];
+  const hargaMenang = Number(topBid?.nominal || 0);
+  const nilaiLimit = Number(item.aset?.hasil?.[0]?.nilaiLimit || 0);
+  const hargaPasar = Number(item.aset?.hargaPasar || 0);
+
+  return {
+    lelangId: item.id,
+    asetId: item.aset?.id,
+    invoiceNumber: item.invoiceNumber,
+    invoiceGeneratedAt: item.invoiceGeneratedAt,
+    paymentDueDate: item.paymentDueDate,
+    statusPembayaran: item.statusPembayaran,
+    statusBarang: item.statusBarang,
+    buktiBayarUrl: item.buktiBayarUrl,
+    tanggalUploadBukti: item.tanggalUploadBukti,
+    tanggalVerifikasiPembayaran: item.tanggalVerifikasiPembayaran,
+    catatanPembayaran: item.catatanPembayaran,
+    waktuTutup: item.waktuTutup,
+    aset: {
+      id: item.aset?.id,
+      nama: item.aset?.nama,
+      kategori: item.aset?.kategori?.nama,
+      deskripsi: item.aset?.deskripsi,
+      dokumenUrl: item.aset?.dokumenUrl,
+      hargaPasar,
+      nilaiLimit,
+    },
+    penjual: {
+      nama: item.aset?.penjual?.user?.nama || '-',
+      email: item.aset?.penjual?.user?.email || '-',
+      rekeningBank: item.aset?.penjual?.rekeningBank || '-',
+      nomorRekening: item.aset?.penjual?.nomorRekening || '-',
+    },
+    transaksi: {
+      hargaMenang,
+      profitLelang: hargaPasar - hargaMenang,
+      selisihTerhadapLimit: hargaMenang - nilaiLimit,
+    },
+  };
+};
+
+const enrichWinnerAuctions = async (list) => Promise.all(
+  list.map(async (item) => {
+    const meta = await ensureInvoiceMetadata(item.id);
+    return buildBuyerAuctionSummary({
+      ...item,
+      invoiceNumber: meta?.invoiceNumber || item.invoiceNumber,
+      invoiceGeneratedAt: meta?.invoiceGeneratedAt || item.invoiceGeneratedAt,
+      paymentDueDate: meta?.paymentDueDate || item.paymentDueDate,
+    });
+  })
+);
+
+let lifecycleSyncInProgress = false;
+
 export const syncLelangLifecycle = async (lelangId) => {
   const lelang = await prisma.lelang.findUnique({
     where: { id: Number(lelangId) },
@@ -194,35 +250,48 @@ export const syncLelangLifecycle = async (lelangId) => {
   const waktuTutup = lelang.waktuTutup ? new Date(lelang.waktuTutup) : null;
 
   if (lelang.status === 'PENDING' && waktuBuka && now >= waktuBuka && (!waktuTutup || now < waktuTutup)) {
-    await prisma.lelang.update({
-      where: { id: lelang.id },
+    const activated = await prisma.lelang.updateMany({
+      where: { id: lelang.id, status: 'PENDING' },
       data: { status: 'ACTIVE' },
     });
-    await prisma.aset.update({
-      where: { id: lelang.asetId },
-      data: { statusLelang: 'ACTIVE' },
-    });
+    if (activated.count > 0) {
+      await prisma.aset.update({
+        where: { id: lelang.asetId },
+        data: { statusLelang: 'ACTIVE' },
+      });
+    }
     return prisma.lelang.findUnique({ where: { id: lelang.id }, include: lelangDetailInclude });
   }
 
   if ((lelang.status === 'ACTIVE' || lelang.status === 'PENDING') && waktuTutup && now > waktuTutup) {
     const topBid = lelang.penawaran?.[0] || null;
 
-    const updated = await prisma.lelang.update({
-      where: { id: lelang.id },
+    const finished = await prisma.lelang.updateMany({
+      where: {
+        id: lelang.id,
+        status: { in: ['ACTIVE', 'PENDING'] },
+      },
       data: {
         status: 'FINISHED',
         pemenangId: topBid ? topBid.userId : null,
       },
+    });
+
+    const updated = await prisma.lelang.findUnique({
+      where: { id: lelang.id },
       include: lelangDetailInclude,
     });
 
-    await prisma.aset.update({
-      where: { id: lelang.asetId },
-      data: { statusLelang: 'FINISHED' },
-    });
+    if (!updated) return null;
 
-    if (topBid?.userId) {
+    if (finished.count > 0) {
+      await prisma.aset.update({
+        where: { id: lelang.asetId },
+        data: { statusLelang: 'FINISHED' },
+      });
+    }
+
+    if (finished.count > 0 && topBid?.userId) {
       await createNotifications([
         {
           userId: topBid.userId,
@@ -247,6 +316,42 @@ export const syncLelangLifecycle = async (lelangId) => {
   }
 
   return lelang;
+};
+
+export const syncAuctionLifecycleBatch = async () => {
+  if (lifecycleSyncInProgress) {
+    return { skipped: true, reason: 'Lifecycle sync masih berjalan' };
+  }
+
+  lifecycleSyncInProgress = true;
+
+  try {
+    const now = new Date();
+    const affectedAuctions = await prisma.lelang.findMany({
+      where: {
+        OR: [
+          {
+            status: 'PENDING',
+            waktuBuka: { lte: now },
+          },
+          {
+            status: { in: ['PENDING', 'ACTIVE'] },
+            waktuTutup: { lt: now },
+          },
+        ],
+      },
+      select: { id: true },
+      orderBy: { waktuBuka: 'asc' },
+    });
+
+    for (const item of affectedAuctions) {
+      await syncLelangLifecycle(item.id);
+    }
+
+    return { skipped: false, processed: affectedAuctions.length };
+  } finally {
+    lifecycleSyncInProgress = false;
+  }
 };
 
 const buildInvoiceResponse = (lelang) => {
@@ -637,11 +742,6 @@ export const getLelangSayaMenang = async (req, res) => {
   try {
     const userId = req.userId;
 
-    const buyer = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { buyerVerificationStatus: true },
-    });
-
     const list = await prisma.lelang.findMany({
       where: {
         status: 'FINISHED',
@@ -651,19 +751,46 @@ export const getLelangSayaMenang = async (req, res) => {
       orderBy: { waktuTutup: 'desc' },
     });
 
-    const enriched = await Promise.all(
-      list.map(async (item) => {
-        const meta = await ensureInvoiceMetadata(item.id);
-        return {
-          ...item,
-          invoiceNumber: meta?.invoiceNumber || item.invoiceNumber,
-          invoiceGeneratedAt: meta?.invoiceGeneratedAt || item.invoiceGeneratedAt,
-          paymentDueDate: meta?.paymentDueDate || item.paymentDueDate,
-        };
-      })
-    );
+    const enriched = await enrichWinnerAuctions(list);
 
     res.json({ success: true, data: enriched });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getBuyerOwnedAssets = async (req, res) => {
+  try {
+    const list = await prisma.lelang.findMany({
+      where: {
+        status: 'FINISHED',
+        pemenangId: req.userId,
+      },
+      include: adminFinishedInclude,
+      orderBy: { waktuTutup: 'desc' },
+    });
+
+    const data = await enrichWinnerAuctions(list);
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getBuyerPendingPayments = async (req, res) => {
+  try {
+    const list = await prisma.lelang.findMany({
+      where: {
+        status: 'FINISHED',
+        pemenangId: req.userId,
+        statusPembayaran: { in: ['UNPAID', 'PENDING_VERIFICATION', 'DITOLAK'] },
+      },
+      include: adminFinishedInclude,
+      orderBy: { waktuTutup: 'desc' },
+    });
+
+    const data = await enrichWinnerAuctions(list);
+    res.json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -104,6 +104,7 @@ export default function AsetPage() {
   const [data, setData] = useState([]);
   const [kategoriList, setKategoriList] = useState([]);
   const [filterKategori, setFilterKategori] = useState('');
+  const [statusTerjualFilter, setStatusTerjualFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null); // { type: 'delete'|'ajukan', id }
@@ -123,6 +124,19 @@ export default function AsetPage() {
   };
 
   useEffect(() => { load(); }, [filterKategori]);
+
+  const filteredData = data.filter((item) => {
+    if (statusTerjualFilter === 'sold') {
+      return item.lelang?.some((lelang) => lelang.status === 'FINISHED' && lelang.pemenangId !== null);
+    }
+    if (statusTerjualFilter === 'unsold') {
+      return !item.lelang?.some((lelang) => lelang.status === 'FINISHED' && lelang.pemenangId !== null);
+    }
+    return true;
+  });
+
+  const soldCount = data.filter((item) => item.lelang?.some((lelang) => lelang.status === 'FINISHED' && lelang.pemenangId !== null)).length;
+  const unsoldCount = data.length - soldCount;
 
   const handleDelete = async (id) => {
     try { 
@@ -154,23 +168,41 @@ export default function AsetPage() {
       </div>
 
       <div className="card" style={{ marginBottom: 16 }}>
-        <div className="form-group" style={{ marginBottom: 0 }}>
-          <label className="form-label">Filter by Kategori</label>
-          <select className="form-control" value={filterKategori} onChange={(e) => setFilterKategori(e.target.value)}>
-            <option value="">Semua Kategori</option>
-            {kategoriList.map((k) => <option key={k.id} value={k.id}>{k.nama}</option>)}
-          </select>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'end' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Filter by Kategori</label>
+            <select className="form-control" value={filterKategori} onChange={(e) => setFilterKategori(e.target.value)}>
+              <option value="">Semua Kategori</option>
+              {kategoriList.map((k) => <option key={k.id} value={k.id}>{k.nama}</option>)}
+            </select>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {[
+              { key: 'all', label: `Semua (${data.length})` },
+              { key: 'sold', label: `Terjual (${soldCount})` },
+              { key: 'unsold', label: `Belum Terjual (${unsoldCount})` },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={`btn btn-sm ${statusTerjualFilter === tab.key ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setStatusTerjualFilter(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="card" style={{ padding: 0 }}>
         {loading ? <div className="empty-state"><span className="spinner" /></div> :
-          data.length === 0 ? <div className="empty-state"><FileText size={48} style={{opacity:0.2, marginBottom:16}} /><p>Belum ada aset.</p></div> :
+          filteredData.length === 0 ? <div className="empty-state"><FileText size={48} style={{opacity:0.2, marginBottom:16}} /><p>Tidak ada aset pada filter ini.</p></div> :
           <div className="table-wrapper">
             <table className="table">
               <thead><tr><th width="5%">No</th><th width="10%">Dokumen</th><th>Nama Aset</th><th>Kategori</th><th>Harga Pasar</th><th>Status</th><th>Aksi</th></tr></thead>
               <tbody>
-                {data.map((item, i) => (
+                {filteredData.map((item, i) => (
                   <tr key={item.id}>
                     <td style={{ color: 'var(--text-muted)', fontWeight: 500 }}>{i + 1}</td>
                     <td>

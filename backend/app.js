@@ -16,7 +16,8 @@ import laporanRoutes from './src/routes/laporan.routes.js';
 import dashboardRoutes from './src/routes/dashboard.routes.js';
 import notifikasiRoutes from './src/routes/notifikasi.routes.js';
 import pembeliRoutes from './src/routes/pembeli.routes.js';
-import { syncLelangLifecycle } from './src/controllers/lelang.controller.js';
+import userRoutes from './src/routes/user.routes.js';
+import { syncAuctionLifecycleBatch, syncLelangLifecycle } from './src/controllers/lelang.controller.js';
 
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -64,6 +65,7 @@ app.use('/api/laporan', laporanRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifikasi', notifikasiRoutes);
 app.use('/api/pembeli', pembeliRoutes);
+app.use('/api/users', userRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
@@ -171,7 +173,18 @@ io.on('connection', (socket) => {
 
 app.set('io', io); // inject to express app
 
+const AUCTION_SYNC_INTERVAL_MS = 15000;
+
+setInterval(() => {
+  syncAuctionLifecycleBatch().catch((error) => {
+    console.error('Auction lifecycle sync error:', error.message);
+  });
+}, AUCTION_SYNC_INTERVAL_MS);
+
 server.listen(PORT, () => {
+  syncAuctionLifecycleBatch().catch((error) => {
+    console.error('Initial auction lifecycle sync error:', error.message);
+  });
   console.log(`✅ Server & WebSocket berjalan di http://localhost:${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
 });

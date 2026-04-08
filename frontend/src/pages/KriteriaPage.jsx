@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getKriteria, getKategori, createKriteria, updateKriteria, deleteKriteria } from '../services/api.js';
+import { ListOrdered, Pencil, Trash2 } from 'lucide-react';
 
 function KriteriaModal({ item, kategoriList, onClose, onSave }) {
   const [form, setForm] = useState({ nama: item?.nama || '', kategori_id: item?.kategoriId || '', tipe: item?.tipe || 'benefit' });
@@ -102,7 +103,7 @@ export default function KriteriaPage() {
 
       <div className="card">
         {loading ? <div className="empty-state"><span className="spinner" /></div> :
-          data.length === 0 ? <div className="empty-state"><div className="icon">📋</div><p>Belum ada kriteria.</p></div> :
+          data.length === 0 ? <div className="empty-state"><div style={{ marginBottom: 12 }}><ListOrdered size={40} opacity={0.3} /></div><p>Belum ada kriteria.</p></div> :
           <div className="table-wrapper">
             <table className="table">
               <thead><tr><th>No</th><th>Nama Kriteria</th><th>Kategori</th><th>Tipe</th><th>Aksi</th></tr></thead>
