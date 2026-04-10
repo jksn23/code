@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getKategori, getKriteria, hitungAHP } from '../services/api.js';
+import { Calculator, AlertTriangle, BarChart2, CheckCircle, XCircle } from 'lucide-react';
 
 // Konversi nilai AHP ke skala saaty
 const skala = [1/9, 1/8, 1/7, 1/6, 1/5, 1/4, 1/3, 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -65,7 +66,7 @@ export default function AHPPage() {
   return (
     <div>
       <div className="page-header">
-        <h2>🧮 Perhitungan AHP</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Calculator /> Perhitungan AHP</h2>
         <p>Input matriks pairwise comparison untuk menentukan bobot setiap kriteria</p>
       </div>
 
@@ -89,7 +90,7 @@ export default function AHPPage() {
           </div>
 
           <div className="table-wrapper">
-            <table className="matrix-table">
+            <table className="table matrix-table">
               <thead>
                 <tr>
                   <th></th>
@@ -129,8 +130,8 @@ export default function AHPPage() {
           </div>
 
           <div className="mt-4">
-            <button className="btn btn-primary" onClick={handleHitung} disabled={loading}>
-              {loading ? <span className="spinner" /> : '🧮 Hitung AHP'}
+            <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={handleHitung} disabled={loading}>
+              {loading ? <span className="spinner" /> : <><Calculator size={18} /> Hitung AHP</>}
             </button>
           </div>
         </div>
@@ -138,7 +139,7 @@ export default function AHPPage() {
 
       {selectedKategori && n < 2 && !loading && (
         <div className="card" style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>⚠️</div>
+          <div style={{ marginBottom: 16 }}><AlertTriangle size={48} color="var(--warning)" opacity={0.8} /></div>
           <h3 style={{ marginBottom: 8, color: 'var(--text)' }}>Kriteria Tidak Cukup</h3>
           <p>Kategori ini memiliki kurang dari 2 kriteria. Perhitungan AHP membutuhkan setidaknya 2 kriteria untuk saling dibandingkan.</p>
           <p style={{ marginTop: 8 }}>Silakan tambahkan kriteria baru pada menu <strong>Master Data &gt; Kriteria</strong> terlebih dahulu.</p>
@@ -149,12 +150,12 @@ export default function AHPPage() {
 
       {hasil && (
         <div className="card">
-          <h3 style={{ marginBottom: 16, fontSize: 16 }}>📊 Hasil Perhitungan AHP</h3>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 16 }}><BarChart2 /> Hasil Perhitungan AHP</h3>
 
           {/* CR Status */}
-          <div className={`alert alert-${hasil.isConsistent ? 'success' : 'danger'}`} style={{ fontSize: 15 }}>
-            {hasil.isConsistent ? '✅' : '❌'} <strong>Consistency Ratio (CR) = {hasil.CR}</strong>
-            {' - '}{hasil.isConsistent ? 'Konsisten (CR < 0.1)' : 'Tidak Konsisten (CR ≥ 0.1)'}
+          <div className={`alert alert-${hasil.isConsistent ? 'success' : 'danger'}`} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15 }}>
+            {hasil.isConsistent ? <CheckCircle size={18} /> : <XCircle size={18} />}
+            <span><strong>Consistency Ratio (CR) = {hasil.CR}</strong>{' - '}{hasil.isConsistent ? 'Konsisten (CR < 0.1)' : 'Tidak Konsisten (CR ≥ 0.1)'}</span>
           </div>
 
           {/* Detail Bobot */}
