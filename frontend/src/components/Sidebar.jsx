@@ -9,7 +9,6 @@ import {
   Tag,
   PenSquare,
   Trophy,
-  Calculator,
   Scale,
   UserCheck,
   Users,
@@ -48,7 +47,6 @@ export default function Sidebar({ isOpen, onClose }) {
     ], roles: ['ADMIN', 'PENJUAL'] },
 
     { group: 'Manajemen SPK', items: [
-      { label: 'Hitung AHP', icon: <Calculator size={18} strokeWidth={2} />, to: '/ahp' },
       { label: 'Hitung SAW', icon: <Scale size={18} strokeWidth={2} />, to: '/saw' },
     ], roles: ['ADMIN'] },
 

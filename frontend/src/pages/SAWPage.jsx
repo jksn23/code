@@ -50,7 +50,7 @@ export default function SAWPage() {
           </button>
         </div>
         <div className="alert alert-info mt-2" style={{ fontSize: 12 }}>
-          ℹ️ Pastikan AHP sudah dihitung terlebih dahulu untuk kategori ini. Bobot kriteria dari AHP akan digunakan dalam SAW.
+          ℹ️ Bobot kriteria yang digunakan bersifat <strong>predefined (statis)</strong> — ditetapkan oleh expert berdasarkan metode AHP offline. Sistem akan langsung menghitung SAW menggunakan bobot tersebut.
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export default function SAWPage() {
         <>
           {/* Bobot Kriteria digunakan */}
           <div className="card" style={{ marginBottom: 16 }}>
-            <h3 style={{ fontSize: 15, marginBottom: 12 }}>Kriteria & Bobot AHP yang Digunakan</h3>
+            <h3 style={{ fontSize: 15, marginBottom: 12 }}>Kriteria & Bobot Predefined (AHP Expert)</h3>
             <div className="table-wrapper">
               <table className="table">
                 <thead><tr><th>Kriteria</th><th>Tipe</th><th>Bobot</th><th>Max Nilai</th><th>Min Nilai</th></tr></thead>

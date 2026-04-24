@@ -105,7 +105,6 @@ export const getNilaiAset = (aset_id) => api.get(`/nilai/aset/${aset_id}`);
 export const inputNilaiAset = (data) => api.post('/nilai', data);
 
 // ====== SPK ======
-export const hitungAHP = (data) => api.post('/spk/hitung-ahp', data);
 export const hitungSAW = (data) => api.post('/spk/hitung-saw', data);
 export const getHasil = (kategori_id) => api.get(`/spk/hasil/${kategori_id}`);
 

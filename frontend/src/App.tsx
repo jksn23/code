@@ -10,7 +10,6 @@ import KategoriPage from './pages/KategoriPage';
 import KriteriaPage from './pages/KriteriaPage';
 import AsetPage from './pages/AsetPage';
 import InputNilaiPage from './pages/InputNilaiPage';
-import AHPPage from './pages/AHPPage';
 import SAWPage from './pages/SAWPage';
 import HasilPage from './pages/HasilPage';
 import PenjualPage from './pages/PenjualPage';
@@ -103,7 +102,6 @@ export default function App() {
                 <Route path="/lelang-admin" element={<LelangAdminPage />} />
                 <Route path="/kategori" element={<KategoriPage />} />
                 <Route path="/kriteria" element={<KriteriaPage />} />
-                <Route path="/ahp" element={<AHPPage />} />
                 <Route path="/saw" element={<SAWPage />} />
                 <Route path="/laporan" element={<LaporanPage />} />
               </Route>
