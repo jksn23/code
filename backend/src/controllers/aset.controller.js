@@ -46,7 +46,7 @@ export const getAllAset = async (req, res) => {
       if (!penjual) return res.status(403).json({ success: false, message: 'Profil penjual tidak ditemukan' });
       where.penjualId = penjual.id;
     }
-    
+
     const data = await prisma.aset.findMany({
       where,
       include: {
@@ -106,9 +106,9 @@ export const createAset = async (req, res) => {
     }
 
     const data = await prisma.aset.create({
-      data: { 
-        nama: nama.trim(), 
-        kategoriId: Number(kategori_id), 
+      data: {
+        nama: nama.trim(),
+        kategoriId: Number(kategori_id),
         hargaPasar: Number(harga_pasar),
         deskripsi: deskripsi || null,
         dokumenUrl,
@@ -153,7 +153,7 @@ export const deleteAset = async (req, res) => {
   try {
     const existing = await prisma.aset.findUnique({ where: { id: Number(req.params.id) } });
     if (!existing) return res.status(404).json({ success: false, message: 'Aset tidak ditemukan' });
-    
+
     // Verifikasi kepemilikan aset
     if (req.userRole === 'PENJUAL') {
       const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
@@ -181,7 +181,7 @@ export const ajukanLelang = async (req, res) => {
     const aset = await prisma.aset.findUnique({ where: { id: Number(req.params.id) } });
     if (!aset) return res.status(404).json({ message: "Aset tidak ditemukan" });
     if (aset.penjualId !== penjual.id) return res.status(403).json({ message: "Bukan milik Anda" });
-    
+
     const hasil = await prisma.hasil.findFirst({ where: { asetId: aset.id } });
     if (!hasil) return res.status(400).json({ message: "Aset belum memiliki perhitungan SPK (Nilai Limit)" });
 
@@ -200,7 +200,7 @@ export const createLelangOlehAdmin = async (req, res) => {
   try {
     const asetId = Number(req.params.id);
     const { waktuBuka, durasiMenit } = req.body;
-    
+
     if (!waktuBuka || !durasiMenit) {
       return res.status(400).json({ success: false, message: "waktuBuka dan durasiMenit wajib diisi" });
     }
@@ -265,9 +265,9 @@ export const createLelangOlehAdmin = async (req, res) => {
       });
     }
 
-    res.json({ 
-      success: true, 
-      message: `Lelang berhasil diterbitkan. Slot antrean ke-${queuePosition}. Buka: ${actualWaktuBuka.toLocaleString('id-ID')}, Tutup: ${actualWaktuTutup.toLocaleString('id-ID')}`, 
+    res.json({
+      success: true,
+      message: `Lelang berhasil diterbitkan. Slot antrean ke-${queuePosition}. Buka: ${actualWaktuBuka.toLocaleString('id-ID')}, Tutup: ${actualWaktuTutup.toLocaleString('id-ID')}`,
       data: {
         ...result.lelang,
         queuePosition,

@@ -17,6 +17,7 @@ import dashboardRoutes from './src/routes/dashboard.routes.js';
 import notifikasiRoutes from './src/routes/notifikasi.routes.js';
 import pembeliRoutes from './src/routes/pembeli.routes.js';
 import userRoutes from './src/routes/user.routes.js';
+import settingsRoutes from './src/routes/settings.routes.js';
 import { syncAuctionLifecycleBatch, syncLelangLifecycle } from './src/controllers/lelang.controller.js';
 
 import { createServer } from 'http';
@@ -66,6 +67,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifikasi', notifikasiRoutes);
 app.use('/api/pembeli', pembeliRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

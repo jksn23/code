@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createLelangAndApprove, getAset, getLelangSelesaiAdmin, verifikasiPembayaranLelang } from '../services/api.js';
+import CurrencyInput from '../components/CurrencyInput';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value || 0);
 const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
@@ -52,7 +53,8 @@ export default function LelangAdminPage() {
   const [loadingSelesai, setLoadingSelesai] = useState(true);
   const [activeTab, setActiveTab] = useState('aktif');
   const [modal, setModal] = useState(null);
-  const [form, setForm] = useState({ waktuBuka: '', durasiMenit: 60 });
+  const [modalBuktiBayar, setModalBuktiBayar] = useState(null);
+  const [form, setForm] = useState({ waktuBuka: '', durasiMenit: 60, nilaiLimitAkhir: 0 });
   const [submitting, setSubmitting] = useState(false);
 
   const load = async () => {
@@ -104,10 +106,14 @@ export default function LelangAdminPage() {
 
     setSubmitting(true);
     try {
-      const res = await createLelangAndApprove(modal.id, form);
+      const res = await createLelangAndApprove(modal.id, {
+        waktuBuka: form.waktuBuka,
+        durasiMenit: form.durasiMenit,
+        nilaiLimit: form.nilaiLimitAkhir
+      });
       alert(res.message || 'Lelang berhasil dijadwalkan.');
       setModal(null);
-      setForm({ waktuBuka: '', durasiMenit: 60 });
+      setForm({ waktuBuka: '', durasiMenit: 60, nilaiLimitAkhir: 0 });
       load();
     } catch (error) {
       alert(error.message);
@@ -116,11 +122,16 @@ export default function LelangAdminPage() {
     }
   };
 
-  const handleVerifikasiPembayaran = async (lelang) => {
-    if (!window.confirm(`Verifikasi pembayaran LUNAS untuk aset "${lelang.aset?.nama}"?`)) return;
+  const handleVerifikasiPembayaran = (lelang) => {
+    setModalBuktiBayar(lelang);
+  };
+
+  const executeVerifikasiPembayaran = async () => {
+    if (!modalBuktiBayar) return;
     try {
-      await verifikasiPembayaranLelang(lelang.id);
+      await verifikasiPembayaranLelang(modalBuktiBayar.id);
       alert('Pembayaran berhasil diverifikasi sebagai LUNAS.');
+      setModalBuktiBayar(null);
       loadSelesai();
     } catch (error) {
       alert(error.message);
@@ -191,7 +202,7 @@ export default function LelangAdminPage() {
                               className="btn btn-primary btn-sm"
                               onClick={() => {
                                 setModal(item);
-                                setForm({ waktuBuka: '', durasiMenit: 60 });
+                                setForm({ waktuBuka: '', durasiMenit: 60, nilaiLimitAkhir: Number(item.hasil?.[0]?.nilaiLimit || 0) });
                               }}
                             >
                               Sahkan & Jadwalkan
@@ -290,12 +301,25 @@ export default function LelangAdminPage() {
 
             <div style={{ marginBottom: 16 }}>
               <p>Aset: <strong>{modal.nama}</strong></p>
-              <p>Nilai Limit: <strong>{formatRp(modal.hasil?.[0]?.nilaiLimit)}</strong></p>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 8 }}>
+                Saran Harga Sistem (SPK): <strong style={{ color: 'var(--primary)' }}>{formatRp(modal.hasil?.[0]?.nilaiLimit)}</strong>
+              </div>
             </div>
 
             {formError && <div className="alert alert-danger">{formError}</div>}
 
             <form onSubmit={handleApprove}>
+              <div className="form-group">
+                <label className="form-label">Harga Akhir Lelang (Nilai Limit Final)</label>
+                <CurrencyInput
+                  value={form.nilaiLimitAkhir}
+                  onChange={(val) => setForm((prev) => ({ ...prev, nilaiLimitAkhir: val }))}
+                  required
+                />
+                <small style={{ color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                  Harga ini yang akan dikunci sebagai harga patokan minimum lelang.
+                </small>
+              </div>
               <div className="form-group">
                 <label className="form-label">Waktu Pembukaan Slot Acuan</label>
                 <input
@@ -341,6 +365,42 @@ export default function LelangAdminPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Modal Bukti Pembayaran */}
+      {modalBuktiBayar && (
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setModalBuktiBayar(null)}>
+          <div className="modal" style={{ maxWidth: 500 }}>
+            <div className="modal-header">
+              <h3 style={{ margin: 0, fontSize: 18 }}>Verifikasi Bukti Pembayaran</h3>
+              <button className="theme-toggle-btn" onClick={() => setModalBuktiBayar(null)}>&times;</button>
+            </div>
+            <div style={{ padding: '16px 0', textAlign: 'center' }}>
+              <p style={{ marginBottom: 16, fontSize: 14, color: 'var(--text-muted)' }}>
+                Bukti transfer untuk aset <strong>{modalBuktiBayar.aset?.nama}</strong>.
+              </p>
+              {modalBuktiBayar.buktiBayarUrl ? (
+                <img 
+                  src={`http://localhost:5000/${modalBuktiBayar.buktiBayarUrl}`} 
+                  alt="Bukti Pembayaran" 
+                  style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: 'var(--radius-md)', objectFit: 'contain', border: '1px solid var(--border)' }} 
+                />
+              ) : (
+                <div style={{ padding: 32, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', color: 'var(--text-muted)' }}>
+                  Pembeli belum mengunggah bukti pembayaran atau tautan tidak valid.
+                </div>
+              )}
+            </div>
+            <div className="modal-footer" style={{ marginTop: 20 }}>
+              <button className="btn btn-secondary" onClick={() => setModalBuktiBayar(null)}>Tutup</button>
+              <button 
+                className="btn btn-primary" 
+                onClick={executeVerifikasiPembayaran}
+              >
+                ✅ Sahkan Pembayaran LUNAS
+              </button>
+            </div>
           </div>
         </div>
       )}

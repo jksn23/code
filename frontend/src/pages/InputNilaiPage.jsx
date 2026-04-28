@@ -158,8 +158,17 @@ export default function InputNilaiPage() {
     setLoadingAset(true);
     Promise.all([getAset(selectedKategori), getKriteria(selectedKategori)])
       .then(([asetRes, kriteriaRes]) => {
-        setAsetList(asetRes.data || []);
+        const asets = asetRes.data || [];
+        setAsetList(asets);
         setKriteriaList(kriteriaRes.data || []);
+
+        const initialSaved = new Set();
+        asets.forEach(a => {
+          if (a.nilaiAset && a.nilaiAset.length > 0) {
+            initialSaved.add(a.id);
+          }
+        });
+        setSavedAsetIds(initialSaved);
       })
       .catch(() => {})
       .finally(() => setLoadingAset(false));

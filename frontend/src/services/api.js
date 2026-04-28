@@ -26,7 +26,10 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
     }
-    return Promise.reject(new Error(message));
+    const apiError = new Error(message);
+    apiError.status = error.response?.status;
+    apiError.details = error.response?.data;
+    return Promise.reject(apiError);
   }
 );
 
@@ -112,5 +115,11 @@ export const getHasil = (kategori_id) => api.get(`/spk/hasil/${kategori_id}`);
 export const getLaporanAset = () => api.get('/laporan/aset');
 export const getLaporanLelang = () => api.get('/laporan/lelang');
 export const getLaporanTransaksi = () => api.get('/laporan/transaksi');
+
+// ====== PENGATURAN SISTEM ======
+export const getSettingsSummary = () => api.get('/settings/summary');
+export const importSettingsData = (data) => api.post('/settings/import', data);
+export const purgeSettingsModule = (module, data) => api.post(`/settings/purge/${module}`, data);
+export const resetSettingsData = (data) => api.post('/settings/reset', data);
 
 export default api;

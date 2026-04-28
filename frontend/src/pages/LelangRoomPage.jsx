@@ -231,8 +231,40 @@ export default function LelangRoomPage() {
   const buyerBlocked = user?.role === 'PEMBELI' && user?.buyerVerificationStatus !== 'APPROVED';
 
   return (
-    <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-      <div style={{ flex: '1 1 600px' }}>
+    <>
+      {lelang.aset.dokumenUrl && (
+        <>
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundImage: `url(http://localhost:5000/${lelang.aset.dokumenUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'blur(20px)',
+              zIndex: -2,
+              transform: 'scale(1.1)',
+            }}
+          />
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              background: 'var(--bg)',
+              opacity: 0.85,
+              zIndex: -1,
+            }}
+          />
+        </>
+      )}
+      <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap', position: 'relative' }}>
+        <div style={{ flex: '1 1 600px' }}>
         <div className="card" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Status koneksi room</div>
@@ -355,7 +387,7 @@ export default function LelangRoomPage() {
           </div>
 
           <div style={{ padding: 16, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', marginBottom: 16, border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Nilai Dasar Evaluasi SPK</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Harga Awal Lelang</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-muted)' }}>
               {formatRp(lelang.aset.hasil?.[0]?.nilaiLimit || 0)}
             </div>
@@ -442,5 +474,6 @@ export default function LelangRoomPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

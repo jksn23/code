@@ -15,6 +15,7 @@ import {
   Clock,
   FileText,
   ShieldCheck,
+  Settings,
   X,
 } from 'lucide-react';
 
@@ -66,6 +67,10 @@ export default function Sidebar({ isOpen, onClose }) {
 
     { group: 'Laporan', items: [
       { label: 'Generate Laporan', icon: <FileText size={18} strokeWidth={2} />, to: '/laporan' },
+    ], roles: ['ADMIN'] },
+
+    { group: 'Pengaturan', items: [
+      { label: 'Pengaturan Sistem', icon: <Settings size={18} strokeWidth={2} />, to: '/pengaturan' },
     ], roles: ['ADMIN'] },
   ];
 

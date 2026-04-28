@@ -26,6 +26,7 @@ import LelangRoomPage from './pages/LelangRoomPage';
 import LaporanPage from './pages/LaporanPage';
 import SellerWaitingPage from './pages/SellerWaitingPage';
 import AuctionSummaryPage from './pages/AuctionSummaryPage';
+import PengaturanPage from './pages/PengaturanPage';
 import { isSellerApprovedStatus, resolveSellerStatus } from './utils/sellerVerification';
 import './index.css';
 
@@ -104,6 +105,7 @@ export default function App() {
                 <Route path="/kriteria" element={<KriteriaPage />} />
                 <Route path="/saw" element={<SAWPage />} />
                 <Route path="/laporan" element={<LaporanPage />} />
+                <Route path="/pengaturan" element={<PengaturanPage />} />
               </Route>
             </Route>
           </Routes>
