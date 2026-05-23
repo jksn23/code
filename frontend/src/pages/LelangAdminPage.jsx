@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createLelangAndApprove, getAset, getLelangSelesaiAdmin, verifikasiPembayaranLelang } from '../services/api.js';
 import CurrencyInput from '../components/CurrencyInput';
+import { assetUrl } from '../config/env.js';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value || 0);
 const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
@@ -382,7 +383,7 @@ export default function LelangAdminPage() {
               </p>
               {modalBuktiBayar.buktiBayarUrl ? (
                 <img 
-                  src={`http://localhost:5000/${modalBuktiBayar.buktiBayarUrl}`} 
+                  src={assetUrl(modalBuktiBayar.buktiBayarUrl)} 
                   alt="Bukti Pembayaran" 
                   style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: 'var(--radius-md)', objectFit: 'contain', border: '1px solid var(--border)' }} 
                 />

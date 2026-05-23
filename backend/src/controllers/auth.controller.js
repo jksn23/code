@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../models/prisma.client.js';
+import { getUploadedFilePath } from '../middleware/upload.middleware.js';
 import {
   SELLER_VERIFICATION_STATUS,
   resolveSellerVerificationStatus,
@@ -58,7 +59,7 @@ export const register = async (req, res) => {
       let buyerVerificationStatus = 'UNVERIFIED';
       
       if (assignedRole === 'PEMBELI') {
-        ktpUrlUser = req.files?.ktp_file ? req.files.ktp_file[0].path : null;
+        ktpUrlUser = getUploadedFilePath(req.files?.ktp_file?.[0]);
         buyerVerificationStatus = ktpUrlUser ? 'PENDING' : 'UNVERIFIED';
       }
 
@@ -75,8 +76,8 @@ export const register = async (req, res) => {
 
       // Jika mendaftar sebagai penjual (via form multipart)
       if (assignedRole === 'PENJUAL') {
-        const ktpUrl = req.files?.ktp_file ? req.files.ktp_file[0].path : null;
-        const npwpUrl = req.files?.npwp_file ? req.files.npwp_file[0].path : null;
+        const ktpUrl = getUploadedFilePath(req.files?.ktp_file?.[0]);
+        const npwpUrl = getUploadedFilePath(req.files?.npwp_file?.[0]);
         const { rekeningBank, nomorRekening } = req.body;
         
         await tx.penjual.create({

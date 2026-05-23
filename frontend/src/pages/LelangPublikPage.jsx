@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
+import { assetUrl } from '../config/env.js';
 
 const formatRp = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
 
@@ -86,7 +87,7 @@ export default function LelangPublikPage() {
                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                   <div style={{ flex: '1 1 300px' }}>
                     {live.aset?.dokumenUrl ? (
-                      <img src={`http://localhost:5000/${live.aset.dokumenUrl}`} alt="Aset" style={{ width: '100%', height: '100%', minHeight: 280, objectFit: 'cover' }} />
+                      <img src={assetUrl(live.aset.dokumenUrl)} alt="Aset" style={{ width: '100%', height: '100%', minHeight: 280, objectFit: 'cover' }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', minHeight: 280, backgroundColor: 'var(--surface-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 64 }}>💎</div>
                     )}

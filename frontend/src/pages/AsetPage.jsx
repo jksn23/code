@@ -3,6 +3,7 @@ import { getAset, getKategori, createAset, updateAset, deleteAset, ajukanLelang 
 import { useAuth } from '../context/AuthContext';
 import CurrencyInput from '../components/CurrencyInput';
 import { Pencil, Trash2, Send, FileText, Lock, Plus, Tag } from 'lucide-react';
+import { assetUrl } from '../config/env.js';
 
 function AsetModal({ item, kategoriList, onClose, onSave, role }) {
   const [form, setForm] = useState({
@@ -207,7 +208,7 @@ export default function AsetPage() {
                     <td style={{ color: 'var(--text-muted)', fontWeight: 500 }}>{i + 1}</td>
                     <td>
                        {item.dokumenUrl ? (
-                         <a href={`http://localhost:5000/${item.dokumenUrl}`} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" title="Lihat Dokumen">
+                         <a href={assetUrl(item.dokumenUrl)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" title="Lihat Dokumen">
                            <FileText size={14} /> Doc
                          </a>
                        ) : <span style={{ color: 'var(--text-muted)' }}>—</span>}

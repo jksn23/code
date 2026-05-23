@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getBuyerOwnedAssets, getInvoiceLelang, konfirmasiTerimaBarang } from '../services/api';
+import { assetUrl } from '../config/env.js';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -63,7 +64,7 @@ function AssetDetailModal({ item, invoice, loadingInvoice, onClose, onRefresh })
                 <div><strong>No Rekening:</strong> {invoice?.penjual?.nomorRekening || item.penjual?.nomorRekening}</div>
                 <div><strong>Catatan Admin:</strong> {invoice?.catatanPembayaran || item.catatanPembayaran || '-'}</div>
                 {item.buktiBayarUrl && (
-                  <a href={`http://localhost:5000/${item.buktiBayarUrl}`} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ width: 'fit-content' }}>
+                  <a href={assetUrl(item.buktiBayarUrl)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ width: 'fit-content' }}>
                     Lihat Bukti Bayar
                   </a>
                 )}

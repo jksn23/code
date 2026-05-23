@@ -4,6 +4,7 @@ import { io } from 'socket.io-client';
 import api, { konfirmasiTerimaBarang, getNextLelang } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import CurrencyInput from '../components/CurrencyInput';
+import { SOCKET_URL, assetUrl } from '../config/env.js';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -98,7 +99,7 @@ export default function LelangRoomPage() {
   useEffect(() => {
     loadLelang();
 
-    const socket = io('http://localhost:5000', {
+    const socket = io(SOCKET_URL, {
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
@@ -241,7 +242,7 @@ export default function LelangRoomPage() {
               left: 0,
               width: '100vw',
               height: '100vh',
-              backgroundImage: `url(http://localhost:5000/${lelang.aset.dokumenUrl})`,
+              backgroundImage: `url(${assetUrl(lelang.aset.dokumenUrl)})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               filter: 'blur(20px)',
@@ -355,7 +356,7 @@ export default function LelangRoomPage() {
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           {lelang.aset.dokumenUrl && (
             <div style={{ borderBottom: '1px solid var(--border)' }}>
-              <img src={`http://localhost:5000/${lelang.aset.dokumenUrl}`} alt="Aset" style={{ width: '100%', height: 320, objectFit: 'cover' }} />
+              <img src={assetUrl(lelang.aset.dokumenUrl)} alt="Aset" style={{ width: '100%', height: 320, objectFit: 'cover' }} />
             </div>
           )}
           <div style={{ padding: 32 }}>

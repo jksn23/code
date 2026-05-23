@@ -1,6 +1,7 @@
 import prisma from '../models/prisma.client.js';
 import { createNotification } from '../utils/notification.util.js';
 import { isSellerApproved } from '../utils/seller-verification.util.js';
+import { getUploadedFilePath } from '../middleware/upload.middleware.js';
 
 const calculateQueueSchedule = async (requestedStart, durasiMenit) => {
   const scheduled = await prisma.lelang.findMany({
@@ -86,7 +87,7 @@ export const getAsetById = async (req, res) => {
 export const createAset = async (req, res) => {
   try {
     const { nama, kategori_id, harga_pasar, deskripsi } = req.body;
-    const dokumenUrl = req.file ? req.file.path : null;
+    const dokumenUrl = getUploadedFilePath(req.file);
 
     if (!nama || !kategori_id || harga_pasar === undefined) {
       return res.status(400).json({ success: false, message: 'nama, kategori_id, dan harga_pasar wajib diisi' });

@@ -1,12 +1,11 @@
 import prisma from '../models/prisma.client.js';
 import { createNotification, createNotifications } from '../utils/notification.util.js';
+import { getUploadedFilePath } from '../middleware/upload.middleware.js';
 import {
   SELLER_VERIFICATION_STATUS,
   resolveSellerVerificationStatus,
   toLegacySellerVerifiedFlag,
 } from '../utils/seller-verification.util.js';
-
-const normalizeUploadPath = (filePath) => filePath?.replace(/\\/g, '/') || null;
 
 const sellerInclude = {
   user: { select: { id: true, nama: true, email: true, createdAt: true } },
@@ -143,8 +142,8 @@ export const resubmitDokumenPenjual = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Akun seller Anda sudah aktif dan tidak perlu revisi dokumen' });
     }
 
-    const ktpUrl = normalizeUploadPath(req.files?.ktp_file?.[0]?.path);
-    const npwpUrl = normalizeUploadPath(req.files?.npwp_file?.[0]?.path);
+    const ktpUrl = getUploadedFilePath(req.files?.ktp_file?.[0]);
+    const npwpUrl = getUploadedFilePath(req.files?.npwp_file?.[0]);
     const rekeningBank = req.body?.rekeningBank?.trim();
     const nomorRekening = req.body?.nomorRekening?.trim();
 

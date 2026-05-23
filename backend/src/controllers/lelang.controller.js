@@ -1,5 +1,6 @@
 import prisma from '../models/prisma.client.js';
 import { createNotifications, createNotification } from '../utils/notification.util.js';
+import { getUploadedFilePath } from '../middleware/upload.middleware.js';
 
 const lelangDetailInclude = {
   aset: {
@@ -129,8 +130,6 @@ const invoiceInclude = {
     },
   },
 };
-
-const normalizeUploadPath = (filePath) => filePath?.replace(/\\/g, '/') || null;
 
 const generateInvoiceNumber = (lelangId, date = new Date()) => {
   const y = date.getFullYear();
@@ -561,7 +560,7 @@ export const uploadBuktiPembayaran = async (req, res) => {
     const updated = await prisma.lelang.update({
       where: { id: lelangId },
       data: {
-        buktiBayarUrl: normalizeUploadPath(req.file.path),
+        buktiBayarUrl: getUploadedFilePath(req.file),
         tanggalUploadBukti: new Date(),
         statusPembayaran: paymentStatusLabels.PENDING_VERIFICATION,
         tanggalVerifikasiPembayaran: null,

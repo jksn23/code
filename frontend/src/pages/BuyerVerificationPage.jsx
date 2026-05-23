@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getSemuaPembeli, verifikasiPembeli } from '../services/api';
-
-const BASE_URL = 'http://localhost:5000';
+import { assetUrl } from '../config/env.js';
 
 const STATUS_OPTIONS = {
   PENDING: { label: '⏳ Pending', bg: '#fef3c7', color: '#92400e' },
@@ -186,12 +185,12 @@ export default function BuyerVerificationPage() {
                 {selected.ktpUrl ? (
                   /\.(jpg|jpeg|png|gif|webp)$/i.test(selected.ktpUrl) ? (
                     <img
-                      src={`${BASE_URL}/${selected.ktpUrl}`}
+                      src={assetUrl(selected.ktpUrl)}
                       alt="KTP Pembeli"
                       style={{ width: '100%', maxHeight: 280, objectFit: 'contain', borderRadius: 12, border: '1px solid var(--border)' }}
                     />
                   ) : (
-                    <a href={`${BASE_URL}/${selected.ktpUrl}`} target="_blank" rel="noreferrer" className="btn btn-secondary">
+                    <a href={assetUrl(selected.ktpUrl)} target="_blank" rel="noreferrer" className="btn btn-secondary">
                       Buka Dokumen KTP
                     </a>
                   )

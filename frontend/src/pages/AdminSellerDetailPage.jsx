@@ -2,8 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getPenjualById, verifikasiPenjual } from '../services/api.js';
 import { getSellerStatusMeta, resolveSellerStatus } from '../utils/sellerVerification.js';
-
-const BASE_URL = 'http://localhost:5000';
+import { assetUrl } from '../config/env.js';
 
 const formatDate = (value) =>
   value ? new Date(value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
@@ -52,7 +51,7 @@ const DocPreview = ({ url, label }) => {
     );
   }
 
-  const fullUrl = `${BASE_URL}/${url}`;
+  const fullUrl = assetUrl(url);
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
   const isPDF = /\.pdf$/i.test(url);
 

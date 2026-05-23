@@ -32,16 +32,23 @@ dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  process.env.FRONTEND_URL,
+  ...(process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim()) : []),
+].filter(Boolean);
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadDir));
 
 // Health Check
 app.get('/health', async (req, res) => {
@@ -89,7 +96,7 @@ const PORT = process.env.PORT || 5000;
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE']
   }
 });

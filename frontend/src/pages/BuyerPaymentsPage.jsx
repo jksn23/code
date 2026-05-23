@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getBuyerPendingPayments, getInvoiceLelang, uploadBuktiPembayaranLelang } from '../services/api';
+import { assetUrl } from '../config/env.js';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -67,7 +68,7 @@ function PaymentModal({ item, invoice, loadingInvoice, onClose, onPaid }) {
         {item.buktiBayarUrl && (
           <div className="card" style={{ background: 'var(--surface-light)', marginBottom: 16 }}>
             <h4 style={{ marginBottom: 12 }}>Bukti Bayar Terakhir</h4>
-            <a href={`http://localhost:5000/${item.buktiBayarUrl}`} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">
+            <a href={assetUrl(item.buktiBayarUrl)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">
               Lihat Bukti Bayar
             </a>
           </div>
