@@ -4,6 +4,13 @@ import api from '../services/api';
 import { assetUrl } from '../config/env.js';
 
 const formatRp = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
+const formatDuration = (seconds) => {
+  const total = Number(seconds);
+  if (!Number.isFinite(total) || total <= 0) return '-';
+  if (total % 60 === 0) return `${total} detik (${total / 60} menit)`;
+  return `${total} detik`;
+};
 
 export default function LelangPublikPage() {
   const [data, setData] = useState([]);
@@ -47,10 +54,10 @@ export default function LelangPublikPage() {
     return now >= buka && now <= tutup && a.status === 'ACTIVE';
   });
 
-  // Upcoming auctions (not yet started)
+  // Upcoming auctions (scheduled but not yet started)
   const upcoming = sorted.filter(a => {
     const buka = new Date(a.waktuBuka);
-    return now < buka && a.status === 'ACTIVE';
+    return now < buka && ['PENDING', 'ACTIVE'].includes(a.status);
   });
 
   // Finished auctions
@@ -131,19 +138,38 @@ export default function LelangPublikPage() {
                 {upcoming.map((item, idx) => {
                   const countdown = calcCountdown(item.waktuBuka);
                   return (
-                    <div key={item.id} className="card" style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--surface-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 14, color: 'var(--text-muted)', flexShrink: 0 }}>
-                          {idx + 2}
+                    <div key={item.id} className="card" style={{ padding: '18px 24px', display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18, minWidth: 260, flex: '1 1 360px' }}>
+                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--surface-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 14, color: 'var(--text-muted)', flexShrink: 0, marginTop: 2 }}>
+                          {idx + (live ? 2 : 1)}
                         </div>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 4 }}>{item.aset?.nama}</div>
-                          <div style={{ fontSize: 13, color: 'var(--text-muted)' }}><span className="badge badge-primary">{item.aset?.kategori?.nama}</span> &nbsp;&nbsp;Limit Dasar: <strong>{formatRp(item.aset?.hasil?.[0]?.nilaiLimit)}</strong></div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                            <span className="badge badge-primary">{item.aset?.kategori?.nama}</span>
+                            <span className="badge" style={{ background: item.status === 'PENDING' ? '#fef3c7' : '#dbeafe', color: item.status === 'PENDING' ? '#92400e' : '#1d4ed8' }}>
+                              {item.status === 'PENDING' ? 'Dijadwalkan' : item.status}
+                            </span>
+                          </div>
+                          <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{item.aset?.nama}</div>
+                          <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                            Penjual: <strong>{item.aset?.penjual?.user?.nama || '-'}</strong> | Limit: <strong>{formatRp(item.aset?.hasil?.[0]?.nilaiLimit)}</strong> | Durasi: <strong>{formatDuration(item.durasiMenit)}</strong>
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.5 }}>
+                            Buka: {formatDate(item.waktuBuka)} | Tutup: {formatDate(item.waktuTutup)}
+                          </div>
+                          {item.aset?.deskripsi && (
+                            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, lineHeight: 1.5 }}>
+                              {item.aset.deskripsi.length > 140 ? `${item.aset.deskripsi.slice(0, 140)}...` : item.aset.deskripsi}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500 }}>Mulai dalam</div>
-                        <div style={{ fontSize: 16, fontWeight: 700, fontFamily: 'monospace', color: 'var(--primary)' }}>{countdown || '-'}</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, fontFamily: 'monospace', color: 'var(--primary)', marginBottom: 10 }}>{countdown || '-'}</div>
+                        <Link to={`/lelang/${item.id}`} className="btn btn-secondary btn-sm">
+                          Detail
+                        </Link>
                       </div>
                     </div>
                   );

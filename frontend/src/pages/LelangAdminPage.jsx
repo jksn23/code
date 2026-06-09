@@ -5,6 +5,8 @@ import { assetUrl } from '../config/env.js';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value || 0);
 const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
+const DEFAULT_DURATION_SECONDS = 60;
+const LAST_SCHEDULE_KEY = 'lelang:lastScheduleSettings';
 
 const statusBadge = (status, options) => {
   const map = options || {
@@ -20,8 +22,40 @@ const statusBadge = (status, options) => {
   );
 };
 
-const estimateQueue = (asetList, waktuBuka, durasiMenit) => {
-  if (!waktuBuka || !durasiMenit) return null;
+const readLastScheduleSettings = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(LAST_SCHEDULE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    const durasiDetik = Number(parsed?.durasiDetik);
+    if (!parsed?.waktuBuka || !Number.isInteger(durasiDetik) || durasiDetik <= 0) return null;
+    return { waktuBuka: parsed.waktuBuka, durasiDetik };
+  } catch {
+    return null;
+  }
+};
+
+const saveLastScheduleSettings = (settings) => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(LAST_SCHEDULE_KEY, JSON.stringify(settings));
+};
+
+const formatDuration = (seconds) => {
+  const total = Number(seconds);
+  if (!Number.isFinite(total) || total <= 0) return '-';
+  if (total % 60 === 0) return `${total} detik (${total / 60} menit)`;
+  return `${total} detik`;
+};
+
+const buildScheduleForm = (aset, lastScheduleSettings) => ({
+  waktuBuka: lastScheduleSettings?.waktuBuka || '',
+  durasiDetik: lastScheduleSettings?.durasiDetik || DEFAULT_DURATION_SECONDS,
+  nilaiLimitAkhir: Number(aset?.hasil?.[0]?.nilaiLimit || 0),
+});
+
+const estimateQueue = (asetList, waktuBuka, durasiDetik) => {
+  if (!waktuBuka || !durasiDetik) return null;
 
   const requestedStart = new Date(waktuBuka);
   if (Number.isNaN(requestedStart.getTime())) return null;
@@ -43,7 +77,7 @@ const estimateQueue = (asetList, waktuBuka, durasiMenit) => {
     }
   });
 
-  const actualWaktuTutup = new Date(actualWaktuBuka.getTime() + Number(durasiMenit) * 60000);
+  const actualWaktuTutup = new Date(actualWaktuBuka.getTime() + Number(durasiDetik) * 1000);
   return { queuePosition, actualWaktuBuka, actualWaktuTutup };
 };
 
@@ -55,7 +89,8 @@ export default function LelangAdminPage() {
   const [activeTab, setActiveTab] = useState('aktif');
   const [modal, setModal] = useState(null);
   const [modalBuktiBayar, setModalBuktiBayar] = useState(null);
-  const [form, setForm] = useState({ waktuBuka: '', durasiMenit: 60, nilaiLimitAkhir: 0 });
+  const [lastScheduleSettings, setLastScheduleSettings] = useState(() => readLastScheduleSettings());
+  const [form, setForm] = useState({ waktuBuka: '', durasiDetik: DEFAULT_DURATION_SECONDS, nilaiLimitAkhir: 0 });
   const [submitting, setSubmitting] = useState(false);
 
   const load = async () => {
@@ -88,13 +123,13 @@ export default function LelangAdminPage() {
     loadSelesai();
   }, []);
 
-  const scheduleEstimate = useMemo(() => estimateQueue(data, form.waktuBuka, form.durasiMenit), [data, form]);
+  const scheduleEstimate = useMemo(() => estimateQueue(data, form.waktuBuka, form.durasiDetik), [data, form]);
   const formError = useMemo(() => {
     if (!form.waktuBuka) return '';
     const requested = new Date(form.waktuBuka);
     if (Number.isNaN(requested.getTime())) return 'Format waktu buka tidak valid.';
     if (requested.getTime() < Date.now()) return 'Waktu buka tidak boleh di masa lalu.';
-    if (!Number(form.durasiMenit) || Number(form.durasiMenit) <= 0) return 'Durasi wajib lebih dari 0 menit.';
+    if (!Number.isInteger(Number(form.durasiDetik)) || Number(form.durasiDetik) <= 0) return 'Durasi wajib berupa angka bulat lebih dari 0 detik.';
     return '';
   }, [form]);
 
@@ -109,12 +144,18 @@ export default function LelangAdminPage() {
     try {
       const res = await createLelangAndApprove(modal.id, {
         waktuBuka: form.waktuBuka,
-        durasiMenit: form.durasiMenit,
+        durasiDetik: Number(form.durasiDetik),
         nilaiLimit: form.nilaiLimitAkhir
       });
+      const nextLastScheduleSettings = {
+        waktuBuka: form.waktuBuka,
+        durasiDetik: Number(form.durasiDetik),
+      };
+      saveLastScheduleSettings(nextLastScheduleSettings);
+      setLastScheduleSettings(nextLastScheduleSettings);
       alert(res.message || 'Lelang berhasil dijadwalkan.');
       setModal(null);
-      setForm({ waktuBuka: '', durasiMenit: 60, nilaiLimitAkhir: 0 });
+      setForm({ waktuBuka: '', durasiDetik: DEFAULT_DURATION_SECONDS, nilaiLimitAkhir: 0 });
       load();
     } catch (error) {
       alert(error.message);
@@ -192,7 +233,8 @@ export default function LelangAdminPage() {
                           {latestLelang ? (
                             <>
                               Buka: {formatDate(latestLelang.waktuBuka)}<br />
-                              Tutup: {formatDate(latestLelang.waktuTutup)}
+                              Tutup: {formatDate(latestLelang.waktuTutup)}<br />
+                              Durasi: {formatDuration(latestLelang.durasiMenit)}
                             </>
                           ) : 'Belum dijadwalkan'}
                         </td>
@@ -203,7 +245,7 @@ export default function LelangAdminPage() {
                               className="btn btn-primary btn-sm"
                               onClick={() => {
                                 setModal(item);
-                                setForm({ waktuBuka: '', durasiMenit: 60, nilaiLimitAkhir: Number(item.hasil?.[0]?.nilaiLimit || 0) });
+                                setForm(buildScheduleForm(item, lastScheduleSettings));
                               }}
                             >
                               Sahkan & Jadwalkan
@@ -307,6 +349,30 @@ export default function LelangAdminPage() {
               </div>
             </div>
 
+            {lastScheduleSettings && (
+              <div style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 12, marginBottom: 16, background: 'var(--surface-light)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600 }}>Pengaturan waktu terakhir</div>
+                    <div style={{ fontSize: 13, marginTop: 4 }}>
+                      {formatDate(lastScheduleSettings.waktuBuka)} - {formatDuration(lastScheduleSettings.durasiDetik)}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setForm((prev) => ({
+                      ...prev,
+                      waktuBuka: lastScheduleSettings.waktuBuka,
+                      durasiDetik: lastScheduleSettings.durasiDetik,
+                    }))}
+                  >
+                    Gunakan
+                  </button>
+                </div>
+              </div>
+            )}
+
             {formError && <div className="alert alert-danger">{formError}</div>}
 
             <form onSubmit={handleApprove}>
@@ -336,16 +402,20 @@ export default function LelangAdminPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Durasi Lelang per Aset (menit)</label>
+                <label className="form-label">Durasi Lelang per Aset (detik)</label>
                 <input
                   type="number"
                   className="form-control"
                   min="1"
-                  max="1440"
-                  value={form.durasiMenit}
-                  onChange={(event) => setForm((prev) => ({ ...prev, durasiMenit: event.target.value }))}
+                  max="86400"
+                  step="1"
+                  value={form.durasiDetik}
+                  onChange={(event) => setForm((prev) => ({ ...prev, durasiDetik: event.target.value }))}
                   required
                 />
+                <small style={{ color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                  Masukkan satuan detik. Contoh: 2 menit = 120 detik.
+                </small>
               </div>
 
               {scheduleEstimate && (
@@ -353,6 +423,7 @@ export default function LelangAdminPage() {
                   <h4 style={{ marginBottom: 12 }}>Estimasi Slot</h4>
                   <div style={{ display: 'grid', gap: 8, fontSize: 14 }}>
                     <div>Posisi antrean: <strong>#{scheduleEstimate.queuePosition}</strong></div>
+                    <div>Durasi: <strong>{formatDuration(form.durasiDetik)}</strong></div>
                     <div>Mulai aktual: <strong>{formatDate(scheduleEstimate.actualWaktuBuka)}</strong></div>
                     <div>Tutup aktual: <strong>{formatDate(scheduleEstimate.actualWaktuTutup)}</strong></div>
                   </div>

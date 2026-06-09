@@ -11,6 +11,20 @@ const formatRp = (value) => new Intl.NumberFormat('id-ID', {
   currency: 'IDR',
   maximumFractionDigits: 0,
 }).format(value || 0);
+const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
+const formatDuration = (seconds) => {
+  const total = Number(seconds);
+  if (!Number.isFinite(total) || total <= 0) return '-';
+  if (total % 60 === 0) return `${total} detik (${total / 60} menit)`;
+  return `${total} detik`;
+};
+
+const formatCountdown = (distance) => {
+  const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const s = Math.floor((distance % (1000 * 60)) / 1000);
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+};
 
 const QUICK_BIDS = [
   { label: '+500 Rb', value: 500000 },
@@ -145,26 +159,32 @@ export default function LelangRoomPage() {
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
+      const start = new Date(lelang.waktuBuka).getTime();
       const end = new Date(lelang.waktuTutup).getTime();
-      const distance = end - now;
+      if (lelang.status === 'PENDING' && now >= start && now < end) {
+        loadLelang();
+        return;
+      }
+      const waitingToStart = now < start;
+      const target = waitingToStart ? start : end;
+      const distance = target - now;
 
       if (distance < 0) {
         clearInterval(interval);
         setTimeLeft('WAKTU HABIS');
-        if (!hasTriggeredEnd.current) {
+        if (waitingToStart) {
+          loadLelang();
+        } else if (!hasTriggeredEnd.current) {
           hasTriggeredEnd.current = true;
           handleTimerEnd();
         }
       } else {
-        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((distance % (1000 * 60)) / 1000);
-        setTimeLeft(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`);
+        setTimeLeft(formatCountdown(distance));
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [lelang, isClosed, handleTimerEnd]);
+  }, [lelang, isClosed, handleTimerEnd, loadLelang]);
 
   useEffect(() => {
     if (!nextLelang || !transitioning) return;
@@ -189,7 +209,7 @@ export default function LelangRoomPage() {
     if (socketStatus !== 'connected') {
       return alert('Koneksi realtime belum stabil. Tunggu sampai room kembali terhubung.');
     }
-    if (isClosed) return alert('Lelang sudah ditutup');
+    if (!canBid) return alert(isNotStarted ? 'Lelang belum dibuka. Tunggu sampai waktu mulai.' : 'Lelang belum aktif atau sudah ditutup.');
     if (!nominal || nominal <= 0) return alert('Masukkan nominal yang valid');
 
     socketRef.current.emit('submit_bid', { lelangId: id, userId: user.id, nominal }, (response) => {
@@ -225,6 +245,11 @@ export default function LelangRoomPage() {
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!lelang) return <div>Data tidak ditemukan</div>;
 
+  const nowMs = Date.now();
+  const startsAt = new Date(lelang.waktuBuka).getTime();
+  const endsAt = new Date(lelang.waktuTutup).getTime();
+  const isNotStarted = !isClosed && Number.isFinite(startsAt) && nowMs < startsAt;
+  const canBid = !isClosed && !isNotStarted && lelang.status === 'ACTIVE' && Number.isFinite(endsAt) && nowMs <= endsAt;
   const highestBid = bids.length > 0 ? bids[0] : null;
   const isWinner = isClosed && (lelang.pemenangId === user?.id || highestBid?.userId === user?.id);
   const isPaid = lelang.statusPembayaran === 'LUNAS';
@@ -283,6 +308,12 @@ export default function LelangRoomPage() {
         {buyerBlocked && (
           <div className="alert alert-danger">
             Bidding dikunci karena status KYC pembeli Anda masih <strong>{user?.buyerVerificationStatus}</strong>. Tunggu verifikasi admin sebelum ikut menawar.
+          </div>
+        )}
+
+        {isNotStarted && (
+          <div className="alert alert-secondary">
+            Lelang sudah dijadwalkan dan akan dibuka pada <strong>{formatDate(lelang.waktuBuka)}</strong>. Bidding aktif otomatis setelah waktu mulai.
           </div>
         )}
 
@@ -369,6 +400,35 @@ export default function LelangRoomPage() {
               <h4 style={{ margin: 0, marginBottom: 8, fontSize: 12, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>Detail & Deskripsi</h4>
               <p style={{ margin: 0, lineHeight: 1.6, fontSize: 14, color: 'var(--text)' }}>{lelang.aset.deskripsi || 'Tidak ada spesifikasi yang disertakan pada aset ini.'}</p>
             </div>
+            <div style={{ marginTop: 16, padding: 16, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+              <h4 style={{ margin: 0, marginBottom: 12, fontSize: 12, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>Informasi Lelang</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, fontSize: 13 }}>
+                <div>
+                  <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>Status</div>
+                  <strong>{isNotStarted ? 'DIJADWALKAN' : lelang.status}</strong>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>Waktu Buka</div>
+                  <strong>{formatDate(lelang.waktuBuka)}</strong>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>Waktu Tutup</div>
+                  <strong>{formatDate(lelang.waktuTutup)}</strong>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>Durasi</div>
+                  <strong>{formatDuration(lelang.durasiMenit)}</strong>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>Harga Pasar</div>
+                  <strong>{formatRp(lelang.aset.hargaPasar)}</strong>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>Nilai Limit</div>
+                  <strong>{formatRp(lelang.aset.hasil?.[0]?.nilaiLimit || 0)}</strong>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -376,7 +436,9 @@ export default function LelangRoomPage() {
       <div style={{ flex: '1 1 340px', position: 'sticky', top: 32 }}>
         <div className="card" style={{ border: isClosed ? '1px solid var(--border)' : '1px solid var(--primary-light)' }}>
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Sisa Waktu Bidding</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
+              {isNotStarted ? 'Mulai Dalam' : 'Sisa Waktu Bidding'}
+            </div>
             <div style={{ fontSize: 36, fontWeight: 700, color: isClosed ? 'var(--text-muted)' : 'var(--danger)', fontFamily: 'monospace', marginTop: 4 }}>
               {timeLeft || '-- : -- : --'}
             </div>
@@ -408,7 +470,7 @@ export default function LelangRoomPage() {
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Tawaran Cepat (+):</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   {QUICK_BIDS.map(({ label, value }) => (
-                    <button key={value} type="button" className="btn btn-secondary btn-sm" onClick={() => handleQuickBid(value)} disabled={buyerBlocked || socketStatus !== 'connected'}>
+                    <button key={value} type="button" className="btn btn-secondary btn-sm" onClick={() => handleQuickBid(value)} disabled={buyerBlocked || socketStatus !== 'connected' || !canBid}>
                       {label}
                     </button>
                   ))}
@@ -426,9 +488,9 @@ export default function LelangRoomPage() {
                 type="submit"
                 className="btn btn-primary"
                 style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 600 }}
-                disabled={buyerBlocked || socketStatus !== 'connected'}
+                disabled={buyerBlocked || socketStatus !== 'connected' || !canBid}
               >
-                {buyerBlocked ? 'KYC Belum Disetujui' : socketStatus !== 'connected' ? 'Menunggu Koneksi' : 'AJUKAN PENAWARAN'}
+                {buyerBlocked ? 'KYC Belum Disetujui' : isNotStarted ? 'Lelang Belum Dibuka' : socketStatus !== 'connected' ? 'Menunggu Koneksi' : canBid ? 'AJUKAN PENAWARAN' : 'Bidding Tidak Aktif'}
               </button>
             </form>
           )}

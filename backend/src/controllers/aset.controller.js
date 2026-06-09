@@ -3,7 +3,7 @@ import { createNotification } from '../utils/notification.util.js';
 import { isSellerApproved } from '../utils/seller-verification.util.js';
 import { getUploadedFilePath } from '../middleware/upload.middleware.js';
 
-const calculateQueueSchedule = async (requestedStart, durasiMenit) => {
+const calculateQueueSchedule = async (requestedStart, durasiDetik) => {
   const scheduled = await prisma.lelang.findMany({
     where: {
       status: { in: ['PENDING', 'ACTIVE'] },
@@ -30,7 +30,7 @@ const calculateQueueSchedule = async (requestedStart, durasiMenit) => {
     }
   }
 
-  const actualWaktuTutup = new Date(actualWaktuBuka.getTime() + durasiMenit * 60 * 1000);
+  const actualWaktuTutup = new Date(actualWaktuBuka.getTime() + durasiDetik * 1000);
   return { actualWaktuBuka, actualWaktuTutup, queuePosition };
 };
 
@@ -200,15 +200,16 @@ export const ajukanLelang = async (req, res) => {
 export const createLelangOlehAdmin = async (req, res) => {
   try {
     const asetId = Number(req.params.id);
-    const { waktuBuka, durasiMenit } = req.body;
+    const { waktuBuka, durasiDetik, durasiMenit } = req.body;
+    const rawDurasiDetik = durasiDetik ?? durasiMenit;
 
-    if (!waktuBuka || !durasiMenit) {
-      return res.status(400).json({ success: false, message: "waktuBuka dan durasiMenit wajib diisi" });
+    if (!waktuBuka || rawDurasiDetik === undefined) {
+      return res.status(400).json({ success: false, message: "waktuBuka dan durasiDetik wajib diisi" });
     }
 
-    const durasi = Number(durasiMenit);
-    if (isNaN(durasi) || durasi <= 0) {
-      return res.status(400).json({ success: false, message: "durasiMenit harus angka positif" });
+    const durasi = Number(rawDurasiDetik);
+    if (!Number.isInteger(durasi) || durasi <= 0) {
+      return res.status(400).json({ success: false, message: "durasiDetik harus berupa angka bulat positif" });
     }
 
     const aset = await prisma.aset.findUnique({ where: { id: asetId } });
@@ -268,7 +269,7 @@ export const createLelangOlehAdmin = async (req, res) => {
 
     res.json({
       success: true,
-      message: `Lelang berhasil diterbitkan. Slot antrean ke-${queuePosition}. Buka: ${actualWaktuBuka.toLocaleString('id-ID')}, Tutup: ${actualWaktuTutup.toLocaleString('id-ID')}`,
+      message: `Lelang berhasil diterbitkan. Slot antrean ke-${queuePosition}. Durasi: ${durasi} detik. Buka: ${actualWaktuBuka.toLocaleString('id-ID')}, Tutup: ${actualWaktuTutup.toLocaleString('id-ID')}`,
       data: {
         ...result.lelang,
         queuePosition,

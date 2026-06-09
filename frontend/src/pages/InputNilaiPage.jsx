@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getKategori, getAset, getKriteria, getNilaiAset, inputNilaiAset } from '../services/api.js';
-import { PenSquare, X, CheckCircle2, LayoutList, Package, AlertCircle, FolderTree, ListOrdered } from 'lucide-react';
+import { PenSquare, X, CheckCircle2, LayoutList, Package, FolderTree, ListOrdered } from 'lucide-react';
 
 // ─── Helper ──────────────────────────────────────────────────────────
 const formatRupiah = (val) =>
@@ -9,6 +9,38 @@ const formatRupiah = (val) =>
     : '—';
 
 // ─── Modal komponen pengisian nilai ──────────────────────────────────
+const SCALE_OPTIONS = Array.from({ length: 10 }, (_, index) => String(index + 1));
+const DYNAMIC_VALUE_PATTERNS = [
+  /kilometer/i,
+  /\bkm\b/i,
+  /tahun produksi/i,
+  /tahun kendaraan/i,
+  /usia pemakaian/i,
+];
+
+const isDynamicValueCriteria = (kriteria) =>
+  DYNAMIC_VALUE_PATTERNS.some((pattern) => pattern.test(kriteria.nama || ''));
+
+const normalizeNilaiForInput = (kriteria, value) => {
+  if (value == null || value === '') return '';
+  const textValue = String(value);
+  if (isDynamicValueCriteria(kriteria)) return textValue;
+
+  const numericValue = Number(textValue);
+  if (Number.isInteger(numericValue) && numericValue >= 1 && numericValue <= 10) {
+    return String(numericValue);
+  }
+  return textValue;
+};
+
+const getDynamicPlaceholder = (kriteria) => {
+  const nama = (kriteria.nama || '').toLowerCase();
+  if (nama.includes('kilometer') || /\bkm\b/.test(nama)) return 'Contoh: 23000';
+  if (nama.includes('tahun')) return 'Contoh: 2023';
+  if (nama.includes('usia')) return 'Contoh: 3';
+  return 'Masukkan angka nilai asli...';
+};
+
 function InputNilaiModal({ aset, kriteriaList, onClose, onSaved }) {
   const [nilaiForm, setNilaiForm] = useState({});
   const [loading, setLoading] = useState(false);
@@ -20,12 +52,13 @@ function InputNilaiModal({ aset, kriteriaList, onClose, onSaved }) {
     getNilaiAset(aset.id)
       .then((res) => {
         const existing = res.data || [];
-        const map = {};
+        const existingMap = {};
         existing.forEach((item) => {
-          map[item.kriteriaId] = String(item.nilai);
+          existingMap[item.kriteriaId] = item.nilai;
         });
+        const map = {};
         kriteriaList.forEach((k) => {
-          if (!map[k.id]) map[k.id] = '';
+          map[k.id] = normalizeNilaiForInput(k, existingMap[k.id]);
         });
         setNilaiForm(map);
       })
@@ -46,6 +79,26 @@ function InputNilaiModal({ aset, kriteriaList, onClose, onSaved }) {
     const empty = nilai_list.filter((item) => item.nilai === '' || item.nilai == null);
     if (empty.length > 0) {
       setAlert({ type: 'danger', msg: 'Semua nilai kriteria wajib diisi.' });
+      return;
+    }
+
+    const invalidScale = kriteriaList.filter((k) => {
+      if (isDynamicValueCriteria(k)) return false;
+      const value = Number(nilaiForm[k.id]);
+      return !Number.isInteger(value) || value < 1 || value > 10;
+    });
+    if (invalidScale.length > 0) {
+      setAlert({ type: 'danger', msg: 'Kriteria berskala tetap hanya boleh bernilai 1 sampai 10.' });
+      return;
+    }
+
+    const invalidDynamic = kriteriaList.filter((k) => {
+      if (!isDynamicValueCriteria(k)) return false;
+      const value = Number(nilaiForm[k.id]);
+      return Number.isNaN(value) || value < 0;
+    });
+    if (invalidDynamic.length > 0) {
+      setAlert({ type: 'danger', msg: 'Kriteria dinamis harus diisi dengan angka asli yang valid.' });
       return;
     }
     setLoading(true);
@@ -90,28 +143,56 @@ function InputNilaiModal({ aset, kriteriaList, onClose, onSaved }) {
             {alert && <div className={`alert alert-${alert.type}`}>{alert.msg}</div>}
 
             <div style={{ display: 'grid', gap: 14 }}>
-              {kriteriaList.map((k) => (
-                <div key={k.id} className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">
-                    {k.nama}
-                    <span
-                      className={`badge ${k.tipe === 'benefit' ? 'badge-success' : 'badge-warning'}`}
-                      style={{ marginLeft: 8 }}
-                    >
-                      {k.tipe}
-                    </span>
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    min="0"
-                    className="form-control"
-                    value={nilaiForm[k.id] || ''}
-                    onChange={(e) => setNilaiForm((prev) => ({ ...prev, [k.id]: e.target.value }))}
-                    placeholder="Masukkan angka nilai..."
-                  />
-                </div>
-              ))}
+              {kriteriaList.map((k) => {
+                const isDynamic = isDynamicValueCriteria(k);
+                return (
+                  <div key={k.id} className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">
+                      {k.nama}
+                      <span
+                        className={`badge ${k.tipe === 'benefit' ? 'badge-success' : 'badge-warning'}`}
+                        style={{ marginLeft: 8 }}
+                      >
+                        {k.tipe}
+                      </span>
+                    </label>
+                    {isDynamic ? (
+                      <>
+                        <input
+                          type="number"
+                          step="any"
+                          min="0"
+                          className="form-control"
+                          value={nilaiForm[k.id] || ''}
+                          onChange={(e) => setNilaiForm((prev) => ({ ...prev, [k.id]: e.target.value }))}
+                          placeholder={getDynamicPlaceholder(k)}
+                          required
+                        />
+                        <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: 4 }}>
+                          Isi angka asli sesuai data aset.
+                        </small>
+                      </>
+                    ) : (
+                      <>
+                        <select
+                          className="form-control"
+                          value={nilaiForm[k.id] || ''}
+                          onChange={(e) => setNilaiForm((prev) => ({ ...prev, [k.id]: e.target.value }))}
+                          required
+                        >
+                          <option value="">Pilih nilai 1-10</option>
+                          {SCALE_OPTIONS.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                        <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: 4 }}>
+                          Skala penilaian tetap 1-10.
+                        </small>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="modal-footer">
@@ -201,6 +282,8 @@ export default function InputNilaiPage() {
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-muted)', display: 'grid', gap: 6, alignContent: 'start' }}>
             <strong style={{ color: 'var(--text)', fontSize: 14 }}>Catatan Teknis</strong>
+            <div>Skala tetap menggunakan dropdown 1-10.</div>
+            <div>Nilai dinamis seperti kilometer, tahun produksi, dan usia pemakaian tetap diisi angka asli.</div>
             <div>• Bobot kriteria ditetapkan masing-masing melalui proses <strong>AHP</strong>.</div>
             <div>• Nilai <strong>benefit</strong>: semakin tinggi semakin baik.</div>
             <div>• Nilai <strong>cost</strong>: isi angka asli — sistem akan mengolahnya di perhitungan SAW.</div>

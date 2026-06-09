@@ -430,7 +430,17 @@ export const getSemuaLelangAktif = async (req, res) => {
     const lelangList = await prisma.lelang.findMany({
       where: { status: { in: ['PENDING', 'ACTIVE', 'FINISHED'] } },
       include: {
-        aset: { include: { kategori: true, hasil: true } },
+        aset: {
+          include: {
+            kategori: true,
+            hasil: true,
+            penjual: {
+              include: {
+                user: { select: { nama: true } },
+              },
+            },
+          },
+        },
         pemenang: { select: { id: true, nama: true, email: true } },
       },
       orderBy: { waktuBuka: 'desc' },
@@ -443,7 +453,17 @@ export const getSemuaLelangAktif = async (req, res) => {
     const refreshed = await prisma.lelang.findMany({
       where: { status: { in: ['PENDING', 'ACTIVE', 'FINISHED'] } },
       include: {
-        aset: { include: { kategori: true, hasil: true } },
+        aset: {
+          include: {
+            kategori: true,
+            hasil: true,
+            penjual: {
+              include: {
+                user: { select: { nama: true } },
+              },
+            },
+          },
+        },
         pemenang: { select: { id: true, nama: true, email: true } },
       },
       orderBy: { waktuBuka: 'desc' },
@@ -585,7 +605,7 @@ export const uploadBuktiPembayaran = async (req, res) => {
 export const verifikasiPembayaran = async (req, res) => {
   try {
     const { id } = req.params;
-    const { catatan } = req.body;
+    const catatan = typeof req.body?.catatan === 'string' ? req.body.catatan.trim() : '';
 
     if (req.userRole !== 'ADMIN') {
       return res.status(403).json({ success: false, message: 'Hanya Admin yang bisa verifikasi pembayaran' });
@@ -608,7 +628,7 @@ export const verifikasiPembayaran = async (req, res) => {
         statusPembayaran: paymentStatusLabels.LUNAS,
         tanggalVerifikasiPembayaran: new Date(),
         verifiedBy: req.userId,
-        catatanPembayaran: catatan?.trim() || 'Bukti pembayaran telah diverifikasi admin.',
+        catatanPembayaran: catatan || 'Bukti pembayaran telah diverifikasi admin.',
       },
       include: {
         pemenang: { select: { nama: true } },

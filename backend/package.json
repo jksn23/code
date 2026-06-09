@@ -10,6 +10,7 @@
     "migrate": "prisma migrate dev",
     "migrate:prod": "prisma migrate deploy",
     "generate": "prisma generate",
+    "seed:jurnal": "node prisma/seed_data_jurnal.js",
     "studio": "prisma studio",
     "test": "node src/tests/test_algoritma.js"
   },
