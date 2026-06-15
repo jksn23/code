@@ -55,7 +55,10 @@ export const getAllAset = async (req, res) => {
         nilaiAset: { include: { kriteria: true } },
         hasil: true,
         penjual: { include: { user: { select: { nama: true } } } },
-        lelang: true
+        lelang: true,
+        assetProperty: true,
+        assetVehicle: true,
+        assetElectronic: true
       },
       orderBy: { id: 'desc' },
     });
@@ -74,6 +77,10 @@ export const getAsetById = async (req, res) => {
         kategori: true,
         nilaiAset: { include: { kriteria: true } },
         hasil: true,
+        assetProperty: true,
+        assetVehicle: true,
+        assetElectronic: true,
+        penjual: { include: { user: { select: { nama: true } } } },
       },
     });
     if (!data) return res.status(404).json({ success: false, message: 'Aset tidak ditemukan' });
@@ -280,3 +287,173 @@ export const createLelangOlehAdmin = async (req, res) => {
   }
 };
 
+// --- SPECIFIC ASSET CREATION ---
+
+export const createAsetProperty = async (req, res) => {
+  try {
+    const { nama, kategori_id, deskripsi, certificate_number, owner_name, land_area, building_area, village, district, city, province, njop_per_m2 } = req.body;
+    
+    if (!nama || !kategori_id || !certificate_number || !owner_name || !land_area || !njop_per_m2) {
+      return res.status(400).json({ success: false, message: 'Data properti tidak lengkap' });
+    }
+
+    const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
+    if (!penjual) return res.status(403).json({ success: false, message: 'Profil penjual tidak ditemukan' });
+
+    const property_photo = req.files['property_photo'] ? getUploadedFilePath(req.files['property_photo'][0]) : null;
+    const certificate_file = req.files['certificate_file_pdf'] ? getUploadedFilePath(req.files['certificate_file_pdf'][0]) : null;
+
+    const area = Number(land_area) + (Number(building_area) || 0);
+    const basePropertyValue = Number(njop_per_m2) * area;
+
+    const data = await prisma.aset.create({
+      data: {
+        nama: nama.trim(),
+        kategoriId: Number(kategori_id),
+        hargaPasar: basePropertyValue, // Base value used as temporary market value
+        deskripsi: deskripsi || null,
+        penjualId: penjual.id,
+        statusLelang: 'DRAFT',
+        assetProperty: {
+          create: {
+            certificateNumber: certificate_number,
+            ownerName: owner_name,
+            landArea: Number(land_area),
+            buildingArea: building_area ? Number(building_area) : null,
+            village,
+            district,
+            city,
+            province,
+            njopPerM2: Number(njop_per_m2),
+            basePropertyValue: basePropertyValue,
+            certificateFile: certificate_file,
+            propertyPhoto: property_photo
+          }
+        }
+      },
+      include: { assetProperty: true }
+    });
+    res.status(201).json({ success: true, message: 'Aset properti berhasil ditambahkan', data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const createAssetVehicle = async (req, res) => {
+  try {
+    const { nama, kategori_id, deskripsi, harga_pasar, brand, type, year, color, plate_number, engine_number, chassis_number } = req.body;
+    
+    if (!nama || !kategori_id || !harga_pasar || !brand || !type || !year || !plate_number) {
+      return res.status(400).json({ success: false, message: 'Data kendaraan tidak lengkap' });
+    }
+
+    const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
+    if (!penjual) return res.status(403).json({ success: false, message: 'Profil penjual tidak ditemukan' });
+
+    const vehicle_photo = req.files['vehicle_photo'] ? getUploadedFilePath(req.files['vehicle_photo'][0]) : null;
+    const bpkb_file = req.files['vehicle_bpkb'] ? getUploadedFilePath(req.files['vehicle_bpkb'][0]) : null;
+    const stnk_file = req.files['vehicle_stnk'] ? getUploadedFilePath(req.files['vehicle_stnk'][0]) : null;
+
+    const data = await prisma.aset.create({
+      data: {
+        nama: nama.trim(),
+        kategoriId: Number(kategori_id),
+        hargaPasar: Number(harga_pasar),
+        deskripsi: deskripsi || null,
+        penjualId: penjual.id,
+        statusLelang: 'DRAFT',
+        assetVehicle: {
+          create: {
+            brand,
+            type,
+            year: Number(year),
+            color,
+            plateNumber: plate_number,
+            engineNumber: engine_number,
+            chassisNumber: chassis_number,
+            vehiclePhoto: vehicle_photo,
+            bpkbFile: bpkb_file,
+            stnkFile: stnk_file
+          }
+        }
+      },
+      include: { assetVehicle: true }
+    });
+    res.status(201).json({ success: true, message: 'Aset kendaraan berhasil ditambahkan', data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const createAssetElectronic = async (req, res) => {
+  try {
+    const { nama, kategori_id, deskripsi, harga_pasar, brand, series, type } = req.body;
+    
+    if (!nama || !kategori_id || !harga_pasar || !brand || !type) {
+      return res.status(400).json({ success: false, message: 'Data elektronik tidak lengkap' });
+    }
+
+    const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
+    if (!penjual) return res.status(403).json({ success: false, message: 'Profil penjual tidak ditemukan' });
+
+    const item_photo = req.file ? getUploadedFilePath(req.file) : null;
+
+    const data = await prisma.aset.create({
+      data: {
+        nama: nama.trim(),
+        kategoriId: Number(kategori_id),
+        hargaPasar: Number(harga_pasar),
+        deskripsi: deskripsi || null,
+        penjualId: penjual.id,
+        statusLelang: 'DRAFT',
+        assetElectronic: {
+          create: {
+            brand,
+            series,
+            type,
+            itemPhoto: item_photo
+          }
+        }
+      },
+      include: { assetElectronic: true }
+    });
+    res.status(201).json({ success: true, message: 'Aset elektronik berhasil ditambahkan', data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// --- SPECIFIC ASSET VERIFICATION (ADMIN) ---
+
+export const verifyProperty = async (req, res) => {
+  try {
+    const aset = await prisma.aset.findUnique({ where: { id: Number(req.params.id) }, include: { assetProperty: true } });
+    if (!aset || !aset.assetProperty) return res.status(404).json({ success: false, message: 'Aset properti tidak ditemukan' });
+    
+    res.json({ success: true, message: 'Verifikasi dokumen properti berhasil dicatat' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const verifyVehicle = async (req, res) => {
+  try {
+    const aset = await prisma.aset.findUnique({ where: { id: Number(req.params.id) }, include: { assetVehicle: true } });
+    if (!aset || !aset.assetVehicle) return res.status(404).json({ success: false, message: 'Aset kendaraan tidak ditemukan' });
+    
+    res.json({ success: true, message: 'Verifikasi dokumen kendaraan berhasil dicatat' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const verifyElectronic = async (req, res) => {
+  try {
+    const aset = await prisma.aset.findUnique({ where: { id: Number(req.params.id) }, include: { assetElectronic: true } });
+    if (!aset || !aset.assetElectronic) return res.status(404).json({ success: false, message: 'Aset elektronik tidak ditemukan' });
+    
+    res.json({ success: true, message: 'Verifikasi dokumen elektronik berhasil dicatat' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

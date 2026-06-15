@@ -74,6 +74,15 @@ export const getAsetById = (id) => api.get(`/aset/${id}`);
 export const createAset = (formData) => api.post('/aset', formData, {
   headers: { 'Content-Type': 'multipart/form-data' }
 });
+export const createAsetProperty = (formData) => api.post('/aset/property', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+export const createAssetVehicle = (formData) => api.post('/aset/vehicle', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+export const createAssetElectronic = (formData) => api.post('/aset/electronic', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
 export const updateAset = (id, data) => api.put(`/aset/${id}`, data);
 export const deleteAset = (id) => api.delete(`/aset/${id}`);
 
@@ -89,6 +98,11 @@ export const getPembeliById = (id) => api.get(`/pembeli/${id}`);
 export const verifikasiPembeli = (id, data) => api.put(`/pembeli/${id}/verifikasi`, data);
 export const ajukanLelang = (asetId) => api.put(`/aset/${asetId}/ajukan`);
 export const createLelangAndApprove = (asetId, data) => api.post(`/aset/${asetId}/verifikasi-lelang`, data);
+
+export const verifyProperty = (asetId) => api.post(`/aset/${asetId}/verify-property`);
+export const verifyVehicle = (asetId) => api.post(`/aset/${asetId}/verify-vehicle`);
+export const verifyElectronic = (asetId) => api.post(`/aset/${asetId}/verify-electronic`);
+
 export const getLelangSelesaiAdmin = () => api.get('/lelang/admin/selesai');
 export const verifikasiPembayaranLelang = (id) => api.put(`/lelang/${id}/pembayaran`);
 export const konfirmasiTerimaBarang = (id) => api.put(`/lelang/${id}/terima-barang`);
@@ -103,7 +117,6 @@ export const uploadBuktiPembayaranLelang = (id, formData) => api.post(`/lelang/$
 });
 export const tolakPembayaranLelang = (id, data) => api.put(`/lelang/${id}/pembayaran/tolak`, data);
 
-
 // ====== NILAI ASET ======
 export const getNilaiAset = (aset_id) => api.get(`/nilai/aset/${aset_id}`);
 export const inputNilaiAset = (data) => api.post('/nilai', data);
@@ -111,6 +124,10 @@ export const inputNilaiAset = (data) => api.post('/nilai', data);
 // ====== SPK ======
 export const hitungSAW = (data) => api.post('/spk/hitung-saw', data);
 export const getHasil = (kategori_id) => api.get(`/spk/hasil/${kategori_id}`);
+
+// ====== QUICK BIDS ======
+export const getQuickBids = (auctionId) => api.get('/quick-bids', { params: { auctionId } });
+export const saveQuickBids = (data) => api.post('/quick-bids', data);
 
 // ====== LAPORAN ======
 export const getLaporanAset = () => api.get('/laporan/aset');

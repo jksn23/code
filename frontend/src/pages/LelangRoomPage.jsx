@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import api, { konfirmasiTerimaBarang, getNextLelang } from '../services/api';
+import api, { konfirmasiTerimaBarang, getNextLelang, getQuickBids, saveQuickBids } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import CurrencyInput from '../components/CurrencyInput';
 import { SOCKET_URL, assetUrl } from '../config/env.js';
@@ -26,12 +26,6 @@ const formatCountdown = (distance) => {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 };
 
-const QUICK_BIDS = [
-  { label: '+500 Rb', value: 500000 },
-  { label: '+1 Jt', value: 1000000 },
-  { label: '+5 Jt', value: 5000000 },
-  { label: '+10 Jt', value: 10000000 },
-];
 
 export default function LelangRoomPage() {
   const { id } = useParams();
@@ -51,6 +45,10 @@ export default function LelangRoomPage() {
   const [nextCountdown, setNextCountdown] = useState('');
   const [socketStatus, setSocketStatus] = useState('connecting');
   const [syncMessage, setSyncMessage] = useState('');
+  const [quickBidPresets, setQuickBidPresets] = useState(null);
+  const [showQuickBidSettings, setShowQuickBidSettings] = useState(false);
+  const [qbForm, setQbForm] = useState({ quickBid1: '', quickBid2: '', quickBid3: '' });
+  const [qbSaving, setQbSaving] = useState(false);
 
   const socketRef = useRef(null);
   const hasTriggeredEnd = useRef(false);
@@ -221,10 +219,32 @@ export default function LelangRoomPage() {
     });
   };
 
-  const handleQuickBid = (increment) => {
-    const highest = bids.length > 0 ? Number(bids[0].nominal) : 0;
-    const limit = Number(lelang?.aset?.hasil?.[0]?.nilaiLimit || 0);
-    setNominal(Math.max(highest, limit) + increment);
+  const handleQuickBid = (presetValue) => {
+    setNominal(Number(presetValue));
+  };
+
+  const loadQuickBids = useCallback(async () => {
+    if (!user || user.role !== 'PEMBELI') return;
+    try {
+      const res = await getQuickBids(id);
+      if (res.data) {
+        setQuickBidPresets(res.data);
+        setQbForm({ quickBid1: res.data.quickBid1, quickBid2: res.data.quickBid2, quickBid3: res.data.quickBid3 });
+      }
+    } catch { /* ignore */ }
+  }, [id, user]);
+
+  useEffect(() => { loadQuickBids(); }, [loadQuickBids]);
+
+  const handleSaveQuickBids = async () => {
+    if (!qbForm.quickBid1 || !qbForm.quickBid2 || !qbForm.quickBid3) return alert('Isi ketiga nominal Quick Bid');
+    setQbSaving(true);
+    try {
+      await saveQuickBids({ auctionId: Number(id), quickBid1: qbForm.quickBid1, quickBid2: qbForm.quickBid2, quickBid3: qbForm.quickBid3 });
+      await loadQuickBids();
+      setShowQuickBidSettings(false);
+    } catch (err) { alert(err.message); }
+    finally { setQbSaving(false); }
   };
 
   const handleKonfirmasiBarang = async () => {
@@ -467,14 +487,24 @@ export default function LelangRoomPage() {
           {!isClosed && user?.role === 'PEMBELI' && (
             <form onSubmit={handleBid}>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Tawaran Cepat (+):</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  {QUICK_BIDS.map(({ label, value }) => (
-                    <button key={value} type="button" className="btn btn-secondary btn-sm" onClick={() => handleQuickBid(value)} disabled={buyerBlocked || socketStatus !== 'connected' || !canBid}>
-                      {label}
-                    </button>
-                  ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500 }}>Quick Bid (Preset):</div>
+                  <button type="button" className="btn btn-secondary btn-sm" style={{ fontSize: 10, padding: '4px 8px' }} onClick={() => setShowQuickBidSettings(true)}>⚙️ Atur</button>
                 </div>
+                {quickBidPresets ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                    {[quickBidPresets.quickBid1, quickBidPresets.quickBid2, quickBidPresets.quickBid3].map((val, idx) => (
+                      <button key={idx} type="button" className="btn btn-secondary btn-sm" style={{ fontSize: 12, fontWeight: 600 }}
+                        onClick={() => handleQuickBid(val)} disabled={buyerBlocked || socketStatus !== 'connected' || !canBid}>
+                        {formatRp(val)}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ padding: 12, background: 'var(--surface-light)', borderRadius: 8, fontSize: 12, color: 'var(--text-muted)', textAlign: 'center' }}>
+                    Belum ada preset. Klik ⚙️ Atur untuk menyimpan 3 nominal Quick Bid.
+                  </div>
+                )}
               </div>
               <div className="form-group" style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Nilai Penawaran Anda:</div>
@@ -537,6 +567,39 @@ export default function LelangRoomPage() {
         </div>
       </div>
     </div>
+
+      {/* Quick Bid Settings Modal */}
+      {showQuickBidSettings && (
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowQuickBidSettings(false)}>
+          <div className="modal" style={{ maxWidth: 420 }}>
+            <div className="modal-header">
+              <h3>⚡ Atur Quick Bid</h3>
+              <button className="btn btn-secondary btn-sm" onClick={() => setShowQuickBidSettings(false)}>✕</button>
+            </div>
+            <p style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 16 }}>
+              Simpan 3 nominal preset yang bisa Anda klik langsung saat bidding. Nominal harus di atas nilai limit.
+            </p>
+            <div className="form-group">
+              <label className="form-label">Quick Bid 1 (Rp)</label>
+              <CurrencyInput value={qbForm.quickBid1} onChange={(v) => setQbForm({ ...qbForm, quickBid1: v })} placeholder="Contoh: 105.000.000" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Quick Bid 2 (Rp)</label>
+              <CurrencyInput value={qbForm.quickBid2} onChange={(v) => setQbForm({ ...qbForm, quickBid2: v })} placeholder="Contoh: 110.000.000" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Quick Bid 3 (Rp)</label>
+              <CurrencyInput value={qbForm.quickBid3} onChange={(v) => setQbForm({ ...qbForm, quickBid3: v })} placeholder="Contoh: 115.000.000" />
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowQuickBidSettings(false)}>Batal</button>
+              <button type="button" className="btn btn-primary" onClick={handleSaveQuickBids} disabled={qbSaving}>
+                {qbSaving ? <span className="spinner" /> : '💾 Simpan Quick Bid'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

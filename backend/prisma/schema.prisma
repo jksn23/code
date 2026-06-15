@@ -21,75 +21,80 @@ model Kategori {
 }
 
 model Kriteria {
-  id          Int          @id @default(autoincrement())
-  kategoriId  Int          @map("kategori_id")
-  nama        String       @db.VarChar(150)
-  tipe        TipeKriteria
-  kategori    Kategori     @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
-  nilaiAset   NilaiAset[]
-  bobotAhp    BobotAHP[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id         Int          @id @default(autoincrement())
+  kategoriId Int          @map("kategori_id")
+  nama       String       @db.VarChar(150)
+  tipe       TipeKriteria
+  kategori   Kategori     @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
+  nilaiAset  NilaiAset[]
+  bobotAhp   BobotAHP[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 
   @@map("kriteria")
 }
 
 model Aset {
-  id           Int         @id @default(autoincrement())
-  nama         String      @db.VarChar(200)
-  kategoriId   Int         @map("kategori_id")
-  penjualId    Int?        @map("penjual_id")
-  deskripsi    String?     @db.Text
-  dokumenUrl   String?     @map("dokumen_url") @db.VarChar(255)
+  id           Int          @id @default(autoincrement())
+  nama         String       @db.VarChar(200)
+  kategoriId   Int          @map("kategori_id")
+  penjualId    Int?         @map("penjual_id")
+  deskripsi    String?      @db.Text
+  dokumenUrl   String?      @map("dokumen_url") @db.VarChar(255)
   statusLelang StatusLelang @default(DRAFT) @map("status_lelang")
-  hargaPasar   Decimal     @map("harga_pasar") @db.Decimal(20, 2)
-  
-  kategori     Kategori    @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
-  penjual      Penjual?    @relation(fields: [penjualId], references: [id], onDelete: SetNull)
-  nilaiAset    NilaiAset[]
-  hasil        Hasil[]
-  lelang       Lelang[]
-  
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  hargaPasar   Decimal      @map("harga_pasar") @db.Decimal(20, 2)
+  limitValue   Decimal?     @map("limit_value") @db.Decimal(20, 2)
+
+  kategori  Kategori    @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
+  penjual   Penjual?    @relation(fields: [penjualId], references: [id], onDelete: SetNull)
+  nilaiAset NilaiAset[]
+  hasil     Hasil[]
+  lelang    Lelang[]
+
+  assetProperty   AssetProperty?
+  assetVehicle    AssetVehicle?
+  assetElectronic AssetElectronic?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("aset")
 }
 
 model NilaiAset {
-  id          Int       @id @default(autoincrement())
-  asetId      Int       @map("aset_id")
-  kriteriaId  Int       @map("kriteria_id")
-  nilai       Decimal   @db.Decimal(15, 4)
-  aset        Aset      @relation(fields: [asetId], references: [id], onDelete: Cascade)
-  kriteria    Kriteria  @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         Int      @id @default(autoincrement())
+  asetId     Int      @map("aset_id")
+  kriteriaId Int      @map("kriteria_id")
+  nilai      Decimal  @db.Decimal(15, 4)
+  aset       Aset     @relation(fields: [asetId], references: [id], onDelete: Cascade)
+  kriteria   Kriteria @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([asetId, kriteriaId])
   @@map("nilai_aset")
 }
 
 model BobotAHP {
-  id          Int       @id @default(autoincrement())
-  kriteriaId  Int       @map("kriteria_id")
-  bobot       Decimal   @db.Decimal(10, 6)
-  cr          Decimal   @db.Decimal(10, 6)
-  kriteria    Kriteria  @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         Int      @id @default(autoincrement())
+  kriteriaId Int      @map("kriteria_id")
+  bobot      Decimal  @db.Decimal(10, 6)
+  cr         Decimal  @db.Decimal(10, 6)
+  kriteria   Kriteria @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@map("bobot_ahp")
 }
 
 model Hasil {
-  id               Int      @id @default(autoincrement())
-  asetId           Int      @map("aset_id")
-  nilaiPreferensi  Decimal  @map("nilai_preferensi") @db.Decimal(15, 6)
-  nilaiLimit       Decimal  @map("nilai_limit") @db.Decimal(20, 2)
-  aset             Aset     @relation(fields: [asetId], references: [id], onDelete: Cascade)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  asetId          Int      @map("aset_id")
+  nilaiPreferensi Decimal  @map("nilai_preferensi") @db.Decimal(15, 6)
+  nilaiLimit      Decimal  @map("nilai_limit") @db.Decimal(20, 2)
+  aset            Aset     @relation(fields: [asetId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("hasil")
 }
@@ -126,95 +131,97 @@ enum StatusLelang {
 }
 
 model User {
-  id                     Int                     @id @default(autoincrement())
-  email                  String                  @unique @db.VarChar(100)
-  password               String                  @db.VarChar(255)
-  nama                   String                  @db.VarChar(150)
-  role                   Role                    @default(PEMBELI)
-  ktpUrl                 String?                 @map("ktp_url") @db.VarChar(255)
+  id                      Int                     @id @default(autoincrement())
+  email                   String                  @unique @db.VarChar(100)
+  password                String                  @db.VarChar(255)
+  nama                    String                  @db.VarChar(150)
+  role                    Role                    @default(PEMBELI)
+  ktpUrl                  String?                 @map("ktp_url") @db.VarChar(255)
   buyerVerificationStatus BuyerVerificationStatus @default(UNVERIFIED) @map("buyer_verification_status")
-  buyerVerificationNote  String?                 @map("buyer_verification_note") @db.Text
-  buyerVerifiedAt        DateTime?               @map("buyer_verified_at")
-  buyerVerifiedBy        Int?                    @map("buyer_verified_by")
-  createdAt              DateTime                @default(now())
-  updatedAt              DateTime                @updatedAt
+  buyerVerificationNote   String?                 @map("buyer_verification_note") @db.Text
+  buyerVerifiedAt         DateTime?               @map("buyer_verified_at")
+  buyerVerifiedBy         Int?                    @map("buyer_verified_by")
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
 
-  penjual               Penjual?
-  penawaran             Penawaran[]
-  lelangDimenangkan     Lelang[]        @relation("LelangPemenang")
-  verifiedPayments      Lelang[]        @relation("PaymentVerifier")
-  notifications         Notifikasi[]
-  buyerVerifier         User?           @relation("BuyerVerifier", fields: [buyerVerifiedBy], references: [id], onDelete: SetNull)
-  verifiedBuyers        User[]          @relation("BuyerVerifier")
-  verifiedSellers       Penjual[]       @relation("SellerVerifier")
+  penjual           Penjual?
+  penawaran         Penawaran[]
+  lelangDimenangkan Lelang[]     @relation("LelangPemenang")
+  verifiedPayments  Lelang[]     @relation("PaymentVerifier")
+  notifications     Notifikasi[]
+  buyerVerifier     User?        @relation("BuyerVerifier", fields: [buyerVerifiedBy], references: [id], onDelete: SetNull)
+  verifiedBuyers    User[]       @relation("BuyerVerifier")
+  verifiedSellers   Penjual[]    @relation("SellerVerifier")
+  QuickBid          QuickBid[]
 
   @@map("users")
 }
 
 model Penjual {
-  id                  Int                      @id @default(autoincrement())
-  userId              Int                      @unique @map("user_id")
-  ktpUrl              String?                  @map("ktp_url") @db.VarChar(255)
-  npwpUrl             String?                  @map("npwp_url") @db.VarChar(255)
-  rekeningBank        String?                  @map("rekening_bank") @db.VarChar(100)
-  nomorRekening       String?                  @map("nomor_rekening") @db.VarChar(100)
-  isVerified          Boolean                  @default(false) @map("is_verified")
-  verificationStatus  SellerVerificationStatus @default(PENDING) @map("verification_status")
-  verificationNote    String?                  @map("verification_note") @db.Text
-  verifiedAt          DateTime?                @map("verified_at")
-  verifiedBy          Int?                     @map("verified_by")
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  verifier    User?    @relation("SellerVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
-  aset        Aset[]
+  id                 Int                      @id @default(autoincrement())
+  userId             Int                      @unique @map("user_id")
+  ktpUrl             String?                  @map("ktp_url") @db.VarChar(255)
+  npwpUrl            String?                  @map("npwp_url") @db.VarChar(255)
+  rekeningBank       String?                  @map("rekening_bank") @db.VarChar(100)
+  nomorRekening      String?                  @map("nomor_rekening") @db.VarChar(100)
+  isVerified         Boolean                  @default(false) @map("is_verified")
+  verificationStatus SellerVerificationStatus @default(PENDING) @map("verification_status")
+  verificationNote   String?                  @map("verification_note") @db.Text
+  verifiedAt         DateTime?                @map("verified_at")
+  verifiedBy         Int?                     @map("verified_by")
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifier User?  @relation("SellerVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  aset     Aset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("penjual")
 }
 
 model Lelang {
-  id               Int          @id @default(autoincrement())
-  asetId           Int          @map("aset_id")
-  waktuBuka        DateTime?    @map("waktu_buka")
-  waktuTutup       DateTime?    @map("waktu_tutup")
-  durasiMenit      Int          @default(60) @map("durasi_menit")
-  status           StatusLelang @default(PENDING)
-  pemenangId       Int?         @map("pemenang_id")
-  statusPembayaran String       @default("UNPAID") @map("status_pembayaran") @db.VarChar(20)
-  invoiceNumber    String?      @unique @map("invoice_number") @db.VarChar(80)
-  invoiceGeneratedAt DateTime?  @map("invoice_generated_at")
-  paymentDueDate   DateTime?    @map("payment_due_date")
-  buktiBayarUrl    String?      @map("bukti_bayar_url") @db.VarChar(255)
-  tanggalUploadBukti DateTime?  @map("tanggal_upload_bukti")
-  tanggalVerifikasiPembayaran DateTime? @map("tanggal_verifikasi_pembayaran")
-  catatanPembayaran String?     @map("catatan_pembayaran") @db.Text
-  verifiedBy       Int?         @map("verified_by")
-  statusBarang     String       @default("PENDING") @map("status_barang") @db.VarChar(20)
-  
-  aset        Aset         @relation(fields: [asetId], references: [id], onDelete: Cascade)
-  penawaran   Penawaran[]
-  pemenang    User?        @relation("LelangPemenang", fields: [pemenangId], references: [id], onDelete: SetNull)
-  verifikatorPembayaran User? @relation("PaymentVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
-  
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id                          Int          @id @default(autoincrement())
+  asetId                      Int          @map("aset_id")
+  waktuBuka                   DateTime?    @map("waktu_buka")
+  waktuTutup                  DateTime?    @map("waktu_tutup")
+  durasiMenit                 Int          @default(60) @map("durasi_menit")
+  status                      StatusLelang @default(PENDING)
+  pemenangId                  Int?         @map("pemenang_id")
+  statusPembayaran            String       @default("UNPAID") @map("status_pembayaran") @db.VarChar(20)
+  invoiceNumber               String?      @unique @map("invoice_number") @db.VarChar(80)
+  invoiceGeneratedAt          DateTime?    @map("invoice_generated_at")
+  paymentDueDate              DateTime?    @map("payment_due_date")
+  buktiBayarUrl               String?      @map("bukti_bayar_url") @db.VarChar(255)
+  tanggalUploadBukti          DateTime?    @map("tanggal_upload_bukti")
+  tanggalVerifikasiPembayaran DateTime?    @map("tanggal_verifikasi_pembayaran")
+  catatanPembayaran           String?      @map("catatan_pembayaran") @db.Text
+  verifiedBy                  Int?         @map("verified_by")
+  statusBarang                String       @default("PENDING") @map("status_barang") @db.VarChar(20)
+
+  aset                  Aset        @relation(fields: [asetId], references: [id], onDelete: Cascade)
+  penawaran             Penawaran[]
+  pemenang              User?       @relation("LelangPemenang", fields: [pemenangId], references: [id], onDelete: SetNull)
+  verifikatorPembayaran User?       @relation("PaymentVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  QuickBid  QuickBid[]
 
   @@map("lelang")
 }
 
 model Penawaran {
-  id          Int      @id @default(autoincrement())
-  lelangId    Int      @map("lelang_id")
-  userId      Int      @map("user_id")
-  nominal     Decimal  @db.Decimal(20, 2)
-  
-  lelang      Lelang   @relation(fields: [lelangId], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id       Int     @id @default(autoincrement())
+  lelangId Int     @map("lelang_id")
+  userId   Int     @map("user_id")
+  nominal  Decimal @db.Decimal(20, 2)
+
+  lelang Lelang @relation(fields: [lelangId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("penawaran")
 }
@@ -231,8 +238,78 @@ model Notifikasi {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
   @@map("notifikasi")
+}
+
+model AssetProperty {
+  id                Int      @id @default(autoincrement())
+  asetId            Int      @unique @map("aset_id")
+  certificateNumber String   @map("certificate_number") @db.VarChar(100)
+  ownerName         String   @map("owner_name") @db.VarChar(150)
+  landArea          Decimal  @map("land_area") @db.Decimal(10, 2)
+  buildingArea      Decimal? @map("building_area") @db.Decimal(10, 2)
+  village           String   @db.VarChar(100)
+  district          String   @db.VarChar(100)
+  city              String   @db.VarChar(100)
+  province          String   @db.VarChar(100)
+  njopPerM2         Decimal  @map("njop_per_m2") @db.Decimal(20, 2)
+  basePropertyValue Decimal  @map("base_property_value") @db.Decimal(20, 2)
+  certificateFile   String   @map("certificate_file") @db.VarChar(255)
+  propertyPhoto     String   @map("property_photo") @db.VarChar(255)
+
+  aset Aset @relation(fields: [asetId], references: [id], onDelete: Cascade)
+
+  @@map("asset_properties")
+}
+
+model AssetVehicle {
+  id            Int    @id @default(autoincrement())
+  asetId        Int    @unique @map("aset_id")
+  brand         String @db.VarChar(100)
+  type          String @db.VarChar(100)
+  year          Int
+  color         String @db.VarChar(50)
+  plateNumber   String @map("plate_number") @db.VarChar(20)
+  engineNumber  String @map("engine_number") @db.VarChar(50)
+  chassisNumber String @map("chassis_number") @db.VarChar(50)
+  vehiclePhoto  String @map("vehicle_photo") @db.VarChar(255)
+  bpkbFile      String @map("bpkb_file") @db.VarChar(255)
+  stnkFile      String @map("stnk_file") @db.VarChar(255)
+
+  aset Aset @relation(fields: [asetId], references: [id], onDelete: Cascade)
+
+  @@map("asset_vehicles")
+}
+
+model AssetElectronic {
+  id        Int    @id @default(autoincrement())
+  asetId    Int    @unique @map("aset_id")
+  brand     String @db.VarChar(100)
+  series    String @db.VarChar(100)
+  type      String @db.VarChar(100)
+  itemPhoto String @map("item_photo") @db.VarChar(255)
+
+  aset Aset @relation(fields: [asetId], references: [id], onDelete: Cascade)
+
+  @@map("asset_electronics")
+}
+
+model QuickBid {
+  id        Int      @id @default(autoincrement())
+  buyerId   Int      @map("buyer_id")
+  auctionId Int      @map("auction_id")
+  quickBid1 Decimal  @map("quick_bid_1") @db.Decimal(20, 2)
+  quickBid2 Decimal  @map("quick_bid_2") @db.Decimal(20, 2)
+  quickBid3 Decimal  @map("quick_bid_3") @db.Decimal(20, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  lelang Lelang @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+
+  @@unique([buyerId, auctionId])
+  @@map("quick_bids")
 }

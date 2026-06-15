@@ -53,11 +53,15 @@ export const hitungSAWController = async (req, res) => {
     });
 
     await Promise.all(
-      hasilSAW.ranking.map((item) =>
-        prisma.hasil.create({
+      hasilSAW.ranking.map(async (item) => {
+        await prisma.hasil.create({
           data: { asetId: item.id, nilaiPreferensi: item.nilaiPreferensi, nilaiLimit: item.nilaiLimit },
-        })
-      )
+        });
+        await prisma.aset.update({
+          where: { id: item.id },
+          data: { limitValue: item.nilaiLimit }
+        });
+      })
     );
 
     res.json({ success: true, message: 'Perhitungan SAW berhasil', data: hasilSAW });

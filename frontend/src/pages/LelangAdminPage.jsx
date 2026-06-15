@@ -347,6 +347,62 @@ export default function LelangAdminPage() {
               <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 8 }}>
                 Saran Harga Sistem (SPK): <strong style={{ color: 'var(--primary)' }}>{formatRp(modal.hasil?.[0]?.nilaiLimit)}</strong>
               </div>
+
+              {/* Detail Kategori Spesifik */}
+              {modal.assetProperty && (
+                <div style={{ padding: 12, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', marginTop: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>📋 Detail Properti</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+                    <div>Sertifikat: <strong>{modal.assetProperty.certificateNumber}</strong></div>
+                    <div>Pemilik: <strong>{modal.assetProperty.ownerName}</strong></div>
+                    <div>Luas Tanah: <strong>{modal.assetProperty.landArea} m²</strong></div>
+                    <div>Luas Bangunan: <strong>{modal.assetProperty.buildingArea || '-'} m²</strong></div>
+                    <div>NJOP/m²: <strong>{formatRp(modal.assetProperty.njopPerM2)}</strong></div>
+                    <div>Base Value: <strong>{formatRp(modal.assetProperty.basePropertyValue)}</strong></div>
+                    <div>Lokasi: <strong>{modal.assetProperty.village}, {modal.assetProperty.district}, {modal.assetProperty.city}, {modal.assetProperty.province}</strong></div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                    {modal.assetProperty.propertyPhoto && <a href={assetUrl(modal.assetProperty.propertyPhoto)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">📷 Foto Properti</a>}
+                    {modal.assetProperty.certificateFile && <a href={assetUrl(modal.assetProperty.certificateFile)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">📄 Sertifikat</a>}
+                  </div>
+                </div>
+              )}
+
+              {modal.assetVehicle && (
+                <div style={{ padding: 12, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', marginTop: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>🚗 Detail Kendaraan</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+                    <div>Merek: <strong>{modal.assetVehicle.brand}</strong></div>
+                    <div>Tipe: <strong>{modal.assetVehicle.type}</strong></div>
+                    <div>Tahun: <strong>{modal.assetVehicle.year}</strong></div>
+                    <div>Warna: <strong>{modal.assetVehicle.color}</strong></div>
+                    <div>Plat: <strong>{modal.assetVehicle.plateNumber}</strong></div>
+                    <div>No. Mesin: <strong>{modal.assetVehicle.engineNumber}</strong></div>
+                    <div>No. Rangka: <strong>{modal.assetVehicle.chassisNumber}</strong></div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                    {modal.assetVehicle.vehiclePhoto && <a href={assetUrl(modal.assetVehicle.vehiclePhoto)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">📷 Foto</a>}
+                    {modal.assetVehicle.bpkbFile && <a href={assetUrl(modal.assetVehicle.bpkbFile)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">📄 BPKB</a>}
+                    {modal.assetVehicle.stnkFile && <a href={assetUrl(modal.assetVehicle.stnkFile)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">📄 STNK</a>}
+                  </div>
+                </div>
+              )}
+
+              {modal.assetElectronic && (
+                <div style={{ padding: 12, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', marginTop: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>💻 Detail Elektronik</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+                    <div>Merek: <strong>{modal.assetElectronic.brand}</strong></div>
+                    <div>Seri: <strong>{modal.assetElectronic.series}</strong></div>
+                    <div>Tipe: <strong>{modal.assetElectronic.type}</strong></div>
+                  </div>
+                  {modal.assetElectronic.itemPhoto && (
+                    <div style={{ marginTop: 8 }}>
+                      <a href={assetUrl(modal.assetElectronic.itemPhoto)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">📷 Foto Barang</a>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {lastScheduleSettings && (

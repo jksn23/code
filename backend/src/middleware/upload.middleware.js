@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
     
     if (file.fieldname === 'ktp_file' || file.fieldname === 'npwp_file') {
       subdir = 'penjual';
-    } else if (file.fieldname === 'dokumen_aset') {
+    } else if (file.fieldname === 'dokumen_aset' || ['property_photo', 'certificate_file_pdf', 'vehicle_photo', 'vehicle_bpkb', 'vehicle_stnk', 'item_photo'].includes(file.fieldname)) {
       subdir = 'aset';
     } else if (file.fieldname === 'bukti_bayar') {
       subdir = 'pembayaran';
