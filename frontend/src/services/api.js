@@ -121,6 +121,18 @@ export const tolakPembayaranLelang = (id, data) => api.put(`/lelang/${id}/pembay
 export const getNilaiAset = (aset_id) => api.get(`/nilai/aset/${aset_id}`);
 export const inputNilaiAset = (data) => api.post('/nilai', data);
 
+// ====== PENILAIAN ASET SELLER ======
+export const getSellerAsetKriteria = (asetId) => api.get(`/seller/aset/${asetId}/kriteria`);
+export const saveSellerNilaiKriteria = (asetId, data) => api.put(`/seller/aset/${asetId}/nilai-kriteria`, data);
+export const createSellerNilaiKriteria = (asetId, data) => api.post(`/seller/aset/${asetId}/nilai-kriteria`, data);
+export const hitungSellerAsetSAW = (asetId) => api.post(`/seller/aset/${asetId}/hitung-saw`);
+export const getSellerHasilPenilaian = (asetId) => api.get(`/seller/aset/${asetId}/hasil-penilaian`);
+
+// ====== VALIDASI PENILAIAN ADMIN ======
+export const getAdminPenilaianAset = () => api.get('/admin/penilaian-aset');
+export const getAdminPenilaianAsetDetail = (asetId) => api.get(`/admin/penilaian-aset/${asetId}`);
+export const updateAdminStatusPenilaian = (asetId, data) => api.patch(`/admin/penilaian-aset/${asetId}/status`, data);
+
 // ====== SPK ======
 export const hitungSAW = (data) => api.post('/spk/hitung-saw', data);
 export const getHasil = (kategori_id) => api.get(`/spk/hasil/${kategori_id}`);
@@ -139,5 +151,13 @@ export const getSettingsSummary = () => api.get('/settings/summary');
 export const importSettingsData = (data) => api.post('/settings/import', data);
 export const purgeSettingsModule = (module, data) => api.post(`/settings/purge/${module}`, data);
 export const resetSettingsData = (data) => api.post('/settings/reset', data);
+
+// ====== DATA PEMBANDING ASET ======
+export const getPembandingByAset = (asetId) => api.get(`/pembanding/aset/${asetId}`);
+export const searchPembanding = (asetId) => api.post(`/pembanding/aset/${asetId}/search`);
+export const addManualPembanding = (asetId, data) => api.post(`/pembanding/aset/${asetId}/manual`, data);
+export const hitungMedianPembanding = (asetId) => api.post(`/pembanding/aset/${asetId}/hitung-median`);
+export const selectPembanding = (id, data) => api.patch(`/pembanding/${id}/select`, data);
+export const validasiPembanding = (id, data) => api.patch(`/pembanding/${id}/validasi`, data);
 
 export default api;

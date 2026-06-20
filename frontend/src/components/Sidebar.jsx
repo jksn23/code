@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Settings,
   X,
+  Zap,
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -30,6 +31,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
     { group: 'Lelang', items: [
       { label: 'Daftar Lelang', icon: <Megaphone size={18} strokeWidth={2} />, to: '/lelang' },
+      { label: 'Preset Quick Bid', icon: <Zap size={18} strokeWidth={2} />, to: '/quick-bid', roles: ['PEMBELI'] },
     ], roles: ['ADMIN', 'PENJUAL', 'PEMBELI'] },
 
     { group: 'Master Data', items: [
@@ -43,7 +45,7 @@ export default function Sidebar({ isOpen, onClose }) {
     ], roles: ['ADMIN', 'PENJUAL', 'PEMBELI'] },
 
     { group: 'SPK (AHP & SAW)', items: [
-      { label: 'Input Nilai', icon: <PenSquare size={18} strokeWidth={2} />, to: '/input-nilai', roles: ['ADMIN'] },
+      { label: 'Validasi Penilaian', icon: <PenSquare size={18} strokeWidth={2} />, to: '/admin/penilaian-aset', roles: ['ADMIN'] },
       { label: 'Hasil / Ranking', icon: <Trophy size={18} strokeWidth={2} />, to: '/hasil', roles: ['ADMIN', 'PENJUAL'] },
     ], roles: ['ADMIN', 'PENJUAL'] },
 

@@ -192,6 +192,9 @@ export const ajukanLelang = async (req, res) => {
 
     const hasil = await prisma.hasil.findFirst({ where: { asetId: aset.id } });
     if (!hasil) return res.status(400).json({ message: "Aset belum memiliki perhitungan SPK (Nilai Limit)" });
+    if (aset.statusPenilaian !== 'DISETUJUI') {
+      return res.status(400).json({ message: "Penilaian aset belum disetujui admin" });
+    }
 
     await prisma.aset.update({
       where: { id: aset.id },

@@ -19,6 +19,9 @@ import pembeliRoutes from './src/routes/pembeli.routes.js';
 import userRoutes from './src/routes/user.routes.js';
 import settingsRoutes from './src/routes/settings.routes.js';
 import quickBidRoutes from './src/routes/quick_bid.routes.js';
+import sellerPenilaianRoutes from './src/routes/seller_penilaian.routes.js';
+import adminPenilaianRoutes from './src/routes/admin_penilaian.routes.js';
+import pembandingRoutes from './src/routes/pembanding.routes.js';
 import { syncAuctionLifecycleBatch, syncLelangLifecycle } from './src/controllers/lelang.controller.js';
 
 import { createServer } from 'http';
@@ -44,7 +47,7 @@ const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 // Middleware
 app.use(cors({
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
@@ -77,6 +80,9 @@ app.use('/api/pembeli', pembeliRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/quick-bids', quickBidRoutes);
+app.use('/api/seller/aset', sellerPenilaianRoutes);
+app.use('/api/admin/penilaian-aset', adminPenilaianRoutes);
+app.use('/api/pembanding', pembandingRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
@@ -99,7 +105,7 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
   }
 });
 

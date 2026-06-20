@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getAset, getKategori, createAset, createAsetProperty, createAssetVehicle, createAssetElectronic, updateAset, deleteAset, ajukanLelang } from '../services/api.js';
 import { useAuth } from '../context/AuthContext';
 import CurrencyInput from '../components/CurrencyInput';
-import { Pencil, Trash2, Send, FileText, Lock, Plus, Tag } from 'lucide-react';
+import { Pencil, Trash2, Send, FileText, Lock, Plus, Tag, Eye, PenSquare, Database } from 'lucide-react';
 import { assetUrl } from '../config/env.js';
 
 function AsetModal({ item, kategoriList, onClose, onSave, role }) {
@@ -241,6 +242,124 @@ function AsetModal({ item, kategoriList, onClose, onSave, role }) {
 
 const formatRp = (val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 
+function AsetDetailModal({ item, onClose }) {
+  if (!item) return null;
+  const prop = item.assetProperty;
+  const veh = item.assetVehicle;
+  const elc = item.assetElectronic;
+  const hasDetail = prop || veh || elc;
+
+  const row = (label, value) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
+      <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontWeight: 600, color: 'var(--text)', textAlign: 'right', maxWidth: '60%' }}>{value || '—'}</span>
+    </div>
+  );
+
+  const docLink = (url, label) => url ? (
+    <a href={assetUrl(url)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ fontSize: 12 }}>{label}</a>
+  ) : null;
+
+  return (
+    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modal" style={{ maxWidth: 560, maxHeight: '90vh', overflow: 'auto' }}>
+        <div className="modal-header">
+          <h3>📋 Detail Aset</h3>
+          <button className="btn btn-secondary btn-sm" onClick={onClose}>✕</button>
+        </div>
+
+        {/* Header Info */}
+        <div style={{ padding: '16px 0', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
+          <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{item.nama}</h3>
+          <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span className="badge" style={{ background: 'var(--surface-light)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>{item.kategori?.nama}</span>
+            {item.penjual && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>oleh {item.penjual?.user?.nama}</span>}
+          </div>
+        </div>
+
+        {/* Info Umum */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.5px' }}>Informasi Umum</div>
+          {row('Harga Pasar', formatRp(item.hargaPasar))}
+          {row('Status Lelang', item.statusLelang)}
+          {item.hasil?.length > 0 && row('Nilai Limit (SPK)', formatRp(item.hasil[0].nilaiLimit))}
+          {row('Deskripsi', item.deskripsi || 'Tidak ada deskripsi')}
+        </div>
+
+        {/* Properti */}
+        {prop && (
+          <div style={{ padding: 16, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>🏠 Data Properti</div>
+            {row('Nomor Sertifikat', prop.certificateNumber)}
+            {row('Nama Pemilik', prop.ownerName)}
+            {row('Luas Tanah', prop.landArea ? `${prop.landArea} m²` : '—')}
+            {row('Luas Bangunan', prop.buildingArea ? `${prop.buildingArea} m²` : '—')}
+            {row('NJOP per m²', formatRp(prop.njopPerM2))}
+            {row('Base Property Value', formatRp(prop.basePropertyValue))}
+            {row('Kelurahan', prop.village)}
+            {row('Kecamatan', prop.district)}
+            {row('Kota/Kabupaten', prop.city)}
+            {row('Provinsi', prop.province)}
+            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+              {docLink(prop.propertyPhoto, '📷 Foto Properti')}
+              {docLink(prop.certificateFile, '📄 Sertifikat')}
+            </div>
+          </div>
+        )}
+
+        {/* Kendaraan */}
+        {veh && (
+          <div style={{ padding: 16, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>🚗 Data Kendaraan</div>
+            {row('Merek', veh.brand)}
+            {row('Tipe', veh.type)}
+            {row('Tahun', veh.year)}
+            {row('Warna', veh.color)}
+            {row('Nomor Plat', veh.plateNumber)}
+            {row('Nomor Mesin', veh.engineNumber)}
+            {row('Nomor Rangka', veh.chassisNumber)}
+            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+              {docLink(veh.vehiclePhoto, '📷 Foto Kendaraan')}
+              {docLink(veh.bpkbFile, '📄 BPKB')}
+              {docLink(veh.stnkFile, '📄 STNK')}
+            </div>
+          </div>
+        )}
+
+        {/* Elektronik */}
+        {elc && (
+          <div style={{ padding: 16, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>💻 Data Elektronik</div>
+            {row('Merek', elc.brand)}
+            {row('Seri', elc.series)}
+            {row('Tipe', elc.type)}
+            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+              {docLink(elc.itemPhoto, '📷 Foto Barang')}
+            </div>
+          </div>
+        )}
+
+        {!hasDetail && (
+          <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, background: 'var(--surface-light)', borderRadius: 'var(--radius-md)' }}>
+            Aset ini belum memiliki data detail spesifik kategori.
+          </div>
+        )}
+
+        {/* Dokumen Lama (Legacy) */}
+        {item.dokumenUrl && (
+          <div style={{ marginTop: 16 }}>
+            {docLink(item.dokumenUrl, '📎 Dokumen Pendukung (Legacy)')}
+          </div>
+        )}
+
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" onClick={onClose}>Tutup</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const statusBadge = (status) => {
   const map = {
     'DRAFT': { label: 'Draft', color: '#6b7280', bg: '#f3f4f6' },
@@ -252,6 +371,18 @@ const statusBadge = (status) => {
   return <span style={{ padding: '4px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, color: ui.color, backgroundColor: ui.bg }}>{ui.label}</span>;
 }
 
+const penilaianBadge = (status) => {
+  const map = {
+    'DRAFT': { label: 'Penilaian Draft', color: '#6b7280', bg: '#f3f4f6' },
+    'MENUNGGU_VERIFIKASI': { label: 'Menunggu Verifikasi', color: '#b45309', bg: '#fef3c7' },
+    'DISETUJUI': { label: 'Penilaian Disetujui', color: '#16a34a', bg: '#dcfce3' },
+    'PERLU_REVISI': { label: 'Perlu Revisi', color: '#b45309', bg: '#fef3c7' },
+    'DITOLAK': { label: 'Penilaian Ditolak', color: '#dc2626', bg: '#fee2e2' },
+  };
+  const ui = map[status] || map['DRAFT'];
+  return <span style={{ padding: '4px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, color: ui.color, backgroundColor: ui.bg }}>{ui.label}</span>;
+}
+
 export default function AsetPage() {
   const { user } = useAuth();
   const [data, setData] = useState([]);
@@ -260,6 +391,7 @@ export default function AsetPage() {
   const [statusTerjualFilter, setStatusTerjualFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
+  const [detailModal, setDetailModal] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null);
 
   const role = user?.role || 'PEMBELI';
@@ -374,11 +506,25 @@ export default function AsetPage() {
                     <td>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
                         {statusBadge(item.statusLelang)}
+                        {penilaianBadge(item.statusPenilaian)}
                         {item.hasil?.length > 0 && <span className="badge badge-primary" style={{ fontSize: 9 }}>LIMIT: {formatRp(item.hasil[0].nilaiLimit || 0)}</span>}
                       </div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <button className="btn btn-secondary btn-sm" style={{ padding: '8px' }} onClick={() => setDetailModal(item)} title="Detail">
+                          <Eye size={14} />
+                        </button>
+                        {role === 'PENJUAL' && (
+                          <>
+                            <Link className="btn btn-secondary btn-sm" to={`/seller/aset/${item.id}/penilaian`} title="Penilaian">
+                              <PenSquare size={14} /> Penilaian
+                            </Link>
+                            <Link className="btn btn-secondary btn-sm" to={`/seller/aset/${item.id}/data-pembanding`} title="Data Pembanding">
+                              <Database size={14} /> Pembanding
+                            </Link>
+                          </>
+                        )}
                         {item.statusLelang === 'DRAFT' ? (
                           <>
                             <button className="btn btn-secondary btn-sm" style={{ padding: '8px' }} onClick={() => setModal(item)} title="Edit">
@@ -408,6 +554,10 @@ export default function AsetPage() {
           </div>}
       </div>
 
+      {detailModal && (
+        <AsetDetailModal item={detailModal} onClose={() => setDetailModal(null)} />
+      )}
+
       {modal && (
         <AsetModal
           item={modal === 'add' ? null : modal}
@@ -427,7 +577,7 @@ export default function AsetPage() {
             </h3>
             <p style={{ color: 'var(--text-muted)', marginBottom: 24 }}>
               {confirmModal.type === 'ajukan' 
-                ? 'Ajukan lelang aset ini? Pastikan Nilai Limit sudah dihitung oleh sistem melalui Admin!'
+                ? 'Ajukan lelang aset ini? Pastikan penilaian aset sudah dihitung dan disetujui admin.'
                 : 'Yakin ingin menghapus data aset ini secara permanen?'}
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>

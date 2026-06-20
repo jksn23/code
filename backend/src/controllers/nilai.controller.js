@@ -1,10 +1,16 @@
 import prisma from '../models/prisma.client.js';
+import {
+  assertCanSellerEditPenilaian,
+  assertSellerOwnsAset,
+  getActorFromReq,
+  getPenilaianAset,
+  saveNilaiKriteria,
+} from '../services/penilaian.service.js';
 
 // POST - Input/Update nilai aset per kriteria (bulk)
 export const inputNilaiAset = async (req, res) => {
   try {
     const { aset_id, nilai_list } = req.body;
-    // nilai_list: [{ kriteria_id, nilai }]
     if (!aset_id || !Array.isArray(nilai_list) || nilai_list.length === 0) {
       return res.status(400).json({
         success: false,
@@ -12,41 +18,28 @@ export const inputNilaiAset = async (req, res) => {
       });
     }
 
-    const aset = await prisma.aset.findUnique({
-      where: { id: Number(aset_id) },
-      include: { kategori: { include: { kriteria: true } } },
-    });
+    const actor = getActorFromReq(req);
+    const aset = await getPenilaianAset(aset_id);
     if (!aset) return res.status(404).json({ success: false, message: 'Aset tidak ditemukan' });
-
-    // Validasi: kriteria harus sesuai kategori aset
-    const kriteriaKategoriIds = aset.kategori.kriteria.map((k) => k.id);
-    for (const item of nilai_list) {
-      if (!kriteriaKategoriIds.includes(Number(item.kriteria_id))) {
-        return res.status(400).json({
-          success: false,
-          message: `Kriteria ID ${item.kriteria_id} tidak sesuai kategori aset ini`,
-        });
-      }
-      if (isNaN(Number(item.nilai))) {
-        return res.status(400).json({ success: false, message: `Nilai untuk kriteria ID ${item.kriteria_id} harus berupa angka` });
-      }
+    if (actor.role === 'PENJUAL') {
+      assertSellerOwnsAset(aset, actor.userId);
+      assertCanSellerEditPenilaian(aset);
+    } else if (actor.role !== 'ADMIN') {
+      return res.status(403).json({ success: false, message: 'Requires Admin atau Penjual Role' });
+    } else if (req.body.override !== true) {
+      return res.status(400).json({ success: false, message: 'Admin harus mengaktifkan mode override untuk mengubah nilai kriteria' });
     }
 
-    // Upsert setiap nilai
-    const results = await Promise.all(
-      nilai_list.map((item) =>
-        prisma.nilaiAset.upsert({
-          where: { asetId_kriteriaId: { asetId: Number(aset_id), kriteriaId: Number(item.kriteria_id) } },
-          update: { nilai: Number(item.nilai) },
-          create: { asetId: Number(aset_id), kriteriaId: Number(item.kriteria_id), nilai: Number(item.nilai) },
-          include: { kriteria: { select: { id: true, nama: true, tipe: true } } },
-        })
-      )
-    );
+    const results = await saveNilaiKriteria({
+      asetId: aset_id,
+      nilaiList: nilai_list,
+      actor,
+      aksi: actor.role === 'ADMIN' ? 'ADMIN_OVERRIDE_NILAI' : 'SELLER_SIMPAN_NILAI_LEGACY',
+    });
 
     res.json({ success: true, message: 'Nilai aset berhasil disimpan', data: results });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(error.status || 500).json({ success: false, message: error.message });
   }
 };
 
@@ -54,12 +47,21 @@ export const inputNilaiAset = async (req, res) => {
 export const getNilaiByAset = async (req, res) => {
   try {
     const { aset_id } = req.params;
+    const actor = getActorFromReq(req);
+    const aset = await getPenilaianAset(aset_id);
+    if (!aset) return res.status(404).json({ success: false, message: 'Aset tidak ditemukan' });
+    if (actor.role === 'PENJUAL') {
+      assertSellerOwnsAset(aset, actor.userId);
+    } else if (actor.role !== 'ADMIN') {
+      return res.status(403).json({ success: false, message: 'Requires Admin atau Penjual Role' });
+    }
+
     const data = await prisma.nilaiAset.findMany({
       where: { asetId: Number(aset_id) },
       include: { kriteria: true },
     });
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(error.status || 500).json({ success: false, message: error.message });
   }
 };

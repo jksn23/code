@@ -220,7 +220,21 @@ export default function LelangRoomPage() {
   };
 
   const handleQuickBid = (presetValue) => {
-    setNominal(Number(presetValue));
+    const val = Number(presetValue);
+    setNominal(val);
+    
+    if (!user) return alert('Anda harus login untuk melakukan penawaran');
+    if (buyerBlocked) return alert('Akun Anda belum diverifikasi atau diblokir.');
+    if (!canBid) return alert(isNotStarted ? 'Lelang belum dibuka. Tunggu sampai waktu mulai.' : 'Lelang belum aktif atau sudah ditutup.');
+    if (!val || val <= 0) return alert('Nominal quick bid tidak valid');
+
+    socketRef.current.emit('submit_bid', { lelangId: id, userId: user.id, nominal: val }, (response) => {
+      if (!response.success) {
+        alert(response.message);
+      } else {
+        setNominal(0);
+      }
+    });
   };
 
   const loadQuickBids = useCallback(async () => {
@@ -485,16 +499,25 @@ export default function LelangRoomPage() {
           </div>
 
           {!isClosed && user?.role === 'PEMBELI' && (
-            <form onSubmit={handleBid}>
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500 }}>Quick Bid (Preset):</div>
-                  <button type="button" className="btn btn-secondary btn-sm" style={{ fontSize: 10, padding: '4px 8px' }} onClick={() => setShowQuickBidSettings(true)}>⚙️ Atur</button>
+            <div style={{ marginBottom: 24 }}>
+              {isNotStarted && (
+                <div style={{ padding: 16, background: 'var(--primary-light)', borderRadius: 'var(--radius-md)', marginBottom: 16, border: '1px solid var(--primary)', color: 'var(--primary-dark)' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 8, fontSize: 14 }}>⚡ Persiapan Sebelum Lelang</div>
+                  <div style={{ fontSize: 13, marginBottom: 12 }}>
+                    Lelang belum dimulai. Anda dapat mengatur nominal <strong>Quick Bid</strong> sekarang agar bisa melakukan penawaran dengan satu klik saat lelang sudah berjalan.
+                  </div>
+                </div>
+              )}
+              
+              <div style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', marginBottom: 16, background: 'var(--surface)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 600 }}>⚡ Quick Bid (Preset)</div>
+                  <button type="button" className="btn btn-secondary btn-sm" style={{ fontSize: 11, padding: '4px 12px' }} onClick={() => setShowQuickBidSettings(true)}>⚙️ Atur Preset</button>
                 </div>
                 {quickBidPresets ? (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                     {[quickBidPresets.quickBid1, quickBidPresets.quickBid2, quickBidPresets.quickBid3].map((val, idx) => (
-                      <button key={idx} type="button" className="btn btn-secondary btn-sm" style={{ fontSize: 12, fontWeight: 600 }}
+                      <button key={idx} type="button" className="btn btn-secondary btn-sm" style={{ fontSize: 13, fontWeight: 600, padding: '8px 4px' }}
                         onClick={() => handleQuickBid(val)} disabled={buyerBlocked || socketStatus !== 'connected' || !canBid}>
                         {formatRp(val)}
                       </button>
@@ -502,27 +525,30 @@ export default function LelangRoomPage() {
                   </div>
                 ) : (
                   <div style={{ padding: 12, background: 'var(--surface-light)', borderRadius: 8, fontSize: 12, color: 'var(--text-muted)', textAlign: 'center' }}>
-                    Belum ada preset. Klik ⚙️ Atur untuk menyimpan 3 nominal Quick Bid.
+                    Belum ada preset. Klik <strong>⚙️ Atur Preset</strong> untuk menyimpan 3 nominal jagoan Anda.
                   </div>
                 )}
               </div>
-              <div className="form-group" style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Nilai Penawaran Anda:</div>
-                <CurrencyInput
-                  value={nominal}
-                  onChange={(value) => setNominal(value)}
-                  style={{ fontSize: 18, fontWeight: '600', textAlign: 'center', height: 48, background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
-                />
-              </div>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 600 }}
-                disabled={buyerBlocked || socketStatus !== 'connected' || !canBid}
-              >
-                {buyerBlocked ? 'KYC Belum Disetujui' : isNotStarted ? 'Lelang Belum Dibuka' : socketStatus !== 'connected' ? 'Menunggu Koneksi' : canBid ? 'AJUKAN PENAWARAN' : 'Bidding Tidak Aktif'}
-              </button>
-            </form>
+
+              <form onSubmit={handleBid}>
+                <div className="form-group" style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 500 }}>Atau Masukkan Penawaran Manual:</div>
+                  <CurrencyInput
+                    value={nominal}
+                    onChange={(value) => setNominal(value)}
+                    style={{ fontSize: 18, fontWeight: '600', textAlign: 'center', height: 48, background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 600 }}
+                  disabled={buyerBlocked || socketStatus !== 'connected' || !canBid}
+                >
+                  {buyerBlocked ? 'KYC Belum Disetujui' : isNotStarted ? 'Lelang Belum Dibuka' : socketStatus !== 'connected' ? 'Menunggu Koneksi' : canBid ? 'AJUKAN PENAWARAN MANUAL' : 'Bidding Tidak Aktif'}
+                </button>
+              </form>
+            </div>
           )}
 
           {!user && (

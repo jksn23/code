@@ -35,21 +35,27 @@ model Kriteria {
 }
 
 model Aset {
-  id           Int          @id @default(autoincrement())
-  nama         String       @db.VarChar(200)
-  kategoriId   Int          @map("kategori_id")
-  penjualId    Int?         @map("penjual_id")
-  deskripsi    String?      @db.Text
-  dokumenUrl   String?      @map("dokumen_url") @db.VarChar(255)
-  statusLelang StatusLelang @default(DRAFT) @map("status_lelang")
-  hargaPasar   Decimal      @map("harga_pasar") @db.Decimal(20, 2)
-  limitValue   Decimal?     @map("limit_value") @db.Decimal(20, 2)
+  id                    Int              @id @default(autoincrement())
+  nama                  String           @db.VarChar(200)
+  kategoriId            Int              @map("kategori_id")
+  penjualId             Int?             @map("penjual_id")
+  deskripsi             String?          @db.Text
+  dokumenUrl            String?          @map("dokumen_url") @db.VarChar(255)
+  statusLelang          StatusLelang     @default(DRAFT) @map("status_lelang")
+  statusPenilaian       StatusPenilaian  @default(DRAFT) @map("status_penilaian")
+  catatanPenilaian      String?          @map("catatan_penilaian") @db.Text
+  penilaianSubmittedAt  DateTime?        @map("penilaian_submitted_at")
+  penilaianReviewedAt   DateTime?        @map("penilaian_reviewed_at")
+  penilaianReviewedBy   Int?             @map("penilaian_reviewed_by")
+  hargaPasar            Decimal          @map("harga_pasar") @db.Decimal(20, 2)
+  limitValue            Decimal?         @map("limit_value") @db.Decimal(20, 2)
 
   kategori  Kategori    @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
   penjual   Penjual?    @relation(fields: [penjualId], references: [id], onDelete: SetNull)
   nilaiAset NilaiAset[]
   hasil     Hasil[]
   lelang    Lelang[]
+  dataPembanding DataPembanding[]
 
   assetProperty   AssetProperty?
   assetVehicle    AssetVehicle?
@@ -88,13 +94,14 @@ model BobotAHP {
 }
 
 model Hasil {
-  id              Int      @id @default(autoincrement())
-  asetId          Int      @map("aset_id")
-  nilaiPreferensi Decimal  @map("nilai_preferensi") @db.Decimal(15, 6)
-  nilaiLimit      Decimal  @map("nilai_limit") @db.Decimal(20, 2)
-  aset            Aset     @relation(fields: [asetId], references: [id], onDelete: Cascade)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  asetId              Int      @map("aset_id")
+  nilaiPreferensi     Decimal  @map("nilai_preferensi") @db.Decimal(15, 6)
+  hargaReferensiPasar Decimal? @map("harga_referensi_pasar") @db.Decimal(20, 2)
+  nilaiLimit          Decimal  @map("nilai_limit") @db.Decimal(20, 2)
+  aset                Aset     @relation(fields: [asetId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   @@map("hasil")
 }
@@ -128,6 +135,43 @@ enum StatusLelang {
   PENDING
   ACTIVE
   FINISHED
+}
+
+enum StatusPenilaian {
+  DRAFT
+  MENUNGGU_VERIFIKASI
+  DISETUJUI
+  PERLU_REVISI
+  DITOLAK
+}
+
+enum StatusValidasiPembanding {
+  MENUNGGU
+  DITERIMA
+  DITOLAK
+}
+
+model DataPembanding {
+  id              Int                      @id @default(autoincrement())
+  asetId          Int                      @map("aset_id")
+  judul           String                   @db.VarChar(255)
+  sumber          String                   @db.VarChar(100)
+  sourceUrl       String                   @map("source_url") @db.VarChar(255)
+  harga           Decimal                  @db.Decimal(20, 2)
+  lokasi          String?                  @db.VarChar(150)
+  tahun           Int?
+  kondisi         String?                  @db.VarChar(100)
+  spesifikasi     String?                  @db.Text
+  skorKecocokan   Decimal?                 @map("skor_kecocokan") @db.Decimal(5, 2)
+  statusValidasi  StatusValidasiPembanding @default(MENUNGGU) @map("status_validasi")
+  dipilihPenjual  Boolean                  @default(false) @map("dipilih_penjual")
+  scrapedAt       DateTime                 @default(now()) @map("scraped_at")
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  aset            Aset                     @relation(fields: [asetId], references: [id], onDelete: Cascade)
+
+  @@map("data_pembanding")
 }
 
 model User {
@@ -312,4 +356,18 @@ model QuickBid {
 
   @@unique([buyerId, auctionId])
   @@map("quick_bids")
+}
+
+model PenilaianAuditLog {
+  id            Int      @id @default(autoincrement())
+  asetId        Int      @map("aset_id")
+  userId        Int      @map("user_id")
+  role          Role
+  aksi          String   @db.VarChar(100)
+  nilaiSebelum  Json?    @map("nilai_sebelum")
+  nilaiSesudah  Json?    @map("nilai_sesudah")
+  waktu         DateTime @default(now())
+
+  @@index([asetId])
+  @@map("penilaian_audit_log")
 }

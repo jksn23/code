@@ -349,6 +349,13 @@ export const updateUserByAdmin = async (req, res) => {
 
     const buyerStatus = VALID_BUYER_STATUS.includes(buyerVerificationStatus) ? buyerVerificationStatus : 'UNVERIFIED';
 
+    // IMPORTANT: Perform CPU-intensive hashing BEFORE starting the database transaction
+    // to avoid transaction timeout (Prisma's default interactive transaction timeout is 5 seconds)
+    let hashedPassword = undefined;
+    if (password?.trim()) {
+      hashedPassword = await bcrypt.hash(password.trim(), 10);
+    }
+
     const data = await prisma.$transaction(async (tx) => {
       if (existing.role !== role) {
         if (existing.role === 'PENJUAL' && existing.penjual) {
@@ -399,7 +406,7 @@ export const updateUserByAdmin = async (req, res) => {
           buyerVerificationStatus: role === 'PEMBELI' ? buyerStatus : 'UNVERIFIED',
           buyerVerificationNote: role === 'PEMBELI' ? (buyerVerificationNote?.trim() || null) : null,
           buyerVerifiedAt: role === 'PEMBELI' && buyerStatus === 'APPROVED' ? (existing.buyerVerifiedAt || new Date()) : null,
-          ...(password?.trim() ? { password: await bcrypt.hash(password.trim(), 10) } : {}),
+          ...(hashedPassword ? { password: hashedPassword } : {}),
         },
       });
 

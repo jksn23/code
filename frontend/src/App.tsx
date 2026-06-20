@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
@@ -9,9 +10,10 @@ import DashboardPage from './pages/DashboardPage';
 import KategoriPage from './pages/KategoriPage';
 import KriteriaPage from './pages/KriteriaPage';
 import AsetPage from './pages/AsetPage';
-import InputNilaiPage from './pages/InputNilaiPage';
 import SAWPage from './pages/SAWPage';
 import HasilPage from './pages/HasilPage';
+import SellerPenilaianPage from './pages/SellerPenilaianPage';
+import AdminPenilaianAsetPage from './pages/AdminPenilaianAsetPage';
 import PenjualPage from './pages/PenjualPage';
 import AdminSellerDetailPage from './pages/AdminSellerDetailPage';
 import BuyerVerificationPage from './pages/BuyerVerificationPage';
@@ -27,6 +29,9 @@ import LaporanPage from './pages/LaporanPage';
 import SellerWaitingPage from './pages/SellerWaitingPage';
 import AuctionSummaryPage from './pages/AuctionSummaryPage';
 import PengaturanPage from './pages/PengaturanPage';
+import QuickBidPage from './pages/QuickBidPage';
+import DataPembandingPage from './pages/DataPembandingPage';
+import ValidasiPembandingPage from './pages/ValidasiPembandingPage';
 import { isSellerApprovedStatus, resolveSellerStatus } from './utils/sellerVerification';
 import './index.css';
 
@@ -89,13 +94,21 @@ export default function App() {
                 <Route path="/hasil" element={<HasilPage />} />
               </Route>
 
+              <Route element={<RoleRoute allowedRoles={['PENJUAL']} />}>
+                <Route path="/seller/aset/:asetId/penilaian" element={<SellerPenilaianPage />} />
+                <Route path="/seller/aset/:asetId/data-pembanding" element={<DataPembandingPage />} />
+              </Route>
+
               <Route element={<RoleRoute allowedRoles={['PEMBELI']} />}>
                 <Route path="/aset-saya" element={<BuyerAssetsPage />} />
                 <Route path="/pembayaran" element={<BuyerPaymentsPage />} />
+                <Route path="/quick-bid" element={<QuickBidPage />} />
               </Route>
 
               <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
-                <Route path="/input-nilai" element={<InputNilaiPage />} />
+                <Route path="/input-nilai" element={<Navigate to="/admin/penilaian-aset" replace />} />
+                <Route path="/admin/penilaian-aset" element={<AdminPenilaianAsetPage />} />
+                <Route path="/admin/aset/:asetId/validasi-pembanding" element={<ValidasiPembandingPage />} />
                 <Route path="/penjual" element={<PenjualPage />} />
                 <Route path="/penjual/:id" element={<AdminSellerDetailPage />} />
                 <Route path="/pembeli-verifikasi" element={<BuyerVerificationPage />} />
