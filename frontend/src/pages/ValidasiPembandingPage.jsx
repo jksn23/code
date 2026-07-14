@@ -77,16 +77,39 @@ const ValidasiPembandingPage = () => {
                     <tr key={item.id}>
                       <td>
                         <div className="font-bold">{item.judul}</div>
-                        <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-500 hover:underline">{item.sumber}</a>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-500 hover:underline">
+                            {item.sumber}
+                          </a>
+                          {item.sourceDomain && (
+                            <span className="badge badge-outline text-[10px] opacity-75">
+                              {item.sourceDomain}
+                            </span>
+                          )}
+                          <span className={`badge text-[10px] ${
+                            item.statusIntegritasUrl === 'DETAIL_IKLAN' ? 'badge-success badge-outline' : 'badge-error'
+                          }`}>
+                            {item.statusIntegritasUrl || 'BELUM_DIVERIFIKASI'}
+                          </span>
+                        </div>
                       </td>
                       <td className="font-semibold text-green-600">{formatRupiah(item.harga)}</td>
                       <td className="text-sm">
                         {item.tahun && <div>Tahun: {item.tahun}</div>}
                         {item.lokasi && <div>Lokasi: {item.lokasi}</div>}
+                        {item.kondisi && <div className="text-gray-400 text-xs">{item.kondisi}</div>}
                       </td>
                       <td>
-                        <div className="radial-progress text-primary text-xs" style={{"--value": item.skorKecocokan, "--size": "2.5rem"}}>
-                          {item.skorKecocokan}%
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="radial-progress text-primary text-xs font-bold" style={{"--value": item.skorKecocokan || Math.round((item.similarity || 0) * 100), "--size": "2.5rem"}}>
+                            {item.skorKecocokan || Math.round((item.similarity || 0) * 100)}%
+                          </div>
+                          <span className={`badge badge-sm font-bold text-[9px] ${
+                            item.statusKecocokan === 'LAYAK' ? 'badge-success' :
+                            item.statusKecocokan === 'PERLU_TINJAU' ? 'badge-warning' : 'badge-error'
+                          }`}>
+                            {item.statusKecocokan || 'BELUM_DIEVALUASI'}
+                          </span>
                         </div>
                       </td>
                       <td>
@@ -102,7 +125,8 @@ const ValidasiPembandingPage = () => {
                           <button 
                             className="btn btn-sm btn-success text-white" 
                             onClick={() => handleValidasi(item.id, 'DITERIMA')}
-                            disabled={item.statusValidasi === 'DITERIMA'}
+                            disabled={item.statusValidasi === 'DITERIMA' || item.statusIntegritasUrl !== 'DETAIL_IKLAN'}
+                            title={item.statusIntegritasUrl !== 'DETAIL_IKLAN' ? 'Tautan harus berupa detail iklan untuk dapat diterima' : 'Terima data pembanding'}
                           >
                             Terima
                           </button>

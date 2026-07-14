@@ -1,0 +1,57 @@
+{
+  "success": true,
+  "data": {
+    "id": 280,
+    "asetId": 64,
+    "judul": "<script>alert(\"XSS\")</script>",
+    "sumber": "OLX",
+    "sourceUrl": "https://www.olx.co.id/item/tc16-xss-iid-555",
+    "harga": "120000000",
+    "lokasi": "Indonesia",
+    "tahun": 2020,
+    "kondisi": "Bekas - Baik",
+    "spesifikasi": "Data diinput manual oleh penjual",
+    "skorKecocokan": "10",
+    "similarity": "0.1",
+    "isOutlier": false,
+    "statusValidasi": "MENUNGGU",
+    "dipilihPenjual": true,
+    "scrapedAt": "2026-07-14T16:43:37.315Z",
+    "jenisSumber": "MANUAL",
+    "statusIntegritasUrl": "DETAIL_IKLAN",
+    "statusKecocokan": "TIDAK_LAYAK",
+    "canonicalUrl": "https://www.olx.co.id/item/tc16-xss-iid-555",
+    "canonicalUrlHash": "2ebf8f04e24881c9339c1c83a51b270b750c36ed978fa5659f1f1959912e7680",
+    "sourceDomain": "olx.co.id",
+    "alasanKecocokan": {
+      "totalBobot": 0.6,
+      "dimensiSkor": {
+        "tahun": {
+          "skor": null,
+          "bobot": 0,
+          "keterangan": "Data tahun tidak tersedia"
+        },
+        "lokasi": {
+          "skor": null,
+          "bobot": 0,
+          "keterangan": "Data lokasi tidak tersedia"
+        },
+        "kondisi": {
+          "skor": 0.6,
+          "bobot": 0.1
+        },
+        "spesifikasi": {
+          "skor": 0,
+          "bobot": 0.5
+        }
+      },
+      "hardGateFailed": false,
+      "similarityWeighted": 0.1
+    },
+    "validatedAt": null,
+    "validatedBy": null,
+    "createdAt": "2026-07-14T16:43:37.315Z",
+    "updatedAt": "2026-07-14T16:43:37.315Z"
+  },
+  "message": "Data pembanding manual berhasil ditambahkan"
+}

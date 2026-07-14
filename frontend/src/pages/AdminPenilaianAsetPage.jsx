@@ -150,7 +150,7 @@ export default function AdminPenilaianAsetPage() {
                     {item.kategori?.nama} - {item.penjual?.user?.nama || 'Tanpa penjual'}
                   </div>
                   <div style={{ fontSize: 12, marginTop: 6 }}>
-                    Limit: <strong>{formatRp(item.hasil?.nilaiLimit)}</strong>
+                    Rekomendasi Limit: <strong>{formatRp(item.hasil?.nilaiLimit)}</strong>
                   </div>
                 </button>
               ))}
@@ -181,6 +181,11 @@ export default function AdminPenilaianAsetPage() {
                 <div>
                   <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Harga Pasar</div>
                   <strong>{formatRp(detail.aset.hargaPasar)}</strong>
+                  {detail.hasil?.tingkatKeyakinan && (
+                    <div style={{ fontSize: 11, marginTop: 4 }}>
+                      Keyakinan: <span className="badge badge-primary" style={{ padding: '2px 6px', fontSize: 10 }}>{detail.hasil.tingkatKeyakinan} ({detail.hasil.skorKeyakinan}%)</span>
+                    </div>
+                  )}
                   <div style={{ marginTop: 8 }}>
                     <Link to={`/admin/aset/${detail.aset.id}/validasi-pembanding`} className="btn btn-sm btn-outline">
                       <Database size={12} /> Validasi Pembanding
@@ -190,10 +195,20 @@ export default function AdminPenilaianAsetPage() {
                 <div>
                   <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nilai Preferensi</div>
                   <strong>{detail.hasil ? Number(detail.hasil.nilaiPreferensi).toFixed(6) : '-'}</strong>
+                  {detail.hasil?.bobotVersionId && (
+                    <div style={{ fontSize: 11, marginTop: 4, color: 'var(--text-muted)' }}>
+                      Versi Bobot: #{detail.hasil.bobotVersionId}
+                    </div>
+                  )}
                 </div>
                 <div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nilai Limit</div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Rekomendasi Nilai Limit Awal</div>
                   <strong style={{ color: 'var(--success)' }}>{formatRp(detail.hasil?.nilaiLimit)}</strong>
+                  {detail.hasil?.versiFormula && (
+                    <div style={{ fontSize: 11, marginTop: 4, color: 'var(--text-muted)' }}>
+                      Formula: {detail.hasil.versiFormula}
+                    </div>
+                  )}
                 </div>
               </div>
 

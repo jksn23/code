@@ -1,0 +1,8 @@
+{
+  "method": "POST",
+  "url": "/api/auth/login",
+  "body": {
+    "email": "admin@lelang.com",
+    "password": "wrongpassword123"
+  }
+}

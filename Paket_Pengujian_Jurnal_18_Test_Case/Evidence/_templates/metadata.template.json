@@ -1,0 +1,18 @@
+{
+  "testCaseId": "TC-XX",
+  "title": "",
+  "executedAt": "2026-07-14T14:05:00+08:00",
+  "tester": "",
+  "environment": "local-test",
+  "os": "",
+  "browser": "",
+  "backendNodeVersion": "",
+  "database": "",
+  "branch": "",
+  "commitHash": "",
+  "buildNumber": "",
+  "baseUrlFrontend": "",
+  "baseUrlBackend": "",
+  "result": "NOT_RUN",
+  "defectId": null
+}

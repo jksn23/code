@@ -20,6 +20,9 @@ const DataPembandingPage = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [hargaReferensi, setHargaReferensi] = useState(null);
+  const [tingkatKeyakinan, setTingkatKeyakinan] = useState(null);
+  const [skorKeyakinan, setSkorKeyakinan] = useState(null);
+  const [alasanKeyakinan, setAlasanKeyakinan] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // Async job state
@@ -46,6 +49,9 @@ const DataPembandingPage = () => {
       const res = await getPembandingByAset(asetId);
       setData(res.data || []);
       setHargaReferensi(res.hargaReferensiPasar);
+      setTingkatKeyakinan(res.tingkatKeyakinan);
+      setSkorKeyakinan(res.skorKeyakinan);
+      setAlasanKeyakinan(res.alasanKeyakinan);
     } catch {
       showAlert('Gagal mengambil data pembanding', 'error');
     } finally {
@@ -122,13 +128,18 @@ const DataPembandingPage = () => {
     try {
       const res = await hitungMedianPembanding(asetId);
       showAlert(res.message, 'success');
-      // ── Simpan median dari response SEBELUM fetchData (fetchData bisa menimpa dengan null jika hasil DB belum ada)
+      // ── Simpan median dari response SEBELUM fetchData
       const medianValue = Number(res.data.median);
-      // Refresh tabel, tapi tetap pakai medianValue dari response sebagai referensi
+      const hasil = res.data.hasil;
+      // Refresh tabel
       await fetchData();
-      // Set hargaReferensi dari response — pastikan tidak tertimpa nilai null dari fetchData
       if (medianValue && medianValue > 0) {
         setHargaReferensi(medianValue);
+      }
+      if (hasil) {
+        setTingkatKeyakinan(hasil.tingkatKeyakinan);
+        setSkorKeyakinan(hasil.skorKeyakinan ? Number(hasil.skorKeyakinan) : null);
+        setAlasanKeyakinan(hasil.alasanKeyakinan);
       }
     } catch (error) {
       showAlert(error.message || 'Gagal menghitung referensi pasar', 'error');
@@ -220,6 +231,28 @@ const DataPembandingPage = () => {
           <div className="text-3xl font-bold">
             {hargaReferensi ? formatRupiah(hargaReferensi) : 'Belum dihitung'}
           </div>
+
+          {tingkatKeyakinan && (
+            <div className="mt-4 p-3 rounded-lg border bg-base-200 text-xs">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold uppercase text-gray-500">Keyakinan Data</span>
+                <span className={`badge badge-sm font-bold text-[10px] ${
+                  tingkatKeyakinan === 'TINGGI' ? 'badge-success' :
+                  tingkatKeyakinan === 'SEDANG' ? 'badge-warning' : 'badge-error'
+                }`}>
+                  {tingkatKeyakinan} ({skorKeyakinan ? `${skorKeyakinan}%` : '-'})
+                </span>
+              </div>
+              {alasanKeyakinan?.alasan && alasanKeyakinan.alasan.length > 0 && (
+                <ul className="list-disc pl-4 space-y-1 text-gray-500">
+                  {alasanKeyakinan.alasan.map((alasan, index) => (
+                    <li key={index}>{alasan}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           <p className="text-sm text-gray-500 mt-2">
             Dihitung dari median data pembanding non-outlier yang dipilih.
           </p>

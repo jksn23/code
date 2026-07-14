@@ -245,3 +245,43 @@
 {"asetId":45,"kategori":"SPK_KALKULASI","level":"info","message":"[SPK] Pencarian data pembanding selesai","realScrapedCount":6,"service":"lelang-spk-backend","timestamp":"2026-07-03T08:28:22.186Z","totalCount":6}
 {"level":"info","message":"[BullMQ Worker] Selesai scraping asetId=45, 6 data disimpan","service":"lelang-spk-backend","timestamp":"2026-07-03T08:28:22.213Z"}
 {"count":6,"level":"info","message":"[BullMQ] Job 13 selesai","service":"lelang-spk-backend","timestamp":"2026-07-03T08:28:22.221Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:38:26.259Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:38:26.259Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:38:26.260Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:38:26.260Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:38:53.957Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:38:53.958Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:38:53.958Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:38:53.958Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:39:12.855Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:39:12.856Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:39:12.856Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:39:12.856Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:39:34.818Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:39:34.819Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:39:34.820Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:39:34.820Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:40:10.561Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:40:10.563Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:40:10.564Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:40:10.564Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:40:44.710Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:40:44.711Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:40:44.711Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:40:44.711Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:41:28.294Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:41:28.295Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:41:28.295Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:41:28.296Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:42:06.278Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:42:06.279Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:42:06.279Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:42:06.279Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:42:35.722Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:42:35.723Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:42:35.724Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:42:35.724Z"}
+{"host":"127.0.0.1","level":"info","message":"[BullMQ] Scraping Queue & Worker berhasil diinisialisasi","port":6379,"service":"lelang-spk-backend","timestamp":"2026-07-14T16:43:33.490Z"}
+{"level":"info","message":"⚙️  BullMQ Scraping Queue aktif (Redis port 6379)","service":"lelang-spk-backend","timestamp":"2026-07-14T16:43:33.491Z"}
+{"level":"info","message":"✅ Server & WebSocket berjalan di http://localhost:5001","service":"lelang-spk-backend","timestamp":"2026-07-14T16:43:33.491Z"}
+{"level":"info","message":"📊 Environment: development","service":"lelang-spk-backend","timestamp":"2026-07-14T16:43:33.492Z"}

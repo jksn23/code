@@ -1,94 +1,193 @@
 /**
- * SERVICE: SAW (Simple Additive Weighting)
- * 
- * Langkah:
- * 1. Ambil nilai aset per kriteria
- * 2. Tentukan max/min tiap kriteria
- * 3. Normalisasi:
- *    - Benefit: Rij = Xij / max(Xj)
- *    - Cost:    Rij = min(Xj) / Xij
- * 4. Nilai Preferensi: Vi = Σ (Wj * Rij)
- * 5. Nilai Limit = Vi × Harga Pasar
+ * saw.service.js
+ * ─────────────────────────────────────────────────────────────────────────────
+ * P1 — Simple Additive Weighting (SAW) dengan normalisasi SKALA TETAP 1-5.
+ *
+ * PENTING (P1): Normalisasi menggunakan skala tetap 1-5 (bukan max/min dinamis).
+ * Alasan: Normalisasi dinamis mengubah nilai relatif antar aset setiap kali
+ * ada penambahan data, sehingga hasil tidak reproducible dan tidak valid untuk
+ * perbandingan lintas waktu / lintas aset.
+ *
+ * Skala tetap 1-5:
+ *   - Benefit: Rij = Xij / 5   (nilai 5 = maksimum ideal, 1 = minimum)
+ *   - Cost:    Rij = (6 - Xij) / 5   (nilai 1 = terburuk, 5 = terbaik)
+ *
+ * Input nilai aset HARUS dalam skala integer 1-5 (sudah divalidasi sebelumnya).
+ *
+ * Metode: FIXED_SCALE_1_5
+ * Formula: Vi = Σ (Wj × Rij)   → Nilai Limit = Vi × Harga Referensi Pasar
+ *
+ * Referensi:
+ *   - PANDUAN AI AGENT P1 §4 (Normalisasi SAW Skala Tetap)
+ *   - Fishburn (1967) — original SAW formulation
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 
+'use strict';
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+export const METODE_NORMALISASI = 'FIXED_SCALE_1_5';
+export const SKALA_MIN = 1;
+export const SKALA_MAX = 5;
+export const VERSI_FORMULA = 'LIMIT_V2';
+
+// ── Normalisasi ────────────────────────────────────────────────────────────────
+
 /**
- * Hitung SAW dari data aset dengan bobot kriteria
- * @param {Array} asetList - Array aset dengan nilai kriteria
- * @param {Array} kriteria - Array kriteria dengan bobot dari AHP
- * @returns {object} Hasil perankingan SAW lengkap
+ * Normalisasi nilai pada skala tetap 1-5.
+ * @param {number} nilai — nilai integer 1-5
+ * @param {'benefit'|'cost'} tipe
+ * @returns {number} nilai ternormalisasi 0.0-1.0
+ */
+export function normalisasiSkalaTetap(nilai, tipe) {
+  const n = parseFloat(nilai);
+
+  // Guard: clamp ke rentang 1-5
+  const clamped = Math.max(SKALA_MIN, Math.min(SKALA_MAX, n));
+
+  if (tipe === 'benefit') {
+    // Benefit: 5 = terbaik (1.0), 1 = terburuk (0.2)
+    return clamped / SKALA_MAX;
+  } else {
+    // Cost: 1 = terbaik (1.0), 5 = terburuk (0.2)
+    return (SKALA_MAX + 1 - clamped) / SKALA_MAX;
+  }
+}
+
+// ── Main SAW function ──────────────────────────────────────────────────────────
+
+/**
+ * Hitung SAW untuk satu aset atau banyak aset dengan bobot kriteria.
+ *
+ * @param {Array<object>} asetList — Array aset dengan nilaiAset[]
+ * @param {Array<object>} kriteria — Array kriteria dengan bobot (dari BobotAHP)
+ * @returns {object} Hasil SAW lengkap dengan snapshot untuk reproducibility
+ *
+ * Format kriteria item: { id, nama, tipe, bobot }
+ * Format nilaiAset item: { kriteriaId, nilai } (nilai 1-5)
  */
 export function hitungSAW(asetList, kriteria) {
   if (!asetList || asetList.length === 0) throw new Error('Data aset kosong');
   if (!kriteria || kriteria.length === 0) throw new Error('Data kriteria & bobot kosong');
 
-  const n = asetList.length;   // jumlah aset
-  const m = kriteria.length;   // jumlah kriteria
+  const n = asetList.length;
+  const m = kriteria.length;
 
-  // Step 1: Bangun matriks keputusan (Decision Matrix)
-  // matriksKeputusan[i][j] = nilai aset ke-i pada kriteria ke-j
-  const matriksKeputusan = asetList.map((aset) =>
-    kriteria.map((krit) => {
+  // Validasi: total bobot harus ≈ 1.0
+  const totalBobot = kriteria.reduce((s, k) => s + parseFloat(k.bobot), 0);
+  if (Math.abs(totalBobot - 1.0) > 0.01) {
+    throw new Error(`Total bobot kriteria = ${totalBobot.toFixed(4)}, seharusnya ≈ 1.0`);
+  }
+
+  // Step 1: Bangun decision matrix dan normalisasi per aset
+  const hasilSAW = asetList.map((aset) => {
+    const detailNormalisasi = kriteria.map((krit) => {
       const nilaiObj = aset.nilaiAset.find((nv) => nv.kriteriaId === krit.id);
-      if (!nilaiObj) throw new Error(`Nilai aset "${aset.nama}" untuk kriteria "${krit.nama}" belum diisi`);
-      return parseFloat(nilaiObj.nilai);
-    })
-  );
-
-  // Step 2: Hitung max/min tiap kriteria
-  const maxPerKriteria = kriteria.map((_, j) => Math.max(...matriksKeputusan.map((row) => row[j])));
-  const minPerKriteria = kriteria.map((_, j) => Math.min(...matriksKeputusan.map((row) => row[j])));
-
-  // Step 3: Normalisasi matriks
-  const matriksNorm = matriksKeputusan.map((row) =>
-    row.map((val, j) => {
-      const tipe = kriteria[j].tipe;
-      if (tipe === 'benefit') {
-        return maxPerKriteria[j] === 0 ? 0 : val / maxPerKriteria[j];
-      } else {
-        // cost
-        return val === 0 ? 0 : minPerKriteria[j] / val;
+      if (!nilaiObj) {
+        throw new Error(
+          `Nilai aset "${aset.nama}" untuk kriteria "${krit.nama}" (ID:${krit.id}) belum diisi`
+        );
       }
-    })
-  );
 
-  // Step 4: Nilai Preferensi Vi = Σ (Wj * Rij)
-  const nilaiPreferensi = matriksNorm.map((row) =>
-    row.reduce((sum, rij, j) => sum + rij * parseFloat(kriteria[j].bobot), 0)
-  );
+      const nilaiAsli = parseFloat(nilaiObj.nilai);
 
-  // Step 5: Nilai Limit = Vi × Harga Pasar
-  const hasilSAW = asetList.map((aset, i) => ({
-    id: aset.id,
-    nama: aset.nama,
-    hargaPasar: parseFloat(aset.hargaPasar),
-    nilaiPreferensi: parseFloat(nilaiPreferensi[i].toFixed(6)),
-    nilaiLimit: parseFloat((nilaiPreferensi[i] * parseFloat(aset.hargaPasar)).toFixed(2)),
-    detailNormalisasi: kriteria.map((krit, j) => ({
-      kriteriaId: krit.id,
-      namaKriteria: krit.nama,
-      tipe: krit.tipe,
-      nilaiAsli: matriksKeputusan[i][j],
-      nilaiNorm: parseFloat(matriksNorm[i][j].toFixed(6)),
-      bobot: parseFloat(krit.bobot),
-      kontribusi: parseFloat((matriksNorm[i][j] * parseFloat(krit.bobot)).toFixed(6)),
-    })),
-  }));
+      // Validasi skala
+      if (nilaiAsli < SKALA_MIN || nilaiAsli > SKALA_MAX) {
+        throw new Error(
+          `Nilai aset "${aset.nama}" kriteria "${krit.nama}" = ${nilaiAsli} di luar rentang ${SKALA_MIN}-${SKALA_MAX}`
+        );
+      }
+
+      const nilaiNorm = normalisasiSkalaTetap(nilaiAsli, krit.tipe);
+      const bobot = parseFloat(krit.bobot);
+      const kontribusi = nilaiNorm * bobot;
+
+      return {
+        kriteriaId: krit.id,
+        namaKriteria: krit.nama,
+        tipe: krit.tipe,
+        nilaiAsli,
+        nilaiNorm: parseFloat(nilaiNorm.toFixed(6)),
+        bobot,
+        kontribusi: parseFloat(kontribusi.toFixed(6)),
+      };
+    });
+
+    // Step 2: Vi = Σ (Wj × Rij)
+    const nilaiPreferensi = detailNormalisasi.reduce((s, d) => s + d.kontribusi, 0);
+
+    return {
+      id: aset.id,
+      nama: aset.nama,
+      hargaPasar: parseFloat(aset.hargaPasar),
+      nilaiPreferensi: parseFloat(nilaiPreferensi.toFixed(6)),
+      nilaiLimit: parseFloat((nilaiPreferensi * parseFloat(aset.hargaPasar)).toFixed(2)),
+      detailNormalisasi,
+    };
+  });
 
   // Ranking berdasarkan nilai preferensi (descending)
   hasilSAW.sort((a, b) => b.nilaiPreferensi - a.nilaiPreferensi);
-  hasilSAW.forEach((item, index) => { item.ranking = index + 1; });
+  hasilSAW.forEach((item, index) => {
+    item.ranking = index + 1;
+  });
+
+  // Metadata metode untuk audit / snapshot
+  const metaKriteria = kriteria.map((krit) => ({
+    id: krit.id,
+    nama: krit.nama,
+    tipe: krit.tipe,
+    bobot: parseFloat(krit.bobot),
+    skalaMin: SKALA_MIN,
+    skalaMax: SKALA_MAX,
+    normMin: normalisasiSkalaTetap(SKALA_MIN, krit.tipe),
+    normMax: normalisasiSkalaTetap(SKALA_MAX, krit.tipe),
+  }));
 
   return {
+    metodeNormalisasi: METODE_NORMALISASI,
+    versiFormula: VERSI_FORMULA,
+    skalaMin: SKALA_MIN,
+    skalaMax: SKALA_MAX,
     jumlahAset: n,
     jumlahKriteria: m,
-    detailKriteria: kriteria.map((krit, j) => ({
-      id: krit.id,
-      nama: krit.nama,
-      tipe: krit.tipe,
-      bobot: parseFloat(krit.bobot),
-      max: maxPerKriteria[j],
-      min: minPerKriteria[j],
-    })),
+    totalBobot: parseFloat(totalBobot.toFixed(6)),
+    detailKriteria: metaKriteria,
     ranking: hasilSAW,
   };
 }
+
+/**
+ * Hitung SAW untuk satu aset tunggal (digunakan saat penilaian per aset).
+ * Mengembalikan nilai preferensi dan snapshot normalisasi untuk disimpan di Hasil.
+ *
+ * @param {object} aset
+ * @param {Array<object>} kriteria
+ * @param {number} hargaReferensi — harga referensi pasar (dari median pembanding)
+ * @returns {{
+ *   nilaiPreferensi: number,
+ *   nilaiLimit: number,
+ *   normalisasiSnapshot: object[],
+ *   metodeNormalisasi: string,
+ *   versiFormula: string
+ * }}
+ */
+export function hitungSAWSingleAset(aset, kriteria, hargaReferensi) {
+  const result = hitungSAW([aset], kriteria);
+  const asetResult = result.ranking[0];
+
+  // Override nilaiLimit jika hargaReferensi diberikan eksplisit
+  const nilaiLimit = hargaReferensi
+    ? parseFloat((asetResult.nilaiPreferensi * parseFloat(hargaReferensi)).toFixed(2))
+    : asetResult.nilaiLimit;
+
+  return {
+    nilaiPreferensi: asetResult.nilaiPreferensi,
+    nilaiLimit,
+    normalisasiSnapshot: asetResult.detailNormalisasi,
+    metodeNormalisasi: METODE_NORMALISASI,
+    versiFormula: VERSI_FORMULA,
+  };
+}
+

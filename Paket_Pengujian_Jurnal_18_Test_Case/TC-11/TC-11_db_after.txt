@@ -1,0 +1,39 @@
+=== TABLE: hasil ===
+[
+  {
+    "id": 137,
+    "nilaiPreferensi": "0.8",
+    "nilaiLimit": "78000000",
+    "tingkatKeyakinan": "RENDAH",
+    "bobotVersionId": 30
+  },
+  {
+    "id": 119,
+    "nilaiPreferensi": "0.50289",
+    "nilaiLimit": "2263005",
+    "tingkatKeyakinan": null,
+    "bobotVersionId": null
+  },
+  {
+    "id": 118,
+    "nilaiPreferensi": "0.629017",
+    "nilaiLimit": "7233696.65",
+    "tingkatKeyakinan": null,
+    "bobotVersionId": null
+  },
+  {
+    "id": 117,
+    "nilaiPreferensi": "0.839896",
+    "nilaiLimit": "150341348.2",
+    "tingkatKeyakinan": null,
+    "bobotVersionId": null
+  },
+  {
+    "id": 116,
+    "nilaiPreferensi": "0.876212",
+    "nilaiLimit": "131431840",
+    "tingkatKeyakinan": null,
+    "bobotVersionId": null
+  }
+]
+

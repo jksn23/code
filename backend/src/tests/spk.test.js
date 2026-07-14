@@ -260,8 +260,8 @@ try {
     { id: 1, nama: 'Usia', tipe: 'cost', bobot: 1.0 },
   ];
   const asetTest = [
-    { id: 1, nama: 'Aset Lama', hargaPasar: 100, nilaiAset: [{ kriteriaId: 1, nilai: 10 }] },
-    { id: 2, nama: 'Aset Baru', hargaPasar: 100, nilaiAset: [{ kriteriaId: 1, nilai: 2 }] },
+    { id: 1, nama: 'Aset Lama', hargaPasar: 100, nilaiAset: [{ kriteriaId: 1, nilai: 5 }] },
+    { id: 2, nama: 'Aset Baru', hargaPasar: 100, nilaiAset: [{ kriteriaId: 1, nilai: 1 }] },
   ];
   const hasil = hitungSAW(asetTest, kriteriaTest);
   const asetBaru = hasil.ranking.find((a) => a.id === 2);

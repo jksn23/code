@@ -1,0 +1,6 @@
+{
+  "method": "POST",
+  "url": "/api/dokumen/upload",
+  "filename": "../../malicious.sh",
+  "mimeType": "application/x-sh"
+}

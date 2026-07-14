@@ -162,7 +162,7 @@ export default function SellerPenilaianPage() {
             <span className="badge badge-primary">{STATUS_LABEL[detail.aset.statusPenilaian] || detail.aset.statusPenilaian}</span>
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Nilai Limit</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Rekomendasi Nilai Limit Awal</div>
             <strong style={{ color: 'var(--success)' }}>{formatRp(detail.hasil?.nilaiLimit)}</strong>
           </div>
         </div>
@@ -209,6 +209,29 @@ export default function SellerPenilaianPage() {
                         <option key={option} value={option}>{option}</option>
                       ))}
                     </select>
+                    {nilaiForm[item.id] && item.rubrik && item.rubrik.length > 0 && (
+                      (() => {
+                        const rub = item.rubrik.find(r => r.skor === Number(nilaiForm[item.id]));
+                        return rub ? (
+                          <div style={{ 
+                            marginTop: 6, 
+                            fontSize: 11, 
+                            color: 'var(--text-muted)', 
+                            background: '#f4f4f5', 
+                            padding: '6px 10px', 
+                            borderRadius: 6, 
+                            border: '1px solid #e4e4e7' 
+                          }}>
+                            <strong>{rub.label}</strong>: {rub.deskripsi}
+                            {rub.contohBukti && (
+                              <div style={{ fontStyle: 'italic', marginTop: 2, opacity: 0.8 }}>
+                                Bukti: {rub.contohBukti}
+                              </div>
+                            )}
+                          </div>
+                        ) : null;
+                      })()
+                    )}
                   </td>
                 </tr>
               ))}
@@ -244,8 +267,8 @@ export default function SellerPenilaianPage() {
               <strong>{formatRp(detail.aset.hargaPasar)}</strong>
             </div>
             <div>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Nilai Limit</div>
-              <strong style={{ color: 'var(--success)' }}>{formatRp(detail.hasil.nilaiLimit)}</strong>
+              <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Rekomendasi Nilai Limit Awal</div>
+              <strong style={{ color: 'var(--success)', fontSize: 16 }}>{formatRp(detail.hasil.nilaiLimit)}</strong>
             </div>
           </div>
         ) : (

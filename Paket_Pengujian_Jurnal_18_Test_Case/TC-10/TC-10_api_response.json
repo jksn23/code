@@ -1,0 +1,60 @@
+{
+  "success": true,
+  "data": {
+    "median": 97500000,
+    "hasil": {
+      "id": 136,
+      "asetId": 64,
+      "nilaiPreferensi": "0",
+      "hargaReferensiPasar": "97500000",
+      "nilaiLimit": "97500000",
+      "bobotVersionId": null,
+      "metodeNormalisasi": "LEGACY_DYNAMIC_SAW",
+      "versiFormula": "LIMIT_V1",
+      "bobotSnapshot": null,
+      "nilaiSnapshot": null,
+      "normalisasiSnapshot": null,
+      "pembandingSnapshot": null,
+      "tingkatKeyakinan": "RENDAH",
+      "skorKeyakinan": "45",
+      "alasanKeyakinan": {
+        "alasan": [
+          "Domain unik kurang (1 < 2) — berisiko konfirmasi bias"
+        ],
+        "statistik": {
+          "cv": 0.0662,
+          "domains": [
+            "olx.co.id"
+          ],
+          "hargaMean": 97500000,
+          "hargaMedian": 97500000,
+          "hargaStdDev": 6454972.24,
+          "jumlahTotal": 5,
+          "jumlahManual": 1,
+          "jumlahOutlier": 1,
+          "jumlahDomainUnik": 1,
+          "jumlahHargaValid": 4,
+          "jumlahScrapedReal": 4
+        }
+      },
+      "jumlahPembandingValid": 4,
+      "jumlahScrapedReal": 4,
+      "jumlahManual": 1,
+      "jumlahDomainUnik": 1,
+      "calculatedAt": "2026-07-14T16:43:36.818Z",
+      "createdAt": "2026-07-14T16:43:36.827Z",
+      "updatedAt": "2026-07-14T16:43:36.827Z"
+    },
+    "outliersCount": 1,
+    "outliersFlagged": 1,
+    "hargaAwal": [
+      95000000,
+      100000000,
+      105000000,
+      90000000,
+      1000000000
+    ],
+    "limitUpdated": true
+  },
+  "message": "Harga referensi pasar berhasil dihitung"
+}

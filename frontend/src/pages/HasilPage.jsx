@@ -52,8 +52,10 @@ export default function HasilPage() {
                   <th>Rank</th>
                   <th>Nama Aset</th>
                   <th>Kategori</th>
+                  <th>Keyakinan Referensi</th>
+                  <th>Versi Bobot</th>
                   <th>Nilai Preferensi (Vi)</th>
-                  <th>Nilai Limit (Rp)</th>
+                  <th>Rekomendasi Nilai Limit Awal (Rp)</th>
                   <th>Terhitung</th>
                 </tr>
               </thead>
@@ -63,6 +65,21 @@ export default function HasilPage() {
                     <td><span className={`rank-badge ${rankClass(i)}`}>{i + 1}</span></td>
                     <td><strong>{item.aset?.nama}</strong></td>
                     <td>{item.aset?.kategori?.nama}</td>
+                    <td>
+                      {item.tingkatKeyakinan ? (
+                        <span className={`badge ${
+                          item.tingkatKeyakinan === 'TINGGI' ? 'badge-success' :
+                          item.tingkatKeyakinan === 'SEDANG' ? 'badge-warning' : 'badge-error'
+                        }`} style={{ fontSize: 10, padding: '2px 6px' }}>
+                          {item.tingkatKeyakinan} ({item.skorKeyakinan ? `${Number(item.skorKeyakinan)}%` : '-'})
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td>
+                      {item.bobotVersionId ? `#${item.bobotVersionId}` : <span className="text-gray-400">-</span>}
+                    </td>
                     <td>{parseFloat(item.nilaiPreferensi).toFixed(6)}</td>
                     <td style={{ color: '#10b981', fontWeight: 700 }}>{formatRp(item.nilaiLimit)}</td>
                     <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(item.createdAt).toLocaleString('id-ID')}</td>

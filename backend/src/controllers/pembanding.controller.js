@@ -1,6 +1,9 @@
 import prisma from '../models/prisma.client.js';
 import { pembandingService } from '../services/pembanding.service.js';
 import { enqueueScraping, getJobStatus } from '../services/scraping_queue.service.js';
+import { processUrl } from '../services/url_integrity.js';
+import { matchPembanding } from '../services/comparable_matching.service.js';
+import { detectOutliersIQR } from '../services/reference_confidence.service.js';
 
 // ─── GET /pembanding/aset/:asetId ─────────────────────────────────────────────
 
@@ -29,7 +32,14 @@ export const getPembandingByAset = async (req, res) => {
       ? Number(hasilTerbaru.hargaReferensiPasar)
       : null;
 
-    res.json({ success: true, data: pembanding, hargaReferensiPasar: hargaReferensi });
+    res.json({
+      success: true,
+      data: pembanding,
+      hargaReferensiPasar: hargaReferensi,
+      tingkatKeyakinan: hasilTerbaru?.tingkatKeyakinan || null,
+      skorKeyakinan: hasilTerbaru?.skorKeyakinan ? Number(hasilTerbaru.skorKeyakinan) : null,
+      alasanKeyakinan: hasilTerbaru?.alasanKeyakinan || null,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -141,16 +151,48 @@ export const addManualPembanding = async (req, res) => {
       return res.status(400).json({ success: false, message: 'URL sumber tidak valid' });
     }
 
-    const existing = await prisma.dataPembanding.findFirst({
-      where: { asetId, sourceUrl, harga: Number(harga) },
-    });
-
-    if (existing) {
+    // P0: Klasifikasi URL & Integritas
+    const urlInfo = processUrl(sourceUrl);
+    if (urlInfo.statusIntegritasUrl !== 'DETAIL_IKLAN') {
       return res.status(400).json({
         success: false,
-        message: 'Data pembanding dengan URL dan Harga ini sudah ada',
+        message: `Tautan manual ditolak: ${urlInfo.alasan}`,
       });
     }
+
+    // Ambil data aset untuk pencocokan spesifikasi
+    const aset = await prisma.aset.findUnique({
+      where: { id: asetId },
+      include: { assetVehicle: true, assetProperty: true, assetElectronic: true },
+    });
+
+    if (!aset) {
+      return res.status(404).json({ success: false, message: 'Aset tidak ditemukan' });
+    }
+
+    // Cek jika duplikat
+    if (urlInfo.canonicalUrlHash) {
+      const existing = await prisma.dataPembanding.findFirst({
+        where: { asetId, canonicalUrlHash: urlInfo.canonicalUrlHash },
+      });
+      if (existing) {
+        return res.status(400).json({
+          success: false,
+          message: 'Data pembanding dengan URL yang sama sudah ada untuk aset ini',
+        });
+      }
+    }
+
+    // P0: Evaluasi kelayakan pembanding (hard gates & fuzzy matching)
+    const matchResult = matchPembanding(aset, {
+      judul,
+      spesifikasi: spesifikasi || 'Data diinput manual oleh penjual',
+      kondisi: kondisi || 'Bekas - Baik',
+      tahun: tahun ? Number(tahun) : null,
+      lokasi: lokasi || 'Indonesia',
+      harga: Number(harga),
+      statusIntegritasUrl: urlInfo.statusIntegritasUrl,
+    });
 
     const pembanding = await prisma.dataPembanding.create({
       data: {
@@ -163,8 +205,15 @@ export const addManualPembanding = async (req, res) => {
         tahun: tahun ? Number(tahun) : null,
         kondisi: kondisi || 'Bekas - Baik',
         spesifikasi: spesifikasi || 'Data diinput manual oleh penjual',
-        skorKecocokan: 90,
-        similarity: 1.0,    // Input manual dianggap exact match
+        jenisSumber: 'MANUAL',
+        statusIntegritasUrl: urlInfo.statusIntegritasUrl,
+        canonicalUrl: urlInfo.canonicalUrl,
+        canonicalUrlHash: urlInfo.canonicalUrlHash,
+        sourceDomain: urlInfo.sourceDomain,
+        similarity: matchResult.similarity,
+        statusKecocokan: matchResult.statusKecocokan,
+        alasanKecocokan: matchResult.alasanKecocokan,
+        skorKecocokan: Math.round((matchResult.similarity || 0) * 100),
         isOutlier: false,
         statusValidasi: 'MENUNGGU',
         dipilihPenjual: true,
@@ -228,7 +277,7 @@ export const hitungMedian = async (req, res) => {
     const asetId = Number(req.params.asetId);
     if (isNaN(asetId)) return res.status(400).json({ success: false, message: 'ID Aset tidak valid' });
 
-    // Ambil data yang dipilih penjual & valid & bukan outlier
+    // Ambil data yang dipilih penjual & valid
     const selectedPembanding = await prisma.dataPembanding.findMany({
       where: {
         asetId,
@@ -237,33 +286,34 @@ export const hitungMedian = async (req, res) => {
       },
     });
 
-    if (selectedPembanding.length < 3) {
+    // P0: Validasi & Kalkulasi Median dengan keyakinan referensi
+    const medianResult = pembandingService.hitungMedianHargaReferensi(selectedPembanding);
+
+    if (medianResult.diblokir) {
       return res.status(400).json({
         success: false,
-        message: 'Minimal pilih 3 data pembanding yang tidak ditolak',
+        message: `Kalkulasi median diblokir karena tingkat keyakinan referensi tidak cukup: ${medianResult.alasan}`,
+        data: medianResult,
       });
     }
 
-    const prices = selectedPembanding.map((p) => Number(p.harga));
-
-    // Gunakan hanya non-outlier untuk kalkulasi median
-    const validPrices = selectedPembanding
-      .filter((p) => !p.isOutlier)
-      .map((p) => Number(p.harga));
-
-    const pricesToUse = validPrices.length >= 3 ? validPrices : prices;
-    const filteredPrices = pembandingService.removeOutliers(pricesToUse);
-
-    if (filteredPrices.length === 0) {
-      return res.status(400).json({ success: false, message: 'Data harga tidak valid untuk dihitung' });
-    }
-
-    const median = pembandingService.calculateMedian(filteredPrices);
-    const outliersCount = prices.length - filteredPrices.length;
+    const median = medianResult.median;
+    const outliersCount = medianResult.statistik.jumlahOutlier;
 
     const result = await prisma.$transaction(async (tx) => {
       // Selalu update hargaPasar di tabel aset
       await tx.aset.update({ where: { id: asetId }, data: { hargaPasar: median } });
+
+      // Persist outlier status ke database
+      const hargaValues = selectedPembanding.map((p) => Number(p.harga)).filter((h) => h > 0 && isFinite(h));
+      const { lower, upper } = detectOutliersIQR(hargaValues);
+      for (const p of selectedPembanding) {
+        const isOut = Number(p.harga) < lower || Number(p.harga) > upper;
+        await tx.dataPembanding.update({
+          where: { id: p.id },
+          data: { isOutlier: isOut }
+        });
+      }
 
       // Cari baris hasil yang ada
       let hasil = await tx.hasil.findFirst({ where: { asetId } });
@@ -275,7 +325,18 @@ export const hitungMedian = async (req, res) => {
 
         hasil = await tx.hasil.update({
           where: { id: hasil.id },
-          data: { hargaReferensiPasar: median, nilaiLimit },
+          data: {
+            hargaReferensiPasar: median,
+            nilaiLimit,
+            tingkatKeyakinan: medianResult.tingkatKeyakinan,
+            skorKeyakinan: medianResult.skorKeyakinan,
+            alasanKeyakinan: medianResult.alasanKeyakinan,
+            jumlahPembandingValid: medianResult.statistik.jumlahHargaValid,
+            jumlahScrapedReal: medianResult.statistik.jumlahScrapedReal,
+            jumlahManual: medianResult.statistik.jumlahManual,
+            jumlahDomainUnik: medianResult.statistik.jumlahDomainUnik,
+            calculatedAt: new Date(),
+          },
         });
 
         await tx.aset.update({ where: { id: asetId }, data: { limitValue: nilaiLimit } });
@@ -288,6 +349,14 @@ export const hitungMedian = async (req, res) => {
             nilaiPreferensi: 0,
             hargaReferensiPasar: median,
             nilaiLimit: median,   // placeholder sampai SPK dijalankan
+            tingkatKeyakinan: medianResult.tingkatKeyakinan,
+            skorKeyakinan: medianResult.skorKeyakinan,
+            alasanKeyakinan: medianResult.alasanKeyakinan,
+            jumlahPembandingValid: medianResult.statistik.jumlahHargaValid,
+            jumlahScrapedReal: medianResult.statistik.jumlahScrapedReal,
+            jumlahManual: medianResult.statistik.jumlahManual,
+            jumlahDomainUnik: medianResult.statistik.jumlahDomainUnik,
+            calculatedAt: new Date(),
           },
         });
 
@@ -299,16 +368,15 @@ export const hitungMedian = async (req, res) => {
         median,
         hasil,
         outliersCount,
-        outliersFlagged: selectedPembanding.filter((p) => p.isOutlier).length,
-        hargaAwal: prices,
-        hargaFiltered: filteredPrices,
+        outliersFlagged: outliersCount,
+        hargaAwal: selectedPembanding.map((p) => Number(p.harga)),
         limitUpdated: true,
       };
     });
-
 
     res.json({ success: true, data: result, message: 'Harga referensi pasar berhasil dihitung' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+

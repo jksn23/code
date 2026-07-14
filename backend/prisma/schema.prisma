@@ -29,6 +29,7 @@ model Kriteria {
   kategori   Kategori     @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
   nilaiAset  NilaiAset[]
   bobotAhp   BobotAHP[]
+  rubrik     RubrikKriteria[]
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 
@@ -57,6 +58,8 @@ model Aset {
   hasil     Hasil[]
   lelang    Lelang[]
   dataPembanding DataPembanding[]
+  saranPencarian SaranPencarianPembanding[]
+  validasiNilaiLimit ValidasiNilaiLimit[]
   documents Document[]
 
   assetProperty   AssetProperty?
@@ -114,6 +117,7 @@ model BobotVersion {
   
   kategori        Kategori @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
   bobotAhp        BobotAHP[]
+  hasil           Hasil[]
 
   @@map("bobot_version")
 }
@@ -124,12 +128,42 @@ model Hasil {
   nilaiPreferensi     Decimal  @map("nilai_preferensi") @db.Decimal(15, 6)
   hargaReferensiPasar Decimal? @map("harga_referensi_pasar") @db.Decimal(20, 2)
   nilaiLimit          Decimal  @map("nilai_limit") @db.Decimal(20, 2)
-  aset                Aset     @relation(fields: [asetId], references: [id], onDelete: Cascade)
+
+  // Metadata metode & versioning
+  bobotVersionId      Int?     @map("bobot_version_id")
+  metodeNormalisasi   String   @default("LEGACY_DYNAMIC_SAW") @map("metode_normalisasi") @db.VarChar(50)
+  versiFormula        String   @default("LIMIT_V1") @map("versi_formula") @db.VarChar(50)
+
+  // Snapshot untuk reproducibility
+  bobotSnapshot       Json?    @map("bobot_snapshot")
+  nilaiSnapshot       Json?    @map("nilai_snapshot")
+  normalisasiSnapshot Json?    @map("normalisasi_snapshot")
+  pembandingSnapshot  Json?    @map("pembanding_snapshot")
+
+  // Keyakinan referensi
+  tingkatKeyakinan    TingkatKeyakinanReferensi? @map("tingkat_keyakinan")
+  skorKeyakinan       Decimal? @map("skor_keyakinan") @db.Decimal(5, 2)
+  alasanKeyakinan     Json?    @map("alasan_keyakinan")
+
+  // Statistik data pembanding yang digunakan
+  jumlahPembandingValid Int?   @map("jumlah_pembanding_valid")
+  jumlahScrapedReal     Int?   @map("jumlah_scraped_real")
+  jumlahManual          Int?   @map("jumlah_manual")
+  jumlahDomainUnik      Int?   @map("jumlah_domain_unik")
+
+  calculatedAt          DateTime? @map("calculated_at")
+
+  aset         Aset          @relation(fields: [asetId], references: [id], onDelete: Cascade)
+  bobotVersion BobotVersion? @relation(fields: [bobotVersionId], references: [id], onDelete: Restrict)
+  validasiNilaiLimit ValidasiNilaiLimit[]
+
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
   @@map("hasil")
 }
+
+// ── Enums ──────────────────────────────────────────────────────────────────────
 
 enum TipeKriteria {
   benefit
@@ -176,31 +210,142 @@ enum StatusValidasiPembanding {
   DITOLAK
 }
 
+// ── Enums P0-P1 baru ────────────────────────────────────────────────────────
+
+enum JenisSumberPembanding {
+  SCRAPED_REAL   // Data scraping Puppeteer dari URL detail iklan
+  MANUAL         // Input manual penjual dengan URL detail iklan
+  TEST_FIXTURE   // Hanya digunakan dalam test/seed; diblokir di production
+}
+
+enum StatusIntegritasUrl {
+  DETAIL_IKLAN        // URL mengarah ke halaman detail iklan — valid untuk median
+  HALAMAN_PENCARIAN   // URL adalah halaman pencarian/listing — tidak valid
+  TIDAK_VALID         // URL tidak dapat diparsing atau bukan marketplace dikenal
+  BELUM_DIVERIFIKASI  // Default saat baru disimpan
+}
+
+enum StatusKecocokanPembanding {
+  LAYAK        // similarity >= 0.80 dan lolos hard gates — valid untuk median
+  PERLU_TINJAU // 0.70 <= similarity < 0.80 — perlu review admin
+  TIDAK_LAYAK  // similarity < 0.70 atau gagal hard gates
+}
+
+enum TingkatKeyakinanReferensi {
+  TINGGI       // >= 5 data valid, >= 3 scraped real, >= 2 domain
+  SEDANG       // 3-4 data valid, >= 2 scraped real, >= 2 domain
+  RENDAH       // Minimal 3 tapi dominasi manual, 1 domain, atau sebaran tinggi
+  TIDAK_CUKUP  // < 3 data valid — median diblokir
+}
+
+enum JenisNilaiAcuan {
+  NILAI_PAKAR        // Nilai dari pakar penilai profesional
+  NILAI_LIMIT_AKTUAL // Nilai limit yang benar-benar diterapkan
+  HARGA_TRANSAKSI    // Harga transaksi aktual di pasar
+  HASIL_LELANG       // Harga final hasil lelang aktual
+}
+
+// ── Model P0: Data Pembanding ─────────────────────────────────────────────────
+
 model DataPembanding {
   id              Int                      @id @default(autoincrement())
   asetId          Int                      @map("aset_id")
   judul           String                   @db.VarChar(255)
   sumber          String                   @db.VarChar(100)
-  sourceUrl       String                   @map("source_url") @db.VarChar(255)
+  sourceUrl       String                   @map("source_url") @db.Text    // URL asli dari scraper/pengguna
   harga           Decimal                  @db.Decimal(20, 2)
   lokasi          String?                  @db.VarChar(150)
   tahun           Int?
   kondisi         String?                  @db.VarChar(100)
   spesifikasi     String?                  @db.Text
   skorKecocokan   Decimal?                 @map("skor_kecocokan") @db.Decimal(5, 2)
-  similarity      Decimal?                 @db.Decimal(5, 4)    // Fuse.js fuzzy match score 0.0-1.0
-  isOutlier       Boolean                  @default(false) @map("is_outlier")   // IQR outlier flag
+  similarity      Decimal?                 @db.Decimal(5, 4)              // Fuzzy match score 0.0-1.0
+  isOutlier       Boolean                  @default(false) @map("is_outlier")
   statusValidasi  StatusValidasiPembanding @default(MENUNGGU) @map("status_validasi")
   dipilihPenjual  Boolean                  @default(false) @map("dipilih_penjual")
   scrapedAt       DateTime                 @default(now()) @map("scraped_at")
+
+  // Kolom P0-P1 baru
+  jenisSumber        JenisSumberPembanding    @default(SCRAPED_REAL) @map("jenis_sumber")
+  statusIntegritasUrl StatusIntegritasUrl     @default(BELUM_DIVERIFIKASI) @map("status_integritas_url")
+  statusKecocokan    StatusKecocokanPembanding @default(PERLU_TINJAU) @map("status_kecocokan")
+  canonicalUrl       String?                  @map("canonical_url") @db.Text
+  canonicalUrlHash   String?                  @map("canonical_url_hash") @db.Char(64)
+  sourceDomain       String?                  @map("source_domain") @db.VarChar(150)
+  alasanKecocokan    Json?                    @map("alasan_kecocokan")
+  validatedAt        DateTime?                @map("validated_at")
+  validatedBy        Int?                     @map("validated_by")
+
   createdAt       DateTime                 @default(now())
   updatedAt       DateTime                 @updatedAt
 
   aset            Aset                     @relation(fields: [asetId], references: [id], onDelete: Cascade)
 
+  @@index([asetId, statusValidasi])
+  @@index([asetId, jenisSumber])
+  @@index([asetId, statusKecocokan])
+  @@unique([asetId, canonicalUrlHash], name: "unique_aset_canonical_url")
   @@map("data_pembanding")
 }
 
+// ── Model P0: Saran Tautan Pencarian (tanpa harga) ──────────────────────────
+
+model SaranPencarianPembanding {
+  id          Int      @id @default(autoincrement())
+  asetId      Int      @map("aset_id")
+  marketplace String   @db.VarChar(100)
+  query       String   @db.VarChar(255)
+  searchUrl   String   @map("search_url") @db.Text
+  createdAt   DateTime @default(now())
+
+  aset Aset @relation(fields: [asetId], references: [id], onDelete: Cascade)
+
+  @@index([asetId])
+  @@map("saran_pencarian_pembanding")
+}
+
+// ── Model P1: Rubrik Skor Kriteria ──────────────────────────────────────────
+
+model RubrikKriteria {
+  id          Int      @id @default(autoincrement())
+  kriteriaId  Int      @map("kriteria_id")
+  skor        Int
+  label       String   @db.VarChar(100)
+  deskripsi   String   @db.Text
+  contohBukti String?  @map("contoh_bukti") @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  kriteria Kriteria @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
+
+  @@unique([kriteriaId, skor])
+  @@map("rubrik_kriteria")
+}
+
+// ── Model P1: Validasi Formula Nilai Limit ──────────────────────────────────
+
+model ValidasiNilaiLimit {
+  id              Int             @id @default(autoincrement())
+  asetId          Int             @map("aset_id")
+  hasilId         Int             @map("hasil_id")
+  jenisNilaiAcuan JenisNilaiAcuan @map("jenis_nilai_acuan")
+  nilaiAcuan      Decimal         @map("nilai_acuan") @db.Decimal(20, 2)
+  sumberAcuan     String          @map("sumber_acuan") @db.Text
+  tanggalAcuan    DateTime?       @map("tanggal_acuan")
+  absoluteError   Decimal?        @map("absolute_error") @db.Decimal(20, 2)
+  percentageError Decimal?        @map("percentage_error") @db.Decimal(10, 4)
+  catatan         String?         @db.Text
+  createdAt       DateTime        @default(now())
+
+  aset  Aset  @relation(fields: [asetId], references: [id], onDelete: Cascade)
+  hasil Hasil @relation(fields: [hasilId], references: [id], onDelete: Cascade)
+
+  @@index([asetId])
+  @@index([hasilId])
+  @@map("validasi_nilai_limit")
+}
+
+// ── Models existing ──────────────────────────────────────────────────────────
 
 model User {
   id                      Int                     @id @default(autoincrement())

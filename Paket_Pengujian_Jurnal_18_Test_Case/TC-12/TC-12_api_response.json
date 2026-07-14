@@ -1,0 +1,351 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 137,
+      "asetId": 64,
+      "nilaiPreferensi": "0.8",
+      "hargaReferensiPasar": "97500000",
+      "nilaiLimit": "78000000",
+      "bobotVersionId": 30,
+      "metodeNormalisasi": "FIXED_SCALE_1_5",
+      "versiFormula": "LIMIT_V2",
+      "bobotSnapshot": {
+        "ci": null,
+        "cr": 0,
+        "ri": null,
+        "lambdaMax": null,
+        "namaVersi": "Versi Jurnal 1",
+        "versionId": 30,
+        "kategoriId": 18,
+        "tanggalValidasi": null,
+        "bobotPerKriteria": {
+          "63": {
+            "nama": "Kriteria Benefit 1",
+            "tipe": "benefit",
+            "bobot": 0.5
+          },
+          "64": {
+            "nama": "Kriteria Cost 1",
+            "tipe": "cost",
+            "bobot": 0.5
+          }
+        }
+      },
+      "nilaiSnapshot": [
+        {
+          "nama": "Kriteria Benefit 1",
+          "nilai": 4,
+          "kriteriaId": 63
+        },
+        {
+          "nama": "Kriteria Cost 1",
+          "nilai": 2,
+          "kriteriaId": 64
+        }
+      ],
+      "normalisasiSnapshot": [
+        {
+          "tipe": "benefit",
+          "bobot": 0.5,
+          "nilaiAsli": 4,
+          "nilaiNorm": 0.8,
+          "kontribusi": 0.4,
+          "kriteriaId": 63,
+          "namaKriteria": "Kriteria Benefit 1"
+        },
+        {
+          "tipe": "cost",
+          "bobot": 0.5,
+          "nilaiAsli": 2,
+          "nilaiNorm": 0.8,
+          "kontribusi": 0.4,
+          "kriteriaId": 64,
+          "namaKriteria": "Kriteria Cost 1"
+        }
+      ],
+      "pembandingSnapshot": {
+        "items": [
+          {
+            "id": 269,
+            "harga": 95000000,
+            "judul": "Comparable TC-06",
+            "sumber": "OLX",
+            "isOutlier": false,
+            "jenisSumber": "MANUAL",
+            "statusKecocokan": "LAYAK"
+          },
+          {
+            "id": 270,
+            "harga": 100000000,
+            "judul": "Comparable TC-07 No 2",
+            "sumber": "OLX",
+            "isOutlier": false,
+            "jenisSumber": "SCRAPED_REAL",
+            "statusKecocokan": "LAYAK"
+          },
+          {
+            "id": 271,
+            "harga": 105000000,
+            "judul": "Comparable TC-08 No 3",
+            "sumber": "OLX",
+            "isOutlier": false,
+            "jenisSumber": "SCRAPED_REAL",
+            "statusKecocokan": "LAYAK"
+          },
+          {
+            "id": 272,
+            "harga": 90000000,
+            "judul": "Comparable TC-10 Normal 4",
+            "sumber": "OLX",
+            "isOutlier": false,
+            "jenisSumber": "SCRAPED_REAL",
+            "statusKecocokan": "LAYAK"
+          },
+          {
+            "id": 273,
+            "harga": 1000000000,
+            "judul": "Comparable TC-10 Outlier",
+            "sumber": "OLX",
+            "isOutlier": true,
+            "jenisSumber": "SCRAPED_REAL",
+            "statusKecocokan": "LAYAK"
+          }
+        ],
+        "alasan": [
+          "Domain unik kurang (1 < 2) — berisiko konfirmasi bias"
+        ],
+        "statistik": {
+          "cv": 0.0662,
+          "domains": [
+            "olx.co.id"
+          ],
+          "hargaMean": 97500000,
+          "hargaMedian": 97500000,
+          "hargaStdDev": 6454972.24,
+          "jumlahTotal": 4,
+          "jumlahManual": 1,
+          "jumlahOutlier": 0,
+          "jumlahDomainUnik": 1,
+          "jumlahHargaValid": 4,
+          "jumlahScrapedReal": 3
+        }
+      },
+      "tingkatKeyakinan": "RENDAH",
+      "skorKeyakinan": "43",
+      "alasanKeyakinan": {
+        "alasan": [
+          "Domain unik kurang (1 < 2) — berisiko konfirmasi bias"
+        ],
+        "statistik": {
+          "cv": 0.0662,
+          "domains": [
+            "olx.co.id"
+          ],
+          "hargaMean": 97500000,
+          "hargaMedian": 97500000,
+          "hargaStdDev": 6454972.24,
+          "jumlahTotal": 4,
+          "jumlahManual": 1,
+          "jumlahOutlier": 0,
+          "jumlahDomainUnik": 1,
+          "jumlahHargaValid": 4,
+          "jumlahScrapedReal": 3
+        }
+      },
+      "jumlahPembandingValid": 4,
+      "jumlahScrapedReal": 3,
+      "jumlahManual": 1,
+      "jumlahDomainUnik": 1,
+      "calculatedAt": "2026-07-14T16:43:36.912Z",
+      "createdAt": "2026-07-14T16:43:36.921Z",
+      "updatedAt": "2026-07-14T16:43:36.921Z",
+      "aset": {
+        "id": 64,
+        "nama": "Aset Temp Jurnal",
+        "kategoriId": 18,
+        "penjualId": 1,
+        "deskripsi": null,
+        "dokumenUrl": null,
+        "statusLelang": "DRAFT",
+        "statusPenilaian": "MENUNGGU_VERIFIKASI",
+        "catatanPenilaian": null,
+        "penilaianSubmittedAt": "2026-07-14T16:43:36.915Z",
+        "penilaianReviewedAt": null,
+        "penilaianReviewedBy": null,
+        "hargaPasar": "97500000",
+        "limitValue": "78000000",
+        "createdAt": "2026-07-14T16:43:36.373Z",
+        "updatedAt": "2026-07-14T16:43:36.924Z",
+        "kategori": {
+          "id": 18,
+          "nama": "Temp Kategori Jurnal",
+          "createdAt": "2026-07-14T16:43:36.336Z",
+          "updatedAt": "2026-07-14T16:43:36.336Z"
+        }
+      }
+    },
+    {
+      "id": 138,
+      "asetId": 65,
+      "nilaiPreferensi": "0.8",
+      "hargaReferensiPasar": "100000000",
+      "nilaiLimit": "80000000",
+      "bobotVersionId": 30,
+      "metodeNormalisasi": "FIXED_SCALE_1_5",
+      "versiFormula": "LIMIT_V2",
+      "bobotSnapshot": {
+        "ci": null,
+        "cr": 0,
+        "ri": null,
+        "lambdaMax": null,
+        "namaVersi": "Versi Jurnal 1",
+        "versionId": 30,
+        "kategoriId": 18,
+        "tanggalValidasi": null,
+        "bobotPerKriteria": {
+          "63": {
+            "nama": "Kriteria Benefit 1",
+            "tipe": "benefit",
+            "bobot": 0.5
+          },
+          "64": {
+            "nama": "Kriteria Cost 1",
+            "tipe": "cost",
+            "bobot": 0.5
+          }
+        }
+      },
+      "nilaiSnapshot": [
+        {
+          "nama": "Kriteria Benefit 1",
+          "nilai": 4,
+          "kriteriaId": 63
+        },
+        {
+          "nama": "Kriteria Cost 1",
+          "nilai": 2,
+          "kriteriaId": 64
+        }
+      ],
+      "normalisasiSnapshot": [
+        {
+          "tipe": "benefit",
+          "bobot": 0.5,
+          "nilaiAsli": 4,
+          "nilaiNorm": 0.8,
+          "kontribusi": 0.4,
+          "kriteriaId": 63,
+          "namaKriteria": "Kriteria Benefit 1"
+        },
+        {
+          "tipe": "cost",
+          "bobot": 0.5,
+          "nilaiAsli": 2,
+          "nilaiNorm": 0.8,
+          "kontribusi": 0.4,
+          "kriteriaId": 64,
+          "namaKriteria": "Kriteria Cost 1"
+        }
+      ],
+      "pembandingSnapshot": {
+        "items": [
+          {
+            "id": 274,
+            "harga": 100000000,
+            "judul": "Comp 1 for 65",
+            "sumber": "OLX",
+            "isOutlier": false,
+            "jenisSumber": "SCRAPED_REAL",
+            "statusKecocokan": "LAYAK"
+          },
+          {
+            "id": 275,
+            "harga": 101000000,
+            "judul": "Comp 2 for 65",
+            "sumber": "OLX",
+            "isOutlier": false,
+            "jenisSumber": "SCRAPED_REAL",
+            "statusKecocokan": "LAYAK"
+          },
+          {
+            "id": 276,
+            "harga": 99000000,
+            "judul": "Comp 3 for 65",
+            "sumber": "OLX",
+            "isOutlier": false,
+            "jenisSumber": "SCRAPED_REAL",
+            "statusKecocokan": "LAYAK"
+          }
+        ],
+        "alasan": [
+          "Domain unik kurang (0 < 2) — berisiko konfirmasi bias"
+        ],
+        "statistik": {
+          "cv": 0.01,
+          "domains": [],
+          "hargaMean": 100000000,
+          "hargaMedian": 100000000,
+          "hargaStdDev": 1000000,
+          "jumlahTotal": 3,
+          "jumlahManual": 0,
+          "jumlahOutlier": 0,
+          "jumlahDomainUnik": 0,
+          "jumlahHargaValid": 3,
+          "jumlahScrapedReal": 3
+        }
+      },
+      "tingkatKeyakinan": "RENDAH",
+      "skorKeyakinan": "40",
+      "alasanKeyakinan": {
+        "alasan": [
+          "Domain unik kurang (0 < 2) — berisiko konfirmasi bias"
+        ],
+        "statistik": {
+          "cv": 0.01,
+          "domains": [],
+          "hargaMean": 100000000,
+          "hargaMedian": 100000000,
+          "hargaStdDev": 1000000,
+          "jumlahTotal": 3,
+          "jumlahManual": 0,
+          "jumlahOutlier": 0,
+          "jumlahDomainUnik": 0,
+          "jumlahHargaValid": 3,
+          "jumlahScrapedReal": 3
+        }
+      },
+      "jumlahPembandingValid": 3,
+      "jumlahScrapedReal": 3,
+      "jumlahManual": 0,
+      "jumlahDomainUnik": 0,
+      "calculatedAt": "2026-07-14T16:43:37.042Z",
+      "createdAt": "2026-07-14T16:43:37.051Z",
+      "updatedAt": "2026-07-14T16:43:37.051Z",
+      "aset": {
+        "id": 65,
+        "nama": "Aset Temp Jurnal Identik",
+        "kategoriId": 18,
+        "penjualId": 1,
+        "deskripsi": null,
+        "dokumenUrl": null,
+        "statusLelang": "DRAFT",
+        "statusPenilaian": "MENUNGGU_VERIFIKASI",
+        "catatanPenilaian": null,
+        "penilaianSubmittedAt": "2026-07-14T16:43:37.045Z",
+        "penilaianReviewedAt": null,
+        "penilaianReviewedBy": null,
+        "hargaPasar": "100000000",
+        "limitValue": "80000000",
+        "createdAt": "2026-07-14T16:43:36.969Z",
+        "updatedAt": "2026-07-14T16:43:37.054Z",
+        "kategori": {
+          "id": 18,
+          "nama": "Temp Kategori Jurnal",
+          "createdAt": "2026-07-14T16:43:36.336Z",
+          "updatedAt": "2026-07-14T16:43:36.336Z"
+        }
+      }
+    }
+  ]
+}

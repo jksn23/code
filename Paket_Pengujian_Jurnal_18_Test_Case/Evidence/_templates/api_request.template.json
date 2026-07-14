@@ -1,0 +1,9 @@
+{
+  "method": "POST",
+  "url": "",
+  "headers": {
+    "Authorization": "Bearer <REDACTED>",
+    "Content-Type": "application/json"
+  },
+  "body": {}
+}

@@ -1,0 +1,204 @@
+{
+  "success": true,
+  "message": "Perhitungan SAW berhasil. Hasil menunggu verifikasi admin.",
+  "data": {
+    "aset": {
+      "id": 64,
+      "nama": "Aset Temp Jurnal",
+      "deskripsi": null,
+      "hargaPasar": 97500000,
+      "limitValue": 78000000,
+      "statusLelang": "DRAFT",
+      "statusPenilaian": "MENUNGGU_VERIFIKASI",
+      "catatanPenilaian": null,
+      "penilaianSubmittedAt": "2026-07-14T16:43:36.915Z",
+      "penilaianReviewedAt": null,
+      "penjual": {
+        "id": 1,
+        "userId": 3,
+        "ktpUrl": "uploads/penjual/1780379370590-418590622.jpg",
+        "npwpUrl": "uploads/penjual/1780379370596-837500435.jpg",
+        "rekeningBank": "BVA",
+        "nomorRekening": "123123123",
+        "isVerified": true,
+        "verificationStatus": "APPROVED",
+        "verificationNote": "Dokumen penjual telah diverifikasi dan disetujui admin.",
+        "verifiedAt": "2026-06-02T05:50:11.549Z",
+        "verifiedBy": 1,
+        "createdAt": "2026-06-02T05:49:30.760Z",
+        "updatedAt": "2026-06-02T05:50:11.551Z",
+        "user": {
+          "id": 3,
+          "nama": "penjual1",
+          "email": "penjual1@mail.com"
+        }
+      },
+      "kategori": {
+        "id": 18,
+        "nama": "Temp Kategori Jurnal"
+      },
+      "assetProperty": null,
+      "assetVehicle": null,
+      "assetElectronic": null
+    },
+    "kriteria": [
+      {
+        "id": 63,
+        "nama": "Kriteria Benefit 1",
+        "tipe": "benefit",
+        "bobot": 0.5,
+        "nilai": 4,
+        "rubrik": []
+      },
+      {
+        "id": 64,
+        "nama": "Kriteria Cost 1",
+        "tipe": "cost",
+        "bobot": 0.5,
+        "nilai": 2,
+        "rubrik": []
+      }
+    ],
+    "hasil": {
+      "id": 137,
+      "nilaiPreferensi": 0.8,
+      "nilaiLimit": 78000000,
+      "bobotVersionId": 30,
+      "metodeNormalisasi": "FIXED_SCALE_1_5",
+      "versiFormula": "LIMIT_V2",
+      "tingkatKeyakinan": "RENDAH",
+      "skorKeyakinan": 43,
+      "alasanKeyakinan": {
+        "alasan": [
+          "Domain unik kurang (1 < 2) — berisiko konfirmasi bias"
+        ],
+        "statistik": {
+          "cv": 0.0662,
+          "domains": [
+            "olx.co.id"
+          ],
+          "hargaMean": 97500000,
+          "hargaMedian": 97500000,
+          "hargaStdDev": 6454972.24,
+          "jumlahTotal": 4,
+          "jumlahManual": 1,
+          "jumlahOutlier": 0,
+          "jumlahDomainUnik": 1,
+          "jumlahHargaValid": 4,
+          "jumlahScrapedReal": 3
+        }
+      },
+      "createdAt": "2026-07-14T16:43:36.921Z"
+    },
+    "detailNormalisasi": [
+      {
+        "kriteriaId": 63,
+        "namaKriteria": "Kriteria Benefit 1",
+        "tipe": "benefit",
+        "nilaiAsli": 4,
+        "nilaiNorm": 0.8,
+        "bobot": 0.5,
+        "kontribusi": 0.4
+      },
+      {
+        "kriteriaId": 64,
+        "namaKriteria": "Kriteria Cost 1",
+        "tipe": "cost",
+        "nilaiAsli": 2,
+        "nilaiNorm": 0.8,
+        "bobot": 0.5,
+        "kontribusi": 0.4
+      }
+    ],
+    "currentResult": {
+      "id": 64,
+      "nama": "Aset Temp Jurnal",
+      "hargaPasar": 97500000,
+      "nilaiPreferensi": 0.8,
+      "nilaiLimit": 78000000,
+      "detailNormalisasi": [
+        {
+          "kriteriaId": 63,
+          "namaKriteria": "Kriteria Benefit 1",
+          "tipe": "benefit",
+          "nilaiAsli": 4,
+          "nilaiNorm": 0.8,
+          "bobot": 0.5,
+          "kontribusi": 0.4
+        },
+        {
+          "kriteriaId": 64,
+          "namaKriteria": "Kriteria Cost 1",
+          "tipe": "cost",
+          "nilaiAsli": 2,
+          "nilaiNorm": 0.8,
+          "bobot": 0.5,
+          "kontribusi": 0.4
+        }
+      ],
+      "ranking": 1
+    },
+    "auditLog": [],
+    "hasilSAW": {
+      "metodeNormalisasi": "FIXED_SCALE_1_5",
+      "versiFormula": "LIMIT_V2",
+      "skalaMin": 1,
+      "skalaMax": 5,
+      "jumlahAset": 1,
+      "jumlahKriteria": 2,
+      "totalBobot": 1,
+      "detailKriteria": [
+        {
+          "id": 63,
+          "nama": "Kriteria Benefit 1",
+          "tipe": "benefit",
+          "bobot": 0.5,
+          "skalaMin": 1,
+          "skalaMax": 5,
+          "normMin": 0.2,
+          "normMax": 1
+        },
+        {
+          "id": 64,
+          "nama": "Kriteria Cost 1",
+          "tipe": "cost",
+          "bobot": 0.5,
+          "skalaMin": 1,
+          "skalaMax": 5,
+          "normMin": 1,
+          "normMax": 0.2
+        }
+      ],
+      "ranking": [
+        {
+          "id": 64,
+          "nama": "Aset Temp Jurnal",
+          "hargaPasar": 97500000,
+          "nilaiPreferensi": 0.8,
+          "nilaiLimit": 78000000,
+          "detailNormalisasi": [
+            {
+              "kriteriaId": 63,
+              "namaKriteria": "Kriteria Benefit 1",
+              "tipe": "benefit",
+              "nilaiAsli": 4,
+              "nilaiNorm": 0.8,
+              "bobot": 0.5,
+              "kontribusi": 0.4
+            },
+            {
+              "kriteriaId": 64,
+              "namaKriteria": "Kriteria Cost 1",
+              "tipe": "cost",
+              "nilaiAsli": 2,
+              "nilaiNorm": 0.8,
+              "bobot": 0.5,
+              "kontribusi": 0.4
+            }
+          ],
+          "ranking": 1
+        }
+      ]
+    }
+  }
+}

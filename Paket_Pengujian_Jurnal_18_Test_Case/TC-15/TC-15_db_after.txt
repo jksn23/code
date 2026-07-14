@@ -1,0 +1,76 @@
+=== TABLE: user ===
+[
+  {
+    "id": 1,
+    "email": "admin@lelang.com",
+    "role": "ADMIN",
+    "buyerVerificationStatus": "UNVERIFIED"
+  },
+  {
+    "id": 2,
+    "email": "jksn@mail.com",
+    "role": "PEMBELI",
+    "buyerVerificationStatus": "APPROVED"
+  },
+  {
+    "id": 3,
+    "email": "penjual1@mail.com",
+    "role": "PENJUAL",
+    "buyerVerificationStatus": "UNVERIFIED"
+  },
+  {
+    "id": 4,
+    "email": "penjual1@lelang.com",
+    "role": "PENJUAL",
+    "buyerVerificationStatus": "APPROVED"
+  },
+  {
+    "id": 5,
+    "email": "penjual2@lelang.com",
+    "role": "PENJUAL",
+    "buyerVerificationStatus": "APPROVED"
+  },
+  {
+    "id": 6,
+    "email": "penjual3@lelang.com",
+    "role": "PENJUAL",
+    "buyerVerificationStatus": "APPROVED"
+  },
+  {
+    "id": 7,
+    "email": "pembeli1@mail.com",
+    "role": "PEMBELI",
+    "buyerVerificationStatus": "APPROVED"
+  },
+  {
+    "id": 8,
+    "email": "pembeli2@mail.com",
+    "role": "PEMBELI",
+    "buyerVerificationStatus": "APPROVED"
+  },
+  {
+    "id": 9,
+    "email": "cella@mail.com",
+    "role": "PEMBELI",
+    "buyerVerificationStatus": "APPROVED"
+  },
+  {
+    "id": 10,
+    "email": "penjual4@mail.com",
+    "role": "PENJUAL",
+    "buyerVerificationStatus": "UNVERIFIED"
+  },
+  {
+    "id": 11,
+    "email": "marcel@mail.com",
+    "role": "PENJUAL",
+    "buyerVerificationStatus": "UNVERIFIED"
+  },
+  {
+    "id": 12,
+    "email": "pembeli5@mail.com",
+    "role": "PEMBELI",
+    "buyerVerificationStatus": "APPROVED"
+  }
+]
+

@@ -1,0 +1,15 @@
+{
+  "method": "POST",
+  "url": "/api/seller/aset/64/nilai-kriteria",
+  "headers": {
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sZSI6IlBFTkpVQUwiLCJlbWFpbCI6InBlbmp1YWwxQG1haWwuY29tIiwiaWF0IjoxNzg0MDQ3NDE2LCJleHAiOjE3ODQxMzM4MTZ9.smrKQpTbFCk9fev39lSpNpdfT1FzLaJ7yXp6AV-c_u8"
+  },
+  "body": {
+    "nilai_list": [
+      {
+        "kriteria_id": 63,
+        "nilai": 5
+      }
+    ]
+  }
+}

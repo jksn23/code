@@ -1,0 +1,5 @@
+Timestamp:
+Path:
+Command:
+Files/checksum:
+Difference:

@@ -1,0 +1,14 @@
+{
+  "method": "POST",
+  "url": "/api/pembanding/aset/64/manual",
+  "headers": {
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sZSI6IlBFTkpVQUwiLCJlbWFpbCI6InBlbmp1YWwxQG1haWwuY29tIiwiaWF0IjoxNzg0MDQ3NDE2LCJleHAiOjE3ODQxMzM4MTZ9.smrKQpTbFCk9fev39lSpNpdfT1FzLaJ7yXp6AV-c_u8"
+  },
+  "body": {
+    "judul": "Comparable TC-09 Invalid Price",
+    "sumber": "OLX",
+    "sourceUrl": "https://www.olx.co.id/item/tc09-mobil-iid-444",
+    "harga": -1000000,
+    "tahun": 2020
+  }
+}

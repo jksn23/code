@@ -1,0 +1,18 @@
+{
+  "testCaseId": "TC-12",
+  "title": "Hasil ranking seri",
+  "executedAt": "2026-07-14T16:43:37.085Z",
+  "tester": "Antigravity SPK Tester",
+  "environment": "local-test",
+  "os": "Windows 11",
+  "browser": "N/A (API Test)",
+  "backendNodeVersion": "v22.14.0",
+  "database": "MySQL 8.0 / Prisma ORM",
+  "branch": "main",
+  "commitHash": "latest",
+  "buildNumber": "1",
+  "baseUrlFrontend": "http://localhost:5173",
+  "baseUrlBackend": "http://localhost:5001",
+  "result": "PASS",
+  "defectId": null
+}

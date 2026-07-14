@@ -23,6 +23,7 @@ import sellerPenilaianRoutes from './src/routes/seller_penilaian.routes.js';
 import adminPenilaianRoutes from './src/routes/admin_penilaian.routes.js';
 import pembandingRoutes from './src/routes/pembanding.routes.js';
 import dokumenRoutes from './src/routes/dokumen.routes.js';
+import limitValidationRoutes from './src/routes/limit_validation.routes.js';
 import { syncAuctionLifecycleBatch, syncLelangLifecycle } from './src/controllers/lelang.controller.js';
 import logger from './src/utils/logger.js';
 import { initScrapingQueue } from './src/services/scraping_queue.service.js';
@@ -87,6 +88,7 @@ app.use('/api/seller/aset', sellerPenilaianRoutes);
 app.use('/api/admin/penilaian-aset', adminPenilaianRoutes);
 app.use('/api/pembanding', pembandingRoutes);
 app.use('/api/dokumen', dokumenRoutes);
+app.use('/api/limit-validation', limitValidationRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

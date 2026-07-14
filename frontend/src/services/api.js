@@ -160,6 +160,12 @@ export const hitungMedianPembanding = (asetId) => api.post(`/pembanding/aset/${a
 export const selectPembanding = (id, data) => api.patch(`/pembanding/${id}/select`, data);
 export const validasiPembanding = (id, data) => api.patch(`/pembanding/${id}/validasi`, data);
 
+// ====== LIMIT VALIDATION ======
+export const getLimitValidationsForAset = (asetId) => api.get(`/limit-validation/aset/${asetId}`);
+export const createLimitValidation = (data) => api.post('/limit-validation', data);
+export const getLimitValidationReport = (params) => api.get('/limit-validation/report', { params });
+export const deleteLimitValidation = (id) => api.delete(`/limit-validation/${id}`);
+
 
 // ====== DOKUMEN & ADMS ======
 export const generateDokumenLelang = (lelangId, tipe, format = 'pdf') =>

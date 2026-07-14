@@ -1,5 +1,7 @@
 import prisma from '../models/prisma.client.js';
 import { hitungSAW } from './saw.service.js';
+import { getActiveWeightVersion, createBobotSnapshot } from './weight_version.service.js';
+import { pembandingService } from './pembanding.service.js';
 
 export const STATUS_PENILAIAN = ['DRAFT', 'MENUNGGU_VERIFIKASI', 'DISETUJUI', 'PERLU_REVISI', 'DITOLAK'];
 export const MUTABLE_SELLER_STATUSES = ['DRAFT', 'PERLU_REVISI'];
@@ -42,7 +44,10 @@ export const getPenilaianAset = (asetId, client = prisma) =>
       kategori: {
         include: {
           kriteria: {
-            include: { bobotAhp: { orderBy: { createdAt: 'desc' }, take: 1 } },
+            include: { 
+              bobotAhp: { orderBy: { createdAt: 'desc' }, take: 1 },
+              rubrik: { orderBy: { skor: 'asc' } }
+            },
             orderBy: { id: 'asc' },
           },
         },
@@ -185,7 +190,8 @@ const fetchCompleteAsetsForSAW = async (kategoriId, kriteriaIds) => {
 };
 
 export const calculateAndPersistSAWForAset = async ({ asetId, actor, requireOwner = false }) => {
-  const aset = await getPenilaianAset(asetId);
+  const parsedAsetId = Number(asetId);
+  const aset = await getPenilaianAset(parsedAsetId);
   if (!aset) throw httpError(404, 'Aset tidak ditemukan');
 
   if (requireOwner) {
@@ -193,11 +199,24 @@ export const calculateAndPersistSAWForAset = async ({ asetId, actor, requireOwne
     assertCanSellerEditPenilaian(aset);
   }
 
-  const kriteriaWithBobot = getKriteriaWithBobot(aset.kategori.kriteria);
+  // P1: Dapatkan versi bobot AHP yang aktif untuk kategori ini
+  const activeVersion = await getActiveWeightVersion(aset.kategoriId);
+  if (!activeVersion) {
+    throw httpError(400, 'Belum ada versi bobot AHP yang aktif untuk kategori aset ini. Silakan hubungi Administrator.');
+  }
+
+  const kriteriaWithBobot = activeVersion.bobotAhp.map((b) => ({
+    id: b.kriteriaId,
+    nama: b.kriteria.nama,
+    tipe: b.kriteria.tipe,
+    bobot: toNumber(b.bobot),
+  }));
+
   const normalizedNilai = validateNilaiList(
     aset.nilaiAset.map((item) => ({ kriteria_id: item.kriteriaId, nilai: toNumber(item.nilai) })),
-    aset.kategori.kriteria
+    activeVersion.bobotAhp.map((b) => b.kriteria)
   );
+
   const kriteriaIds = normalizedNilai.map((item) => item.kriteriaId);
   const completeAsets = await fetchCompleteAsetsForSAW(aset.kategoriId, kriteriaIds);
 
@@ -205,32 +224,90 @@ export const calculateAndPersistSAWForAset = async ({ asetId, actor, requireOwne
     throw httpError(400, 'Semua kriteria aset wajib diisi sebelum SAW dihitung');
   }
 
+  // Hitung SAW untuk semua aset yang lengkap dalam kategori menggunakan bobot aktif
   const hasilSAW = hitungSAW(completeAsets, kriteriaWithBobot);
-  const affectedIds = hasilSAW.ranking.map((item) => item.id);
   const currentResult = hasilSAW.ranking.find((item) => item.id === aset.id);
 
+  // P0: Dapatkan data pembanding dan evaluasi median + keyakinan referensi
+  const selectedPembanding = await prisma.dataPembanding.findMany({
+    where: {
+      asetId: parsedAsetId,
+      dipilihPenjual: true,
+      statusValidasi: { not: 'DITOLAK' },
+    },
+  });
+
+  const medianResult = pembandingService.hitungMedianHargaReferensi(selectedPembanding);
+  if (medianResult.diblokir) {
+    throw httpError(
+      400,
+      `Kalkulasi median diblokir karena tingkat keyakinan referensi tidak cukup: ${medianResult.alasan}`
+    );
+  }
+
+  const hargaReferensi = medianResult.median;
+  const nilaiLimit = parseFloat((currentResult.nilaiPreferensi * hargaReferensi).toFixed(2));
+
+  // P1: Generate snapshot lengkap untuk reproducibility
+  const bobotSnap = createBobotSnapshot(activeVersion);
+  const nilaiSnap = normalizedNilai.map((n) => {
+    const krit = activeVersion.bobotAhp.find((b) => b.kriteriaId === n.kriteriaId)?.kriteria;
+    return {
+      kriteriaId: n.kriteriaId,
+      nama: krit?.nama || '',
+      nilai: n.nilai,
+    };
+  });
+  const normalisasiSnap = currentResult.detailNormalisasi;
+  const pembandingSnap = {
+    statistik: medianResult.statistik,
+    alasan: medianResult.alasanKeyakinan.alasan,
+    items: selectedPembanding.map((p) => ({
+      id: p.id,
+      judul: p.judul,
+      sumber: p.sumber,
+      harga: toNumber(p.harga),
+      jenisSumber: p.jenisSumber,
+      statusKecocokan: p.statusKecocokan,
+      isOutlier: p.isOutlier,
+    })),
+  };
+
   await prisma.$transaction(async (tx) => {
-    await tx.hasil.deleteMany({ where: { asetId: { in: affectedIds } } });
-    await tx.hasil.createMany({
-      data: hasilSAW.ranking.map((item) => ({
-        asetId: item.id,
-        nilaiPreferensi: item.nilaiPreferensi,
-        nilaiLimit: item.nilaiLimit,
-      })),
+    // Hapus hasil lama untuk aset ini
+    await tx.hasil.deleteMany({ where: { asetId: parsedAsetId } });
+
+    // Simpan hasil baru dengan metadata P0 & P1 & snapshot lengkap
+    await tx.hasil.create({
+      data: {
+        asetId: parsedAsetId,
+        nilaiPreferensi: currentResult.nilaiPreferensi,
+        hargaReferensiPasar: hargaReferensi,
+        nilaiLimit,
+        bobotVersionId: activeVersion.id,
+        metodeNormalisasi: 'FIXED_SCALE_1_5',
+        versiFormula: 'LIMIT_V2',
+        bobotSnapshot: bobotSnap,
+        nilaiSnapshot: nilaiSnap,
+        normalisasiSnapshot: normalisasiSnap,
+        pembandingSnapshot: pembandingSnap,
+        tingkatKeyakinan: medianResult.tingkatKeyakinan,
+        skorKeyakinan: medianResult.skorKeyakinan,
+        alasanKeyakinan: medianResult.alasanKeyakinan,
+        jumlahPembandingValid: medianResult.statistik.jumlahHargaValid,
+        jumlahScrapedReal: medianResult.statistik.jumlahScrapedReal,
+        jumlahManual: medianResult.statistik.jumlahManual,
+        jumlahDomainUnik: medianResult.statistik.jumlahDomainUnik,
+        calculatedAt: new Date(),
+      },
     });
 
-    await Promise.all(
-      hasilSAW.ranking.map((item) =>
-        tx.aset.update({
-          where: { id: item.id },
-          data: { limitValue: item.nilaiLimit },
-        })
-      )
-    );
-
+    // Update harga referensi & limitValue di model Aset
     const updatedAset = await tx.aset.update({
       where: { id: aset.id },
       data: {
+        hargaPasar: hargaReferensi,
+        limitValue: nilaiLimit,
         statusPenilaian: 'MENUNGGU_VERIFIKASI',
         catatanPenilaian: null,
         penilaianSubmittedAt: new Date(),
@@ -254,16 +331,28 @@ export const buildPenilaianDetail = async ({ asetId, actor, requireOwner = false
   if (!aset) throw httpError(404, 'Aset tidak ditemukan');
   if (requireOwner) assertSellerOwnsAset(aset, actor.userId);
 
-  const kriteriaWithBobot = getKriteriaWithBobot(aset.kategori.kriteria);
+  // P1: Dapatkan versi bobot AHP yang aktif untuk kategori ini
+  const activeVersion = await getActiveWeightVersion(aset.kategoriId);
+  const kriteriaWithBobot = activeVersion
+    ? activeVersion.bobotAhp.map((b) => ({
+        id: b.kriteriaId,
+        nama: b.kriteria.nama,
+        tipe: b.kriteria.tipe,
+        bobot: toNumber(b.bobot),
+      }))
+    : [];
+
   const nilaiByKriteria = new Map(aset.nilaiAset.map((item) => [item.kriteriaId, item]));
   let currentResult = null;
 
   try {
-    const kriteriaIds = aset.kategori.kriteria.map((item) => item.id);
-    const completeAsets = await fetchCompleteAsetsForSAW(aset.kategoriId, kriteriaIds);
-    if (completeAsets.some((item) => item.id === aset.id)) {
-      const hasilSAW = hitungSAW(completeAsets, kriteriaWithBobot);
-      currentResult = hasilSAW.ranking.find((item) => item.id === aset.id) || null;
+    if (kriteriaWithBobot.length > 0) {
+      const kriteriaIds = kriteriaWithBobot.map((item) => item.id);
+      const completeAsets = await fetchCompleteAsetsForSAW(aset.kategoriId, kriteriaIds);
+      if (completeAsets.some((item) => item.id === aset.id)) {
+        const hasilSAW = hitungSAW(completeAsets, kriteriaWithBobot);
+        currentResult = hasilSAW.ranking.find((item) => item.id === aset.id) || null;
+      }
     }
   } catch {
     currentResult = null;
@@ -297,12 +386,14 @@ export const buildPenilaianDetail = async ({ asetId, actor, requireOwner = false
     },
     kriteria: aset.kategori.kriteria.map((kriteria) => {
       const nilai = nilaiByKriteria.get(kriteria.id);
+      const activeBobotObj = activeVersion?.bobotAhp.find((b) => b.kriteriaId === kriteria.id);
       return {
         id: kriteria.id,
         nama: kriteria.nama,
         tipe: kriteria.tipe,
-        bobot: kriteria.bobotAhp?.[0] ? toNumber(kriteria.bobotAhp[0].bobot) : null,
+        bobot: activeBobotObj ? toNumber(activeBobotObj.bobot) : null,
         nilai: nilai ? toNumber(nilai.nilai) : null,
+        rubrik: kriteria.rubrik || [],
       };
     }),
     hasil: aset.hasil[0]
@@ -310,6 +401,12 @@ export const buildPenilaianDetail = async ({ asetId, actor, requireOwner = false
           id: aset.hasil[0].id,
           nilaiPreferensi: toNumber(aset.hasil[0].nilaiPreferensi),
           nilaiLimit: toNumber(aset.hasil[0].nilaiLimit),
+          bobotVersionId: aset.hasil[0].bobotVersionId,
+          metodeNormalisasi: aset.hasil[0].metodeNormalisasi,
+          versiFormula: aset.hasil[0].versiFormula,
+          tingkatKeyakinan: aset.hasil[0].tingkatKeyakinan,
+          skorKeyakinan: aset.hasil[0].skorKeyakinan ? toNumber(aset.hasil[0].skorKeyakinan) : null,
+          alasanKeyakinan: aset.hasil[0].alasanKeyakinan,
           createdAt: aset.hasil[0].createdAt,
         }
       : null,

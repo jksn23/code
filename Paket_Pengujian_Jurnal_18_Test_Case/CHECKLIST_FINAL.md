@@ -1,0 +1,23 @@
+# Checklist Final
+
+- [ ] TC-01 lengkap
+- [ ] TC-02 lengkap
+- [ ] TC-03 lengkap
+- [ ] TC-04 lengkap
+- [ ] TC-05 lengkap
+- [ ] TC-06 lengkap
+- [ ] TC-07 lengkap
+- [ ] TC-08 lengkap
+- [ ] TC-09 lengkap
+- [ ] TC-10 lengkap
+- [ ] TC-11 lengkap
+- [ ] TC-12 lengkap
+- [ ] TC-13 lengkap
+- [ ] TC-14 lengkap
+- [ ] TC-15 lengkap
+- [ ] TC-16 lengkap
+- [ ] TC-17 lengkap
+- [ ] TC-18 lengkap
+- [ ] Secret/data pribadi disamarkan
+- [ ] Semua FAIL memiliki defect
+- [ ] Retest dan regression tercatat

@@ -1,0 +1,3 @@
+{
+  "transaction": "Prisma.$transaction rollback test"
+}

@@ -1,0 +1,703 @@
+=== TABLE: nilai_aset ===
+[
+  {
+    "id": 149,
+    "asetId": 24,
+    "kriteriaId": 22,
+    "nilai": "8"
+  },
+  {
+    "id": 150,
+    "asetId": 24,
+    "kriteriaId": 23,
+    "nilai": "9"
+  },
+  {
+    "id": 151,
+    "asetId": 24,
+    "kriteriaId": 25,
+    "nilai": "10"
+  },
+  {
+    "id": 152,
+    "asetId": 24,
+    "kriteriaId": 24,
+    "nilai": "8"
+  },
+  {
+    "id": 153,
+    "asetId": 24,
+    "kriteriaId": 27,
+    "nilai": "9"
+  },
+  {
+    "id": 154,
+    "asetId": 24,
+    "kriteriaId": 26,
+    "nilai": "9"
+  },
+  {
+    "id": 155,
+    "asetId": 25,
+    "kriteriaId": 35,
+    "nilai": "8"
+  },
+  {
+    "id": 156,
+    "asetId": 25,
+    "kriteriaId": 38,
+    "nilai": "7"
+  },
+  {
+    "id": 157,
+    "asetId": 25,
+    "kriteriaId": 37,
+    "nilai": "3"
+  },
+  {
+    "id": 158,
+    "asetId": 25,
+    "kriteriaId": 34,
+    "nilai": "9"
+  },
+  {
+    "id": 159,
+    "asetId": 25,
+    "kriteriaId": 39,
+    "nilai": "8"
+  },
+  {
+    "id": 160,
+    "asetId": 25,
+    "kriteriaId": 36,
+    "nilai": "8"
+  },
+  {
+    "id": 179,
+    "asetId": 12,
+    "kriteriaId": 34,
+    "nilai": "9"
+  },
+  {
+    "id": 180,
+    "asetId": 12,
+    "kriteriaId": 36,
+    "nilai": "6"
+  },
+  {
+    "id": 181,
+    "asetId": 12,
+    "kriteriaId": 35,
+    "nilai": "7"
+  },
+  {
+    "id": 182,
+    "asetId": 12,
+    "kriteriaId": 38,
+    "nilai": "9"
+  },
+  {
+    "id": 183,
+    "asetId": 12,
+    "kriteriaId": 37,
+    "nilai": "3"
+  },
+  {
+    "id": 184,
+    "asetId": 12,
+    "kriteriaId": 39,
+    "nilai": "7"
+  },
+  {
+    "id": 185,
+    "asetId": 15,
+    "kriteriaId": 34,
+    "nilai": "9"
+  },
+  {
+    "id": 186,
+    "asetId": 15,
+    "kriteriaId": 39,
+    "nilai": "7"
+  },
+  {
+    "id": 187,
+    "asetId": 15,
+    "kriteriaId": 36,
+    "nilai": "8"
+  },
+  {
+    "id": 188,
+    "asetId": 15,
+    "kriteriaId": 38,
+    "nilai": "9"
+  },
+  {
+    "id": 189,
+    "asetId": 15,
+    "kriteriaId": 37,
+    "nilai": "5"
+  },
+  {
+    "id": 190,
+    "asetId": 15,
+    "kriteriaId": 35,
+    "nilai": "8"
+  },
+  {
+    "id": 191,
+    "asetId": 18,
+    "kriteriaId": 34,
+    "nilai": "8"
+  },
+  {
+    "id": 192,
+    "asetId": 18,
+    "kriteriaId": 38,
+    "nilai": "7"
+  },
+  {
+    "id": 193,
+    "asetId": 18,
+    "kriteriaId": 36,
+    "nilai": "10"
+  },
+  {
+    "id": 194,
+    "asetId": 18,
+    "kriteriaId": 37,
+    "nilai": "5"
+  },
+  {
+    "id": 195,
+    "asetId": 18,
+    "kriteriaId": 39,
+    "nilai": "7"
+  },
+  {
+    "id": 196,
+    "asetId": 18,
+    "kriteriaId": 35,
+    "nilai": "9"
+  },
+  {
+    "id": 197,
+    "asetId": 28,
+    "kriteriaId": 34,
+    "nilai": "9"
+  },
+  {
+    "id": 198,
+    "asetId": 28,
+    "kriteriaId": 37,
+    "nilai": "3"
+  },
+  {
+    "id": 199,
+    "asetId": 28,
+    "kriteriaId": 38,
+    "nilai": "8"
+  },
+  {
+    "id": 200,
+    "asetId": 28,
+    "kriteriaId": 36,
+    "nilai": "8"
+  },
+  {
+    "id": 201,
+    "asetId": 28,
+    "kriteriaId": 35,
+    "nilai": "9"
+  },
+  {
+    "id": 202,
+    "asetId": 28,
+    "kriteriaId": 39,
+    "nilai": "8"
+  },
+  {
+    "id": 203,
+    "asetId": 29,
+    "kriteriaId": 22,
+    "nilai": "4"
+  },
+  {
+    "id": 204,
+    "asetId": 29,
+    "kriteriaId": 23,
+    "nilai": "5"
+  },
+  {
+    "id": 205,
+    "asetId": 29,
+    "kriteriaId": 40,
+    "nilai": "3"
+  },
+  {
+    "id": 206,
+    "asetId": 29,
+    "kriteriaId": 24,
+    "nilai": "4"
+  },
+  {
+    "id": 207,
+    "asetId": 29,
+    "kriteriaId": 25,
+    "nilai": "4"
+  },
+  {
+    "id": 208,
+    "asetId": 29,
+    "kriteriaId": 26,
+    "nilai": "2"
+  },
+  {
+    "id": 209,
+    "asetId": 29,
+    "kriteriaId": 27,
+    "nilai": "3"
+  },
+  {
+    "id": 210,
+    "asetId": 30,
+    "kriteriaId": 22,
+    "nilai": "5"
+  },
+  {
+    "id": 211,
+    "asetId": 30,
+    "kriteriaId": 23,
+    "nilai": "5"
+  },
+  {
+    "id": 212,
+    "asetId": 30,
+    "kriteriaId": 40,
+    "nilai": "4"
+  },
+  {
+    "id": 213,
+    "asetId": 30,
+    "kriteriaId": 24,
+    "nilai": "4"
+  },
+  {
+    "id": 214,
+    "asetId": 30,
+    "kriteriaId": 25,
+    "nilai": "5"
+  },
+  {
+    "id": 215,
+    "asetId": 30,
+    "kriteriaId": 26,
+    "nilai": "2"
+  },
+  {
+    "id": 216,
+    "asetId": 30,
+    "kriteriaId": 27,
+    "nilai": "4"
+  },
+  {
+    "id": 217,
+    "asetId": 31,
+    "kriteriaId": 22,
+    "nilai": "3"
+  },
+  {
+    "id": 218,
+    "asetId": 31,
+    "kriteriaId": 23,
+    "nilai": "4"
+  },
+  {
+    "id": 219,
+    "asetId": 31,
+    "kriteriaId": 40,
+    "nilai": "4"
+  },
+  {
+    "id": 220,
+    "asetId": 31,
+    "kriteriaId": 24,
+    "nilai": "3"
+  },
+  {
+    "id": 221,
+    "asetId": 31,
+    "kriteriaId": 25,
+    "nilai": "3"
+  },
+  {
+    "id": 222,
+    "asetId": 31,
+    "kriteriaId": 26,
+    "nilai": "3"
+  },
+  {
+    "id": 223,
+    "asetId": 31,
+    "kriteriaId": 27,
+    "nilai": "5"
+  },
+  {
+    "id": 224,
+    "asetId": 32,
+    "kriteriaId": 28,
+    "nilai": "4"
+  },
+  {
+    "id": 225,
+    "asetId": 32,
+    "kriteriaId": 41,
+    "nilai": "4"
+  },
+  {
+    "id": 226,
+    "asetId": 32,
+    "kriteriaId": 29,
+    "nilai": "3"
+  },
+  {
+    "id": 227,
+    "asetId": 32,
+    "kriteriaId": 30,
+    "nilai": "4"
+  },
+  {
+    "id": 228,
+    "asetId": 32,
+    "kriteriaId": 31,
+    "nilai": "4"
+  },
+  {
+    "id": 229,
+    "asetId": 32,
+    "kriteriaId": 32,
+    "nilai": "5"
+  },
+  {
+    "id": 230,
+    "asetId": 32,
+    "kriteriaId": 33,
+    "nilai": "4"
+  },
+  {
+    "id": 231,
+    "asetId": 33,
+    "kriteriaId": 28,
+    "nilai": "4"
+  },
+  {
+    "id": 232,
+    "asetId": 33,
+    "kriteriaId": 41,
+    "nilai": "4"
+  },
+  {
+    "id": 233,
+    "asetId": 33,
+    "kriteriaId": 29,
+    "nilai": "2"
+  },
+  {
+    "id": 234,
+    "asetId": 33,
+    "kriteriaId": 30,
+    "nilai": "5"
+  },
+  {
+    "id": 235,
+    "asetId": 33,
+    "kriteriaId": 31,
+    "nilai": "4"
+  },
+  {
+    "id": 236,
+    "asetId": 33,
+    "kriteriaId": 32,
+    "nilai": "4"
+  },
+  {
+    "id": 237,
+    "asetId": 33,
+    "kriteriaId": 33,
+    "nilai": "4"
+  },
+  {
+    "id": 238,
+    "asetId": 34,
+    "kriteriaId": 28,
+    "nilai": "4"
+  },
+  {
+    "id": 239,
+    "asetId": 34,
+    "kriteriaId": 41,
+    "nilai": "5"
+  },
+  {
+    "id": 240,
+    "asetId": 34,
+    "kriteriaId": 29,
+    "nilai": "4"
+  },
+  {
+    "id": 241,
+    "asetId": 34,
+    "kriteriaId": 30,
+    "nilai": "3"
+  },
+  {
+    "id": 242,
+    "asetId": 34,
+    "kriteriaId": 31,
+    "nilai": "3"
+  },
+  {
+    "id": 243,
+    "asetId": 34,
+    "kriteriaId": 32,
+    "nilai": "5"
+  },
+  {
+    "id": 244,
+    "asetId": 34,
+    "kriteriaId": 33,
+    "nilai": "4"
+  },
+  {
+    "id": 245,
+    "asetId": 35,
+    "kriteriaId": 34,
+    "nilai": "4"
+  },
+  {
+    "id": 246,
+    "asetId": 35,
+    "kriteriaId": 35,
+    "nilai": "4"
+  },
+  {
+    "id": 247,
+    "asetId": 35,
+    "kriteriaId": 36,
+    "nilai": "4"
+  },
+  {
+    "id": 248,
+    "asetId": 35,
+    "kriteriaId": 37,
+    "nilai": "3"
+  },
+  {
+    "id": 249,
+    "asetId": 35,
+    "kriteriaId": 38,
+    "nilai": "5"
+  },
+  {
+    "id": 250,
+    "asetId": 35,
+    "kriteriaId": 39,
+    "nilai": "4"
+  },
+  {
+    "id": 251,
+    "asetId": 36,
+    "kriteriaId": 34,
+    "nilai": "4"
+  },
+  {
+    "id": 252,
+    "asetId": 36,
+    "kriteriaId": 35,
+    "nilai": "4"
+  },
+  {
+    "id": 253,
+    "asetId": 36,
+    "kriteriaId": 36,
+    "nilai": "4"
+  },
+  {
+    "id": 254,
+    "asetId": 36,
+    "kriteriaId": 37,
+    "nilai": "3"
+  },
+  {
+    "id": 255,
+    "asetId": 36,
+    "kriteriaId": 38,
+    "nilai": "5"
+  },
+  {
+    "id": 256,
+    "asetId": 36,
+    "kriteriaId": 39,
+    "nilai": "3"
+  },
+  {
+    "id": 257,
+    "asetId": 37,
+    "kriteriaId": 34,
+    "nilai": "3"
+  },
+  {
+    "id": 258,
+    "asetId": 37,
+    "kriteriaId": 35,
+    "nilai": "3"
+  },
+  {
+    "id": 259,
+    "asetId": 37,
+    "kriteriaId": 36,
+    "nilai": "4"
+  },
+  {
+    "id": 260,
+    "asetId": 37,
+    "kriteriaId": 37,
+    "nilai": "4"
+  },
+  {
+    "id": 261,
+    "asetId": 37,
+    "kriteriaId": 38,
+    "nilai": "4"
+  },
+  {
+    "id": 262,
+    "asetId": 37,
+    "kriteriaId": 39,
+    "nilai": "4"
+  },
+  {
+    "id": 267,
+    "asetId": 42,
+    "kriteriaId": 28,
+    "nilai": "2"
+  },
+  {
+    "id": 268,
+    "asetId": 42,
+    "kriteriaId": 29,
+    "nilai": "4"
+  },
+  {
+    "id": 269,
+    "asetId": 42,
+    "kriteriaId": 30,
+    "nilai": "3"
+  },
+  {
+    "id": 270,
+    "asetId": 42,
+    "kriteriaId": 31,
+    "nilai": "5"
+  },
+  {
+    "id": 271,
+    "asetId": 42,
+    "kriteriaId": 32,
+    "nilai": "4"
+  },
+  {
+    "id": 272,
+    "asetId": 42,
+    "kriteriaId": 33,
+    "nilai": "3"
+  },
+  {
+    "id": 273,
+    "asetId": 42,
+    "kriteriaId": 41,
+    "nilai": "3"
+  },
+  {
+    "id": 274,
+    "asetId": 45,
+    "kriteriaId": 28,
+    "nilai": "2"
+  },
+  {
+    "id": 275,
+    "asetId": 45,
+    "kriteriaId": 29,
+    "nilai": "4"
+  },
+  {
+    "id": 276,
+    "asetId": 45,
+    "kriteriaId": 30,
+    "nilai": "1"
+  },
+  {
+    "id": 277,
+    "asetId": 45,
+    "kriteriaId": 31,
+    "nilai": "3"
+  },
+  {
+    "id": 278,
+    "asetId": 45,
+    "kriteriaId": 32,
+    "nilai": "3"
+  },
+  {
+    "id": 279,
+    "asetId": 45,
+    "kriteriaId": 33,
+    "nilai": "2"
+  },
+  {
+    "id": 280,
+    "asetId": 45,
+    "kriteriaId": 41,
+    "nilai": "3"
+  }
+]
+
+=== TABLE: hasil ===
+[
+  {
+    "id": 119,
+    "nilaiPreferensi": "0.50289",
+    "nilaiLimit": "2263005",
+    "tingkatKeyakinan": null,
+    "bobotVersionId": null
+  },
+  {
+    "id": 118,
+    "nilaiPreferensi": "0.629017",
+    "nilaiLimit": "7233696.65",
+    "tingkatKeyakinan": null,
+    "bobotVersionId": null
+  },
+  {
+    "id": 117,
+    "nilaiPreferensi": "0.839896",
+    "nilaiLimit": "150341348.2",
+    "tingkatKeyakinan": null,
+    "bobotVersionId": null
+  },
+  {
+    "id": 116,
+    "nilaiPreferensi": "0.876212",
+    "nilaiLimit": "131431840",
+    "tingkatKeyakinan": null,
+    "bobotVersionId": null
+  },
+  {
+    "id": 115,
+    "nilaiPreferensi": "0.928647",
+    "nilaiLimit": "11979548.88",
+    "tingkatKeyakinan": null,
+    "bobotVersionId": null
+  }
+]
+

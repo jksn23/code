@@ -1,0 +1,157 @@
+{
+  "success": true,
+  "message": "Perhitungan SAW berhasil. Hasil menunggu verifikasi admin.",
+  "data": {
+    "aset": {
+      "id": 66,
+      "nama": "Aset Tunggal Jurnal",
+      "deskripsi": null,
+      "hargaPasar": 50000000,
+      "limitValue": 30000000,
+      "statusLelang": "DRAFT",
+      "statusPenilaian": "MENUNGGU_VERIFIKASI",
+      "catatanPenilaian": null,
+      "penilaianSubmittedAt": "2026-07-14T16:43:37.222Z",
+      "penilaianReviewedAt": null,
+      "penjual": {
+        "id": 1,
+        "userId": 3,
+        "ktpUrl": "uploads/penjual/1780379370590-418590622.jpg",
+        "npwpUrl": "uploads/penjual/1780379370596-837500435.jpg",
+        "rekeningBank": "BVA",
+        "nomorRekening": "123123123",
+        "isVerified": true,
+        "verificationStatus": "APPROVED",
+        "verificationNote": "Dokumen penjual telah diverifikasi dan disetujui admin.",
+        "verifiedAt": "2026-06-02T05:50:11.549Z",
+        "verifiedBy": 1,
+        "createdAt": "2026-06-02T05:49:30.760Z",
+        "updatedAt": "2026-06-02T05:50:11.551Z",
+        "user": {
+          "id": 3,
+          "nama": "penjual1",
+          "email": "penjual1@mail.com"
+        }
+      },
+      "kategori": {
+        "id": 19,
+        "nama": "Kategori Single Alternatif"
+      },
+      "assetProperty": null,
+      "assetVehicle": null,
+      "assetElectronic": null
+    },
+    "kriteria": [
+      {
+        "id": 65,
+        "nama": "Kriteria Benefit Single",
+        "tipe": "benefit",
+        "bobot": 1,
+        "nilai": 3,
+        "rubrik": []
+      }
+    ],
+    "hasil": {
+      "id": 139,
+      "nilaiPreferensi": 0.6,
+      "nilaiLimit": 30000000,
+      "bobotVersionId": 32,
+      "metodeNormalisasi": "FIXED_SCALE_1_5",
+      "versiFormula": "LIMIT_V2",
+      "tingkatKeyakinan": "RENDAH",
+      "skorKeyakinan": 40,
+      "alasanKeyakinan": {
+        "alasan": [
+          "Domain unik kurang (0 < 2) — berisiko konfirmasi bias"
+        ],
+        "statistik": {
+          "cv": 0.02,
+          "domains": [],
+          "hargaMean": 50000000,
+          "hargaMedian": 50000000,
+          "hargaStdDev": 1000000,
+          "jumlahTotal": 3,
+          "jumlahManual": 0,
+          "jumlahOutlier": 0,
+          "jumlahDomainUnik": 0,
+          "jumlahHargaValid": 3,
+          "jumlahScrapedReal": 3
+        }
+      },
+      "createdAt": "2026-07-14T16:43:37.230Z"
+    },
+    "detailNormalisasi": [
+      {
+        "kriteriaId": 65,
+        "namaKriteria": "Kriteria Benefit Single",
+        "tipe": "benefit",
+        "nilaiAsli": 3,
+        "nilaiNorm": 0.6,
+        "bobot": 1,
+        "kontribusi": 0.6
+      }
+    ],
+    "currentResult": {
+      "id": 66,
+      "nama": "Aset Tunggal Jurnal",
+      "hargaPasar": 50000000,
+      "nilaiPreferensi": 0.6,
+      "nilaiLimit": 30000000,
+      "detailNormalisasi": [
+        {
+          "kriteriaId": 65,
+          "namaKriteria": "Kriteria Benefit Single",
+          "tipe": "benefit",
+          "nilaiAsli": 3,
+          "nilaiNorm": 0.6,
+          "bobot": 1,
+          "kontribusi": 0.6
+        }
+      ],
+      "ranking": 1
+    },
+    "auditLog": [],
+    "hasilSAW": {
+      "metodeNormalisasi": "FIXED_SCALE_1_5",
+      "versiFormula": "LIMIT_V2",
+      "skalaMin": 1,
+      "skalaMax": 5,
+      "jumlahAset": 1,
+      "jumlahKriteria": 1,
+      "totalBobot": 1,
+      "detailKriteria": [
+        {
+          "id": 65,
+          "nama": "Kriteria Benefit Single",
+          "tipe": "benefit",
+          "bobot": 1,
+          "skalaMin": 1,
+          "skalaMax": 5,
+          "normMin": 0.2,
+          "normMax": 1
+        }
+      ],
+      "ranking": [
+        {
+          "id": 66,
+          "nama": "Aset Tunggal Jurnal",
+          "hargaPasar": 50000000,
+          "nilaiPreferensi": 0.6,
+          "nilaiLimit": 30000000,
+          "detailNormalisasi": [
+            {
+              "kriteriaId": 65,
+              "namaKriteria": "Kriteria Benefit Single",
+              "tipe": "benefit",
+              "nilaiAsli": 3,
+              "nilaiNorm": 0.6,
+              "bobot": 1,
+              "kontribusi": 0.6
+            }
+          ],
+          "ranking": 1
+        }
+      ]
+    }
+  }
+}
