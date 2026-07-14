@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": {
+    "assetId": 135,
+    "categoryId": 2,
+    "assetName": "Toyota Avanza 2019",
+    "criteriaCount": 7,
+    "comparableCount": 5,
+    "median": 150000000,
+    "preference": null,
+    "nilaiLimit": null,
+    "tingkatKeyakinan": "TINGGI",
+    "finalStatus": "PASS",
+    "executionTime": "2026-07-14T19:44:14.346Z"
+  }
+}

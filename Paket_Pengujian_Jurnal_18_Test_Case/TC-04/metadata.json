@@ -1,7 +1,7 @@
 {
   "testCaseId": "TC-04",
   "title": "Nilai di luar rentang 1–5",
-  "executedAt": "2026-07-14T16:43:36.421Z",
+  "executedAt": "2026-07-14T18:02:26.785Z",
   "tester": "Antigravity SPK Tester",
   "environment": "local-test",
   "os": "Windows 11",
@@ -12,7 +12,7 @@
   "commitHash": "latest",
   "buildNumber": "1",
   "baseUrlFrontend": "http://localhost:5173",
-  "baseUrlBackend": "http://localhost:5001",
+  "baseUrlBackend": "http://localhost:5000",
   "result": "PASS",
   "defectId": null
 }

@@ -22,15 +22,20 @@
  *   - Fishburn (1967) — original SAW formulation
  * ─────────────────────────────────────────────────────────────────────────────
  */
-
-'use strict';
+import logger from '../utils/logger.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-
 export const METODE_NORMALISASI = 'FIXED_SCALE_1_5';
 export const SKALA_MIN = 1;
 export const SKALA_MAX = 5;
 export const VERSI_FORMULA = 'LIMIT_V2';
+
+export function clampPreference(value) {
+  if (!Number.isFinite(value)) {
+    throw new Error('Preference must be finite.');
+  }
+  return Math.min(1, Math.max(0, value));
+}
 
 // ── Normalisasi ────────────────────────────────────────────────────────────────
 
@@ -115,22 +120,45 @@ export function hitungSAW(asetList, kriteria) {
     });
 
     // Step 2: Vi = Σ (Wj × Rij)
-    const nilaiPreferensi = detailNormalisasi.reduce((s, d) => s + d.kontribusi, 0);
+    const rawPreference = detailNormalisasi.reduce((s, d) => s + d.kontribusi, 0);
+    const safePreference = clampPreference(rawPreference);
+    logger.info(`[SPK] SAW calculation for aset="${aset.nama}" (ID:${aset.id}): rawPreference=${rawPreference.toFixed(16)}, safePreference=${safePreference.toFixed(6)}`);
 
     return {
       id: aset.id,
       nama: aset.nama,
       hargaPasar: parseFloat(aset.hargaPasar),
-      nilaiPreferensi: parseFloat(nilaiPreferensi.toFixed(6)),
-      nilaiLimit: parseFloat((nilaiPreferensi * parseFloat(aset.hargaPasar)).toFixed(2)),
+      nilaiPreferensi: safePreference,
+      rawPreference: rawPreference,
+      safePreference: safePreference,
+      nilaiLimit: safePreference * parseFloat(aset.hargaPasar),
       detailNormalisasi,
+      hasil: aset.hasil || [],
     };
   });
 
-  // Ranking berdasarkan nilai preferensi (descending)
-  hasilSAW.sort((a, b) => b.nilaiPreferensi - a.nilaiPreferensi);
+  // Ranking berdasarkan nilai preferensi (descending) dengan tie-breaker
+  const confidenceOrder = { TINGGI: 4, SEDANG: 3, RENDAH: 2, TIDAK_CUKUP: 1 };
+  hasilSAW.sort((a, b) => {
+    if (Math.abs(b.nilaiPreferensi - a.nilaiPreferensi) > 1e-12) {
+      return b.nilaiPreferensi - a.nilaiPreferensi;
+    }
+    const aConfStr = a.hasil?.[0]?.tingkatKeyakinan || 'TIDAK_CUKUP';
+    const bConfStr = b.hasil?.[0]?.tingkatKeyakinan || 'TIDAK_CUKUP';
+    const aConf = confidenceOrder[aConfStr] || 0;
+    const bConf = confidenceOrder[bConfStr] || 0;
+    if (bConf !== aConf) {
+      return bConf - aConf;
+    }
+    if (Math.abs(b.nilaiLimit - a.nilaiLimit) > 1e-2) {
+      return b.nilaiLimit - a.nilaiLimit;
+    }
+    return a.id - b.id;
+  });
+
   hasilSAW.forEach((item, index) => {
     item.ranking = index + 1;
+    delete item.hasil;
   });
 
   // Metadata metode untuk audit / snapshot

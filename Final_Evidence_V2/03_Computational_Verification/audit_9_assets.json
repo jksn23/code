@@ -1,0 +1,155 @@
+[
+  {
+    "id": 132,
+    "nama": "Rumah Tipe 45/90",
+    "kategori": "Tanah dan Bangunan",
+    "median": 690000000,
+    "preferensi": {
+      "system": 0.8078199999999999,
+      "raw": 0.8078199999999999
+    },
+    "nilaiLimit": {
+      "system": 557395799.9999999
+    },
+    "tingkatKeyakinan": "TINGGI",
+    "medianMatch": true,
+    "medianDiff": 0,
+    "status": "PASS"
+  },
+  {
+    "id": 133,
+    "nama": "Ruko 2 Lantai",
+    "kategori": "Tanah dan Bangunan",
+    "median": 1800000000,
+    "preferensi": {
+      "system": 0.9209530000000001,
+      "raw": 0.9209530000000001
+    },
+    "nilaiLimit": {
+      "system": 1657715400.0000002
+    },
+    "tingkatKeyakinan": "RENDAH",
+    "medianMatch": true,
+    "medianDiff": 0,
+    "status": "PASS"
+  },
+  {
+    "id": 134,
+    "nama": "Tanah Kavling",
+    "kategori": "Tanah dan Bangunan",
+    "median": 250000000,
+    "preferensi": {
+      "system": 0.7026509999999999,
+      "raw": 0.7026509999999999
+    },
+    "nilaiLimit": {
+      "system": 175662749.99999997
+    },
+    "tingkatKeyakinan": "RENDAH",
+    "medianMatch": true,
+    "medianDiff": 0,
+    "status": "PASS"
+  },
+  {
+    "id": 135,
+    "nama": "Toyota Avanza 2019",
+    "kategori": "Kendaraan",
+    "median": 150000000,
+    "preferensi": {
+      "system": 0.7886159999999999,
+      "raw": 0.7886159999999999
+    },
+    "nilaiLimit": {
+      "system": 118292399.99999999
+    },
+    "tingkatKeyakinan": "SEDANG",
+    "medianMatch": true,
+    "medianDiff": 0,
+    "status": "PASS"
+  },
+  {
+    "id": 136,
+    "nama": "Honda Beat 2021",
+    "kategori": "Kendaraan",
+    "median": 12900000,
+    "preferensi": {
+      "system": 0.821865,
+      "raw": 0.821865
+    },
+    "nilaiLimit": {
+      "system": 10602058.5
+    },
+    "tingkatKeyakinan": "RENDAH",
+    "medianMatch": true,
+    "medianDiff": 0,
+    "status": "PASS"
+  },
+  {
+    "id": 137,
+    "nama": "Mitsubishi Xpander 2018",
+    "kategori": "Kendaraan",
+    "median": 179000000,
+    "preferensi": {
+      "system": 0.7474909999999999,
+      "raw": 0.7474909999999999
+    },
+    "nilaiLimit": {
+      "system": 133800888.99999999
+    },
+    "tingkatKeyakinan": "RENDAH",
+    "medianMatch": true,
+    "medianDiff": 0,
+    "status": "PASS"
+  },
+  {
+    "id": 138,
+    "nama": "Laptop Lenovo ThinkPad 2021",
+    "kategori": "Elektronik",
+    "median": 5850000,
+    "preferensi": {
+      "system": 0.999999,
+      "raw": 0.999999
+    },
+    "nilaiLimit": {
+      "system": 5849994.149999999
+    },
+    "tingkatKeyakinan": "SEDANG",
+    "medianMatch": true,
+    "medianDiff": 0,
+    "status": "PASS"
+  },
+  {
+    "id": 139,
+    "nama": "iPhone 12 128GB",
+    "kategori": "Elektronik",
+    "median": 5800000,
+    "preferensi": {
+      "system": 0.7760340000000001,
+      "raw": 0.7760340000000001
+    },
+    "nilaiLimit": {
+      "system": 4500997.200000001
+    },
+    "tingkatKeyakinan": "RENDAH",
+    "medianMatch": true,
+    "medianDiff": 0,
+    "status": "PASS"
+  },
+  {
+    "id": 140,
+    "nama": "Kamera Canon EOS 700D",
+    "kategori": "Elektronik",
+    "median": 3300000,
+    "preferensi": {
+      "system": 0.651645,
+      "raw": 0.651645
+    },
+    "nilaiLimit": {
+      "system": 2150428.5
+    },
+    "tingkatKeyakinan": "RENDAH",
+    "medianMatch": true,
+    "medianDiff": 0,
+    "status": "PASS"
+  }
+]

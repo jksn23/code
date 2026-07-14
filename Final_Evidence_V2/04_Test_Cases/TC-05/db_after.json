@@ -1,0 +1,22 @@
+=== TABLE: bobot_version ===
+[
+  {
+    "id": 37,
+    "namaVersi": "Group AHP Final",
+    "cr": "0.006928",
+    "aktif": true
+  },
+  {
+    "id": 38,
+    "namaVersi": "Group AHP Final",
+    "cr": "0.004385",
+    "aktif": true
+  },
+  {
+    "id": 39,
+    "namaVersi": "Group AHP Final",
+    "cr": "0.008734",
+    "aktif": true
+  }
+]
+

@@ -1,0 +1,21 @@
+Kategori,KodeKriteria,NamaKriteria,Tipe,Bobot
+"Tanah dan Bangunan",TB01,"Lokasi dan Aksesibilitas",benefit,0.2862560160088761
+"Tanah dan Bangunan",TB02,"Legalitas",benefit,0.24535148091488654
+"Tanah dan Bangunan",TB03,"Luas",benefit,0.14458768898311014
+"Tanah dan Bangunan",TB04,"Kondisi Fisik",benefit,0.11500394340022892
+"Tanah dan Bangunan",TB05,"Fasilitas Sekitar",benefit,0.07316257931629618
+"Tanah dan Bangunan",TB06,"Lingkungan dan Risiko",cost,0.07397931346009305
+"Tanah dan Bangunan",TB07,"Potensi Pengembangan",benefit,0.06165897791650902
+"Kendaraan",KD01,"Kondisi Mesin",benefit,0.3076286870056807
+"Kendaraan",KD02,"Performa",benefit,0.1586627464375286
+"Kendaraan",KD03,"Kilometer",cost,0.143978436287629
+"Kendaraan",KD04,"Tahun Produksi",benefit,0.10932873502166897
+"Kendaraan",KD05,"Riwayat Kendaraan",benefit,0.11097963247011565
+"Kendaraan",KD06,"Merek atau Model",benefit,0.08706043227461673
+"Kendaraan",KD07,"Kondisi Fisik",benefit,0.08236133050276032
+"Elektronik",EL01,"Kondisi Barang",benefit,0.24635309519746307
+"Elektronik",EL02,"Spesifikasi Teknis",benefit,0.23325227440250682
+"Elektronik",EL03,"Performa atau Fungsi",benefit,0.22051343914506435
+"Elektronik",EL04,"Usia Pemakaian",cost,0.1310817793824983
+"Elektronik",EL05,"Merek",benefit,0.09002943032836402
+"Elektronik",EL06,"Kelengkapan",benefit,0.07876998154410354

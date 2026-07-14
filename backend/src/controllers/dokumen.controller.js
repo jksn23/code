@@ -64,7 +64,7 @@ export const uploadDocumentController = async (req, res) => {
     });
   } catch (error) {
     logger.error('[ADMS Controller] Upload Gagal', { error: error.message });
-    return res.status(400).json({ success: false, message: error.message });
+    return res.status(error.status || 400).json({ success: false, message: error.message });
   }
 };
 

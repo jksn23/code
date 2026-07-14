@@ -1,7 +1,7 @@
 {
   "testCaseId": "TC-16",
   "title": "Input XSS atau karakter berbahaya",
-  "executedAt": "2026-07-14T16:43:37.326Z",
+  "executedAt": "2026-07-14T18:02:27.538Z",
   "tester": "Antigravity SPK Tester",
   "environment": "local-test",
   "os": "Windows 11",
@@ -12,7 +12,7 @@
   "commitHash": "latest",
   "buildNumber": "1",
   "baseUrlFrontend": "http://localhost:5173",
-  "baseUrlBackend": "http://localhost:5001",
+  "baseUrlBackend": "http://localhost:5000",
   "result": "PASS",
   "defectId": null
 }

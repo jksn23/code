@@ -1,0 +1,11 @@
+{
+  "testCaseId": "TC-01",
+  "title": "Login password salah",
+  "expectedResult": "Login ditolak dengan HTTP 401",
+  "actualResult": "HTTP 401",
+  "validationType": "API_DATABASE",
+  "status": "PASS",
+  "executedAt": "2026-07-14T19:44:08.017Z",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943"
+}

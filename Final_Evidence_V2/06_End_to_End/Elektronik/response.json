@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": {
+    "assetId": 138,
+    "categoryId": 3,
+    "assetName": "Laptop Lenovo ThinkPad 2021",
+    "criteriaCount": 6,
+    "comparableCount": 5,
+    "median": 5850000,
+    "preference": null,
+    "nilaiLimit": null,
+    "tingkatKeyakinan": "TINGGI",
+    "finalStatus": "PASS",
+    "executionTime": "2026-07-14T19:44:14.370Z"
+  }
+}

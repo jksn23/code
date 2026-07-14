@@ -1,0 +1,21 @@
+{
+  "scenarioId": "AUCTION-CYCLE-INTEGRATED",
+  "executedAt": "2026-07-14T19:44:14.384Z",
+  "status": "PASS",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943",
+  "data": {
+    "assetId": 135,
+    "assetName": "Toyota Avanza 2019",
+    "auctionId": null,
+    "nilaiLimit": 150000000,
+    "hargaPembukaan": 120000000,
+    "jumlahBidder": 2,
+    "jumlahPenawaran": 4,
+    "highestBid": 155000000,
+    "winner": "[REDACTED_EMAIL]",
+    "waktuMulai": "2026-07-14T18:44:14.384Z",
+    "waktuSelesai": "2026-07-14T19:44:14.384Z",
+    "finalStatus": "SELESAI"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "scenarioId": "E2E-KENDARAAN",
+  "tester": "Antigravity SPK Tester",
+  "executedAt": "2026-07-14T19:44:14.346Z",
+  "status": "PASS",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943",
+  "data": {
+    "assetId": 135,
+    "categoryId": 2,
+    "assetName": "Toyota Avanza 2019",
+    "criteriaCount": 7,
+    "comparableCount": 5,
+    "median": 150000000,
+    "preference": null,
+    "nilaiLimit": null,
+    "tingkatKeyakinan": "TINGGI",
+    "finalStatus": "PASS",
+    "executionTime": "2026-07-14T19:44:14.346Z"
+  }
+}

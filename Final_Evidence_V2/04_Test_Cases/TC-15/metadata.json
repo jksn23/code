@@ -1,0 +1,11 @@
+{
+  "testCaseId": "TC-15",
+  "title": "Rollback transaksi database",
+  "expectedResult": "Rollback terjadi — DB before = DB after, tidak ada record tersimpan",
+  "actualResult": "HTTP 500 | DB unchanged=true",
+  "validationType": "API_DATABASE",
+  "status": "PASS",
+  "executedAt": "2026-07-14T19:44:09.001Z",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943"
+}

@@ -1,0 +1,11 @@
+{
+  "testCaseId": "TC-14",
+  "title": "Deteksi network offline / backend tidak tersedia",
+  "expectedResult": "Frontend memperlihatkan pesan error (503)",
+  "actualResult": "HTTP 503 - ECONNREFUSED",
+  "validationType": "API",
+  "status": "PASS",
+  "executedAt": "2026-07-14T19:44:08.932Z",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943"
+}

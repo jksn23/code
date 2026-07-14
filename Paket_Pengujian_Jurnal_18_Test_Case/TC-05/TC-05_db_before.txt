@@ -2,36 +2,21 @@
 [
   {
     "id": 1,
-    "namaVersi": "Seed Provisional 4",
-    "aktif": false
+    "namaVersi": "Seed Provisional 1",
+    "aktif": true
   },
   {
     "id": 2,
     "namaVersi": "Seed Provisional 2",
-    "aktif": false
+    "aktif": true
   },
   {
     "id": 3,
     "namaVersi": "Seed Provisional 3",
-    "aktif": false
-  },
-  {
-    "id": 8,
-    "namaVersi": "Final Group AHP (3 Pakar)",
     "aktif": true
   },
   {
-    "id": 9,
-    "namaVersi": "Final Group AHP (3 Pakar)",
-    "aktif": true
-  },
-  {
-    "id": 10,
-    "namaVersi": "Final Group AHP (3 Pakar)",
-    "aktif": true
-  },
-  {
-    "id": 30,
+    "id": 6,
     "namaVersi": "Versi Jurnal 1",
     "aktif": true
   }

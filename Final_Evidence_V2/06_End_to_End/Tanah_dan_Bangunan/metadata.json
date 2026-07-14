@@ -1,0 +1,21 @@
+{
+  "scenarioId": "E2E-TANAH_DAN_BANGUNAN",
+  "tester": "Antigravity SPK Tester",
+  "executedAt": "2026-07-14T19:44:14.318Z",
+  "status": "PASS",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943",
+  "data": {
+    "assetId": 132,
+    "categoryId": 1,
+    "assetName": "Rumah Tipe 45/90",
+    "criteriaCount": 7,
+    "comparableCount": 5,
+    "median": 690000000,
+    "preference": null,
+    "nilaiLimit": null,
+    "tingkatKeyakinan": "TINGGI",
+    "finalStatus": "PASS",
+    "executionTime": "2026-07-14T19:44:14.318Z"
+  }
+}

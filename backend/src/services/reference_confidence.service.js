@@ -155,6 +155,6 @@ export function filterValidForMedian(pembandingList) {
     (p) =>
       p.statusValidasi === 'DITERIMA' &&
       p.statusIntegritasUrl === 'DETAIL_IKLAN' &&
-      p.statusKecocokan === 'LAYAK',
+      (p.statusKecocokan === 'LAYAK' || p.statusKecocokan === 'PERLU_TINJAU')
   );
 }

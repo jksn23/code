@@ -1,0 +1,11 @@
+ID,Nama,Kategori,HargaPasar,PrefDB,LimitDB,PrefManual,LimitManual,SelisihPref,SelisihLimit,StatusKomputasi
+1,"Rumah Tipe 45/90","Tanah dan Bangunan",450000000,0.8605,387225000,0.8605,387225000,0,0,PASS
+2,"Ruko 2 Lantai","Tanah dan Bangunan",850000000,0.984,836400000,0.984,836400000,0,0,PASS
+3,"Tanah Kavling","Tanah dan Bangunan",300000000,0.756667,227000000,0.756667,227000000,0,0,PASS
+4,"Toyota Avanza 2019","Kendaraan",165000000,0.89,146850000,0.89,146850000,0,0,PASS
+5,"Honda Beat 2021","Kendaraan",14000000,0.944,13216000,0.944,132160000,0,118944000,FAIL
+6,"Mitsubishi Xpander 2018","Kendaraan",185000000,0.852,157620000,0.852,157620000,0,0,PASS
+7,"Laptop Lenovo ThinkPad 2021","Elektronik",6500000,1,6500000,1,6500000,0,0,PASS
+8,"iPhone 12 128GB","Elektronik",5800000,0.975,5655000,0.975,5655000,0,0,PASS
+9,"Kamera Canon EOS 700D","Elektronik",4000000,0.826,3304000,0.826,3304000,0,0,PASS
+12,"Aset Tunggal Jurnal","Kategori Single Alternatif",50000000,0.6,30000000,0,0,0.6,30000000,FAIL

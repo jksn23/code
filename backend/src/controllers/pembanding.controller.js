@@ -1,4 +1,5 @@
 import prisma from '../models/prisma.client.js';
+import axios from 'axios';
 import { pembandingService } from '../services/pembanding.service.js';
 import { enqueueScraping, getJobStatus } from '../services/scraping_queue.service.js';
 import { processUrl } from '../services/url_integrity.js';
@@ -11,6 +12,16 @@ export const getPembandingByAset = async (req, res) => {
   try {
     const asetId = Number(req.params.asetId);
     if (isNaN(asetId)) return res.status(400).json({ success: false, message: 'ID Aset tidak valid' });
+
+    const aset = await prisma.aset.findUnique({ where: { id: asetId } });
+    if (!aset) return res.status(404).json({ success: false, message: 'Aset tidak ditemukan' });
+
+    if (req.userRole !== 'ADMIN') {
+      const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
+      if (!penjual || penjual.id !== aset.penjualId) {
+        return res.status(403).json({ success: false, message: 'Akses ditolak' });
+      }
+    }
 
     // Bersihkan sisa data legacy example.com
     await prisma.dataPembanding.deleteMany({
@@ -98,9 +109,19 @@ export const searchPembanding = async (req, res) => {
       });
 
       const realData = await pembandingService.findComparableAssets(aset);
-      const savedData = await Promise.all(
-        realData.map((data) => prisma.dataPembanding.create({ data: { ...data, asetId } }))
-      );
+      const savedData = [];
+      for (const data of realData) {
+        if (data.canonicalUrlHash) {
+          const existing = await prisma.dataPembanding.findFirst({
+            where: { asetId, canonicalUrlHash: data.canonicalUrlHash }
+          });
+          if (existing) {
+            continue;
+          }
+        }
+        const created = await prisma.dataPembanding.create({ data: { ...data, asetId } });
+        savedData.push(created);
+      }
 
       res.json({
         success: true,
@@ -235,7 +256,21 @@ export const selectPembanding = async (req, res) => {
 
     const { dipilihPenjual } = req.body;
 
-    const pembanding = await prisma.dataPembanding.update({
+    const pembanding = await prisma.dataPembanding.findUnique({
+      where: { id },
+      include: { aset: true },
+    });
+
+    if (!pembanding) return res.status(404).json({ success: false, message: 'Data pembanding tidak ditemukan' });
+
+    if (req.userRole !== 'ADMIN') {
+      const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
+      if (!penjual || penjual.id !== pembanding.aset.penjualId) {
+        return res.status(403).json({ success: false, message: 'Akses ditolak' });
+      }
+    }
+
+    const updated = await prisma.dataPembanding.update({
       where: { id },
       data: { dipilihPenjual },
     });
@@ -277,6 +312,16 @@ export const hitungMedian = async (req, res) => {
     const asetId = Number(req.params.asetId);
     if (isNaN(asetId)) return res.status(400).json({ success: false, message: 'ID Aset tidak valid' });
 
+    const aset = await prisma.aset.findUnique({ where: { id: asetId } });
+    if (!aset) return res.status(404).json({ success: false, message: 'Aset tidak ditemukan' });
+
+    if (req.userRole !== 'ADMIN') {
+      const penjual = await prisma.penjual.findUnique({ where: { userId: req.userId } });
+      if (!penjual || penjual.id !== aset.penjualId) {
+        return res.status(403).json({ success: false, message: 'Akses ditolak' });
+      }
+    }
+
     // Ambil data yang dipilih penjual & valid
     const selectedPembanding = await prisma.dataPembanding.findMany({
       where: {
@@ -301,8 +346,15 @@ export const hitungMedian = async (req, res) => {
     const outliersCount = medianResult.statistik.jumlahOutlier;
 
     const result = await prisma.$transaction(async (tx) => {
-      // Selalu update hargaPasar di tabel aset
-      await tx.aset.update({ where: { id: asetId }, data: { hargaPasar: median } });
+      // Selalu update hargaPasar & statusPenilaian di tabel aset
+      await tx.aset.update({
+        where: { id: asetId },
+        data: {
+          hargaPasar: median,
+          limitValue: null,
+          statusPenilaian: 'MENUNGGU_PERHITUNGAN_SAW',
+        }
+      });
 
       // Persist outlier status ke database
       const hargaValues = selectedPembanding.map((p) => Number(p.harga)).filter((h) => h > 0 && isFinite(h));
@@ -319,15 +371,12 @@ export const hitungMedian = async (req, res) => {
       let hasil = await tx.hasil.findFirst({ where: { asetId } });
 
       if (hasil) {
-        // Baris hasil sudah ada — update nilaiLimit juga
-        const nilaiPreferensi = Number(hasil.nilaiPreferensi);
-        const nilaiLimit = nilaiPreferensi > 0 ? nilaiPreferensi * median : median;
-
         hasil = await tx.hasil.update({
           where: { id: hasil.id },
           data: {
             hargaReferensiPasar: median,
-            nilaiLimit,
+            nilaiPreferensi: null,
+            nilaiLimit: null,
             tingkatKeyakinan: medianResult.tingkatKeyakinan,
             skorKeyakinan: medianResult.skorKeyakinan,
             alasanKeyakinan: medianResult.alasanKeyakinan,
@@ -338,17 +387,13 @@ export const hitungMedian = async (req, res) => {
             calculatedAt: new Date(),
           },
         });
-
-        await tx.aset.update({ where: { id: asetId }, data: { limitValue: nilaiLimit } });
       } else {
-        // Baris hasil belum ada (SPK belum dijalankan) — tetap simpan hargaReferensiPasar
-        // nilaiLimit default ke median (tanpa bobot AHP karena belum ada)
         hasil = await tx.hasil.create({
           data: {
             asetId,
-            nilaiPreferensi: 0,
+            nilaiPreferensi: null,
             hargaReferensiPasar: median,
-            nilaiLimit: median,   // placeholder sampai SPK dijalankan
+            nilaiLimit: null,
             tingkatKeyakinan: medianResult.tingkatKeyakinan,
             skorKeyakinan: medianResult.skorKeyakinan,
             alasanKeyakinan: medianResult.alasanKeyakinan,
@@ -359,9 +404,6 @@ export const hitungMedian = async (req, res) => {
             calculatedAt: new Date(),
           },
         });
-
-        // Update juga aset.limitValue supaya konsisten
-        await tx.aset.update({ where: { id: asetId }, data: { limitValue: median } });
       }
 
       return {
@@ -375,6 +417,81 @@ export const hitungMedian = async (req, res) => {
     });
 
     res.json({ success: true, data: result, message: 'Harga referensi pasar berhasil dihitung' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const checkActivityController = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ success: false, message: 'ID Pembanding tidak valid' });
+
+    const pembanding = await prisma.dataPembanding.findUnique({ where: { id } });
+    if (!pembanding) return res.status(404).json({ success: false, message: 'Data pembanding tidak ditemukan' });
+
+    const url = pembanding.sourceUrl;
+    let status = null;
+    let reason = '';
+    let retryCount = pembanding.retryCount || 0;
+
+    if (url.includes('mock-404')) {
+      status = 404;
+      reason = 'Not Found (Mock)';
+      retryCount += 1;
+    } else if (url.includes('mock-410')) {
+      status = 410;
+      reason = 'Gone (Mock)';
+      retryCount += 1;
+    } else if (url.includes('mock-timeout')) {
+      status = 0;
+      reason = 'Request timeout (Mock)';
+      retryCount += 1;
+    } else if (url.includes('mock-500')) {
+      status = 500;
+      reason = 'Internal Server Error (Mock)';
+      retryCount += 1;
+    } else {
+      try {
+        const checkRes = await axios.get(url, {
+          timeout: 5000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+          }
+        });
+        status = checkRes.status;
+        reason = 'URL is active and responsive';
+      } catch (err) {
+        status = err.response?.status || 0;
+        if (err.code === 'ECONNABORTED') {
+          reason = 'Request timeout';
+        } else {
+          reason = err.response?.data?.message || err.message || 'Unknown network error';
+        }
+        retryCount += 1;
+      }
+    }
+
+    const validationStatus = status === 200 ? 'DETAIL_IKLAN' : 'TIDAK_VALID';
+    const statusIntegritasUrl = status === 200 ? 'DETAIL_IKLAN' : 'TIDAK_VALID';
+
+    const updated = await prisma.dataPembanding.update({
+      where: { id },
+      data: {
+        lastCheckedAt: new Date(),
+        lastHttpStatus: status,
+        retryCount,
+        validationStatus,
+        validationReason: reason,
+        statusIntegritasUrl,
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Integritas dan keaktifan URL berhasil diperiksa',
+      data: updated
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

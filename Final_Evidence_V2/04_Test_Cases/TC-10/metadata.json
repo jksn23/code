@@ -1,0 +1,11 @@
+{
+  "testCaseId": "TC-10",
+  "title": "Deteksi outlier harga pembanding",
+  "expectedResult": "Outlier terdeteksi dan di-flag (isOutlier=true)",
+  "actualResult": "HTTP 200 | Median dihitung dari data non-outlier",
+  "validationType": "API_DATABASE",
+  "status": "PASS",
+  "executedAt": "2026-07-14T19:44:08.560Z",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943"
+}

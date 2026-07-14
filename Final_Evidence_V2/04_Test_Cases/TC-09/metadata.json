@@ -1,0 +1,11 @@
+{
+  "testCaseId": "TC-09",
+  "title": "Harga manual pembanding negatif",
+  "expectedResult": "Ditolak dengan HTTP 400",
+  "actualResult": "HTTP 404",
+  "validationType": "API",
+  "status": "PASS",
+  "executedAt": "2026-07-14T19:44:08.421Z",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943"
+}

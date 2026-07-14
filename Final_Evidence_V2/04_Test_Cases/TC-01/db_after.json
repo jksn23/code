@@ -1,0 +1,28 @@
+=== TABLE: user ===
+[
+  {
+    "id": 49,
+    "email": "[REDACTED_EMAIL]",
+    "role": "ADMIN",
+    "buyerVerificationStatus": "UNVERIFIED"
+  },
+  {
+    "id": 50,
+    "email": "[REDACTED_EMAIL]",
+    "role": "PENJUAL",
+    "buyerVerificationStatus": "UNVERIFIED"
+  },
+  {
+    "id": 51,
+    "email": "[REDACTED_EMAIL]",
+    "role": "PEMBELI",
+    "buyerVerificationStatus": "APPROVED"
+  },
+  {
+    "id": 52,
+    "email": "[REDACTED_EMAIL]",
+    "role": "PEMBELI",
+    "buyerVerificationStatus": "APPROVED"
+  }
+]
+

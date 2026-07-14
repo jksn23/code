@@ -1,0 +1,17 @@
+{
+  "checkActivityRequests": [
+    "PATCH /api/pembanding/12/check-activity",
+    "PATCH /api/pembanding/1/check-activity",
+    "PATCH /api/pembanding/2/check-activity",
+    "PATCH /api/pembanding/3/check-activity",
+    "PATCH /api/pembanding/4/check-activity",
+    "PATCH /api/pembanding/5/check-activity"
+  ],
+  "hitungMedianRequest": {
+    "method": "POST",
+    "url": "/api/pembanding/aset/10/hitung-median",
+    "headers": {
+      "Authorization": "Bearer [JWT_REDACTED]"
+    }
+  }
+}

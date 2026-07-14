@@ -1,0 +1,7 @@
+{
+  "method": "POST",
+  "url": "/api/seller/aset/10/hitung-saw",
+  "headers": {
+    "Authorization": "Bearer [JWT_REDACTED]"
+  }
+}

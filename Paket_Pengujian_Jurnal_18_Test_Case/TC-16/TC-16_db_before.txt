@@ -1,231 +1,7 @@
 === TABLE: data_pembanding ===
 [
   {
-    "id": 131,
-    "judul": "Honda supra x 125 2015 pajak hidup",
-    "harga": "8800000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 132,
-    "judul": "Honda Supra X Double Dist 2010 Mesin Cakep Bagus Lengkap",
-    "harga": "8600000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 133,
-    "judul": "tromol honda supra x 100",
-    "harga": "75000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 134,
-    "judul": "menerima supra x 125 tua muda 2012/2013 tahun 2014",
-    "harga": "7000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 135,
-    "judul": "Honda Supra X 125 CW DD Fi 2025 bln 8 pajak hidup",
-    "harga": "17850000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 136,
-    "judul": "HONDA SUPRA X 125 2016 SURAT2 LENGKAP !!!",
-    "harga": "11500000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 185,
-    "judul": "Dijual Hotel Mutiara Suites Lokasi Strategis Antasari Jakarta Selatan",
-    "harga": "55000000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": true,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 186,
-    "judul": "Eksklusif! Apartemen Senayan Residence - Hunian Mewah di Jantung Jakarta",
-    "harga": "7100000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 187,
-    "judul": "Disewakan Gedung 3 lt Raya Antasari",
-    "harga": "1500000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 188,
-    "judul": "TERMURAHH! DIJUAL RUMAH BARU DAN MEWAH TINGGAL BAWA KOPER PONDOK IND",
-    "harga": "5900000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 189,
-    "judul": "Apartemen Emerald Furnish 1 BR",
-    "harga": "650000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 190,
-    "judul": "Disewakan Tanah Serta Bangunan 2 Lantai di Jakarta Selatan",
-    "harga": "3100000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 192,
-    "judul": "YAMAHA VEGA R 2003 B DKI",
-    "harga": "3500000",
-    "statusValidasi": "DITERIMA",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 193,
-    "judul": "Vega R new 2006",
-    "harga": "8500000",
-    "statusValidasi": "DITERIMA",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 194,
-    "judul": "Jual motor vega r 2004",
-    "harga": "4500000",
-    "statusValidasi": "DITERIMA",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 197,
-    "judul": "Disewakan Rumah Lokasi Tenang Dan Aman Di Jaksel FR 18375",
-    "harga": "250000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 198,
-    "judul": "Disewakan Virtual Office Termurah Jakarta Selatan",
-    "harga": "2000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 199,
-    "judul": "Disewakan Kost Kostan kalibata city",
-    "harga": "1300000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 200,
-    "judul": "RUMAH HOOK SIAP HUNI DI LEBAK BULUS JAKARTA SELATAN DALAM CLUSTER DIJUAL",
-    "harga": "6000000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 201,
-    "judul": "DI JUAL RUMAH BAGUS JAYA MANDALA RAYA JAKARTA SELATAN",
-    "harga": "29000000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": true,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 202,
-    "judul": "Jual & Sewa Apartemen Furnish New Siap Huni Eksklusif Strategis di Antasari Place Jakarta Selatan",
-    "harga": "1700000000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 203,
-    "judul": "Vega R new 2006",
-    "harga": "8500000",
-    "statusValidasi": "DITOLAK",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 209,
-    "judul": "YAMAHA VEGA R 2003 B DKI",
-    "harga": "3500000",
-    "statusValidasi": "DITOLAK",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 210,
-    "judul": "Vega R new 2006",
-    "harga": "8500000",
-    "statusValidasi": "DITOLAK",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 211,
-    "judul": "plampung tangki bensin yamaha vega R new 2006",
-    "harga": "75000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 212,
-    "judul": "Jual motor vega r 2004",
-    "harga": "4500000",
-    "statusValidasi": "DITOLAK",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 213,
-    "judul": "Bak kopling yamaha Vega R 2004",
-    "harga": "80000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 214,
-    "judul": "Breket Behel belakang to Yamaha New Vega R",
-    "harga": "70000",
-    "statusValidasi": "MENUNGGU",
-    "isOutlier": false,
-    "statusIntegritasUrl": "DETAIL_IKLAN"
-  },
-  {
-    "id": 269,
+    "id": 1,
     "judul": "Comparable TC-06",
     "harga": "95000000",
     "statusValidasi": "DITERIMA",
@@ -233,7 +9,7 @@
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 270,
+    "id": 2,
     "judul": "Comparable TC-07 No 2",
     "harga": "100000000",
     "statusValidasi": "DITERIMA",
@@ -241,7 +17,7 @@
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 271,
+    "id": 3,
     "judul": "Comparable TC-08 No 3",
     "harga": "105000000",
     "statusValidasi": "DITERIMA",
@@ -249,7 +25,7 @@
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 272,
+    "id": 4,
     "judul": "Comparable TC-10 Normal 4",
     "harga": "90000000",
     "statusValidasi": "DITERIMA",
@@ -257,7 +33,7 @@
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 273,
+    "id": 5,
     "judul": "Comparable TC-10 Outlier",
     "harga": "1000000000",
     "statusValidasi": "DITERIMA",
@@ -265,48 +41,48 @@
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 274,
-    "judul": "Comp 1 for 65",
+    "id": 6,
+    "judul": "Comp 1 for 11",
     "harga": "100000000",
     "statusValidasi": "DITERIMA",
     "isOutlier": false,
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 275,
-    "judul": "Comp 2 for 65",
+    "id": 7,
+    "judul": "Comp 2 for 11",
     "harga": "101000000",
     "statusValidasi": "DITERIMA",
     "isOutlier": false,
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 276,
-    "judul": "Comp 3 for 65",
+    "id": 8,
+    "judul": "Comp 3 for 11",
     "harga": "99000000",
     "statusValidasi": "DITERIMA",
     "isOutlier": false,
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 277,
-    "judul": "Comp 1 for 66",
+    "id": 9,
+    "judul": "Comp 1 for 12",
     "harga": "50000000",
     "statusValidasi": "DITERIMA",
     "isOutlier": false,
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 278,
-    "judul": "Comp 2 for 66",
+    "id": 10,
+    "judul": "Comp 2 for 12",
     "harga": "51000000",
     "statusValidasi": "DITERIMA",
     "isOutlier": false,
     "statusIntegritasUrl": "DETAIL_IKLAN"
   },
   {
-    "id": 279,
-    "judul": "Comp 3 for 66",
+    "id": 11,
+    "judul": "Comp 3 for 12",
     "harga": "49000000",
     "statusValidasi": "DITERIMA",
     "isOutlier": false,

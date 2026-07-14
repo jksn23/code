@@ -1,0 +1,404 @@
+=== TABLE: data_pembanding ===
+[
+  {
+    "id": 529,
+    "judul": "Rumah sekunder Kawanua Emerald City",
+    "harga": "600000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 530,
+    "judul": "AKR Kawanua Emerald City Type 45",
+    "harga": "662000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 531,
+    "judul": "Grand Tikala Manado Type 45/90",
+    "harga": "690000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 532,
+    "judul": "Rumah 1 lantai Grand Tikala",
+    "harga": "766700000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 533,
+    "judul": "Grand Tikala Type 45/90",
+    "harga": "800000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 534,
+    "judul": "Ruko 2 lantai 104 m² Tuminting",
+    "harga": "828000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 535,
+    "judul": "Ruko CitraLand 2 lantai",
+    "harga": "1100000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 536,
+    "judul": "Ruko 2 lantai 140 m² Jl. AJ Sondakh",
+    "harga": "1800000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 537,
+    "judul": "Ruko 2 lantai 157 m² Jl. Garuda",
+    "harga": "1800000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 538,
+    "judul": "Ruko 2 lantai Jl. Lumimuut",
+    "harga": "2565000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 539,
+    "judul": "Tanah depan jalan 300 m² SHM",
+    "harga": "200000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 540,
+    "judul": "Kavling 300 m² Konsolidasi Mapanget Paniki",
+    "harga": "225000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 541,
+    "judul": "Tanah 220 m² dekat fasilitas Malalayang",
+    "harga": "250000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 542,
+    "judul": "Tanah strategis Tikala",
+    "harga": "285000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 543,
+    "judul": "Tanah Sawangan Minahasa",
+    "harga": "300000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 544,
+    "judul": "Toyota Avanza 1.3 G 2019",
+    "harga": "139000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 545,
+    "judul": "Toyota Avanza 1.3 G AT 2019",
+    "harga": "149000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 546,
+    "judul": "Toyota Avanza G Matic 2019",
+    "harga": "150000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 547,
+    "judul": "Avanza G Manual 2019",
+    "harga": "155000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 548,
+    "judul": "Toyota Avanza G 1.3 AT 2019",
+    "harga": "157000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 549,
+    "judul": "Honda Beat Deluxe 2021",
+    "harga": "12250000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 550,
+    "judul": "Honda Beat CBS 2021",
+    "harga": "12850000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 551,
+    "judul": "Honda Beat 2021",
+    "harga": "12900000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 552,
+    "judul": "Beat Deluxe 2021 pajak hidup",
+    "harga": "13250000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 553,
+    "judul": "Honda Beat Street 2021 KM rendah",
+    "harga": "14000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 554,
+    "judul": "Mitsubishi Xpander 2018",
+    "harga": "175000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 555,
+    "judul": "Mitsubishi Xpander Ultimate AT 2018",
+    "harga": "177000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 556,
+    "judul": "Mitsubishi Xpander 2018",
+    "harga": "179000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 557,
+    "judul": "Mitsubishi Xpander 2018",
+    "harga": "180000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 558,
+    "judul": "Mitsubishi Xpander 2018",
+    "harga": "182000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 559,
+    "judul": "ThinkPad T14 G2 i5-1145G7",
+    "harga": "4950000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 560,
+    "judul": "ThinkPad T14 Gen 2 i5 Gen 11",
+    "harga": "5650000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 561,
+    "judul": "ThinkPad T14 Gen 2 i5-1145G7",
+    "harga": "5850000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 562,
+    "judul": "ThinkPad T14 Gen 2 i5-1145G7 Touch",
+    "harga": "5900000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 563,
+    "judul": "ThinkPad T14 Gen 2 i5",
+    "harga": "6000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 564,
+    "judul": "iPhone 12 128GB iBox",
+    "harga": "4500000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 565,
+    "judul": "iPhone 12 128GB iBox",
+    "harga": "5000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 566,
+    "judul": "iPhone 12 128GB Digimap Resmi",
+    "harga": "5800000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 567,
+    "judul": "iPhone 12 128GB iBox",
+    "harga": "6000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 568,
+    "judul": "iPhone 12 128GB resmi iBox fullset",
+    "harga": "6250000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 569,
+    "judul": "DSLR Canon EOS 700D",
+    "harga": "3000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 570,
+    "judul": "Canon EOS 700D + lensa kit",
+    "harga": "3100000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 571,
+    "judul": "Kamera Canon 700D",
+    "harga": "3300000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 572,
+    "judul": "Canon EOS 700D",
+    "harga": "3500000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 573,
+    "judul": "Canon EOS 700D + lensa kit",
+    "harga": "4000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 577,
+    "judul": "TC10 Comp 0",
+    "harga": "150000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 578,
+    "judul": "TC10 Comp 1",
+    "harga": "155000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 579,
+    "judul": "TC10 Comp 2",
+    "harga": "145000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 580,
+    "judul": "TC10 Comp 3",
+    "harga": "152000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": false,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  },
+  {
+    "id": 581,
+    "judul": "TC10 Comp 4",
+    "harga": "500000000",
+    "statusValidasi": "DITERIMA",
+    "isOutlier": true,
+    "statusIntegritasUrl": "DETAIL_IKLAN"
+  }
+]
+

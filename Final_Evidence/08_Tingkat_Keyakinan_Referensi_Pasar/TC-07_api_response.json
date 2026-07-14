@@ -1,0 +1,46 @@
+{
+  "success": false,
+  "message": "Kalkulasi median diblokir karena tingkat keyakinan referensi tidak cukup: Median diblokir: Hanya 2 data valid setelah filter outlier (minimum: 3)",
+  "data": {
+    "median": null,
+    "diblokir": true,
+    "alasan": "Median diblokir: Hanya 2 data valid setelah filter outlier (minimum: 3)",
+    "tingkatKeyakinan": "TIDAK_CUKUP",
+    "skorKeyakinan": 16.67,
+    "alasanKeyakinan": {
+      "alasan": [
+        "Hanya 2 data valid setelah filter outlier (minimum: 3)"
+      ],
+      "statistik": {
+        "jumlahTotal": 2,
+        "jumlahHargaValid": 2,
+        "jumlahScrapedReal": 1,
+        "jumlahManual": 1,
+        "jumlahDomainUnik": 1,
+        "jumlahOutlier": 0,
+        "hargaMedian": 97500000,
+        "hargaMean": 97500000,
+        "hargaStdDev": 3535533.91,
+        "cv": 0.0363,
+        "domains": [
+          "olx.co.id"
+        ]
+      }
+    },
+    "statistik": {
+      "jumlahTotal": 2,
+      "jumlahHargaValid": 2,
+      "jumlahScrapedReal": 1,
+      "jumlahManual": 1,
+      "jumlahDomainUnik": 1,
+      "jumlahOutlier": 0,
+      "hargaMedian": 97500000,
+      "hargaMean": 97500000,
+      "hargaStdDev": 3535533.91,
+      "cv": 0.0363,
+      "domains": [
+        "olx.co.id"
+      ]
+    }
+  }
+}

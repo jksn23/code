@@ -1,0 +1,1 @@
+NOT_APPLICABLE: test case tidak menggunakan file storage.

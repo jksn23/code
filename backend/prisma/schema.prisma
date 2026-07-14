@@ -66,6 +66,8 @@ model Aset {
   assetVehicle    AssetVehicle?
   assetElectronic AssetElectronic?
 
+  datasetScope String @default("RESEARCH_FINAL") @map("dataset_scope") @db.VarChar(50)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -125,9 +127,9 @@ model BobotVersion {
 model Hasil {
   id                  Int      @id @default(autoincrement())
   asetId              Int      @map("aset_id")
-  nilaiPreferensi     Decimal  @map("nilai_preferensi") @db.Decimal(15, 6)
+  nilaiPreferensi     Decimal? @map("nilai_preferensi") @db.Decimal(15, 6)
   hargaReferensiPasar Decimal? @map("harga_referensi_pasar") @db.Decimal(20, 2)
-  nilaiLimit          Decimal  @map("nilai_limit") @db.Decimal(20, 2)
+  nilaiLimit          Decimal? @map("nilai_limit") @db.Decimal(20, 2)
 
   // Metadata metode & versioning
   bobotVersionId      Int?     @map("bobot_version_id")
@@ -198,6 +200,7 @@ enum StatusLelang {
 
 enum StatusPenilaian {
   DRAFT
+  MENUNGGU_PERHITUNGAN_SAW
   MENUNGGU_VERIFIKASI
   DISETUJUI
   PERLU_REVISI
@@ -275,6 +278,11 @@ model DataPembanding {
   alasanKecocokan    Json?                    @map("alasan_kecocokan")
   validatedAt        DateTime?                @map("validated_at")
   validatedBy        Int?                     @map("validated_by")
+  lastCheckedAt       DateTime?                @map("last_checked_at")
+  lastHttpStatus      Int?                     @map("last_http_status")
+  retryCount          Int                      @default(0) @map("retry_count")
+  validationStatus    String?                  @map("validation_status") @db.VarChar(50)
+  validationReason    String?                  @map("validation_reason") @db.Text
 
   createdAt       DateTime                 @default(now())
   updatedAt       DateTime                 @updatedAt

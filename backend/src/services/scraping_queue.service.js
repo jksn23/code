@@ -69,14 +69,22 @@ export function initScrapingQueue() {
         // Jalankan scraping + fuzzy matching + outlier detection
         const results = await pembandingService.findComparableAssets(aset);
 
-        // Simpan hasil ke database
-        const saved = await Promise.all(
-          results.map((item) =>
-            prisma.dataPembanding.create({
-              data: { ...item, asetId },
-            })
-          )
-        );
+        // Simpan hasil ke database (hindari duplikasi URL)
+        const saved = [];
+        for (const item of results) {
+          if (item.canonicalUrlHash) {
+            const existing = await prisma.dataPembanding.findFirst({
+              where: { asetId, canonicalUrlHash: item.canonicalUrlHash }
+            });
+            if (existing) {
+              continue; // Skip duplikat
+            }
+          }
+          const created = await prisma.dataPembanding.create({
+            data: { ...item, asetId }
+          });
+          saved.push(created);
+        }
 
         logger.info(`[BullMQ Worker] Selesai scraping asetId=${asetId}, ${saved.length} data disimpan`);
         return { count: saved.length };

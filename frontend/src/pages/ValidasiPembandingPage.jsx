@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPembandingByAset, validasiPembanding } from '../services/api';
+import { getPembandingByAset, validasiPembanding, checkActivityComparable } from '../services/api';
 import { useModal } from '../context/ModalContext';
 
 const ValidasiPembandingPage = () => {
@@ -33,6 +33,19 @@ const ValidasiPembandingPage = () => {
       fetchData();
     } catch {
       showAlert('Gagal mengubah status validasi', 'error');
+    }
+  };
+
+  const handleCheckActivity = async (id) => {
+    try {
+      setLoading(true);
+      const res = await checkActivityComparable(id);
+      showAlert('Berhasil memeriksa keaktifan URL: ' + res.data.validationReason, 'success');
+      fetchData();
+    } catch (err) {
+      showAlert(err.message || 'Gagal memeriksa keaktifan URL', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,10 +100,20 @@ const ValidasiPembandingPage = () => {
                             </span>
                           )}
                           <span className={`badge text-[10px] ${
-                            item.statusIntegritasUrl === 'DETAIL_IKLAN' ? 'badge-success badge-outline' : 'badge-error'
+                            item.statusIntegritasUrl === 'DETAIL_IKLAN' ? 'badge-success' : 'badge-error'
                           }`}>
                             {item.statusIntegritasUrl || 'BELUM_DIVERIFIKASI'}
                           </span>
+                          {item.lastHttpStatus !== null && item.lastHttpStatus !== undefined && (
+                            <span className={`badge text-[10px] ${item.lastHttpStatus === 200 ? 'badge-success badge-outline' : 'badge-error badge-outline'}`}>
+                              HTTP: {item.lastHttpStatus}
+                            </span>
+                          )}
+                          {item.lastCheckedAt && (
+                            <span className="text-[10px] text-gray-500 font-mono" title={item.validationReason}>
+                              Checked: {new Date(item.lastCheckedAt).toLocaleTimeString()}
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="font-semibold text-green-600">{formatRupiah(item.harga)}</td>
@@ -122,6 +145,13 @@ const ValidasiPembandingPage = () => {
                       </td>
                       <td>
                         <div className="flex gap-2">
+                          <button 
+                            className="btn btn-sm btn-outline btn-primary" 
+                            onClick={() => handleCheckActivity(item.id)}
+                            title="Periksa Keaktifan URL"
+                          >
+                            Cek URL
+                          </button>
                           <button 
                             className="btn btn-sm btn-success text-white" 
                             onClick={() => handleValidasi(item.id, 'DITERIMA')}

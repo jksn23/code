@@ -3,7 +3,7 @@
   "message": "Perhitungan SAW berhasil. Hasil menunggu verifikasi admin.",
   "data": {
     "aset": {
-      "id": 66,
+      "id": 12,
       "nama": "Aset Tunggal Jurnal",
       "deskripsi": null,
       "hargaPasar": 50000000,
@@ -11,30 +11,30 @@
       "statusLelang": "DRAFT",
       "statusPenilaian": "MENUNGGU_VERIFIKASI",
       "catatanPenilaian": null,
-      "penilaianSubmittedAt": "2026-07-14T16:43:37.222Z",
+      "penilaianSubmittedAt": "2026-07-14T18:02:27.410Z",
       "penilaianReviewedAt": null,
       "penjual": {
         "id": 1,
-        "userId": 3,
-        "ktpUrl": "uploads/penjual/1780379370590-418590622.jpg",
-        "npwpUrl": "uploads/penjual/1780379370596-837500435.jpg",
-        "rekeningBank": "BVA",
-        "nomorRekening": "123123123",
-        "isVerified": true,
+        "userId": 1,
+        "ktpUrl": null,
+        "npwpUrl": null,
+        "rekeningBank": null,
+        "nomorRekening": null,
+        "isVerified": false,
         "verificationStatus": "APPROVED",
-        "verificationNote": "Dokumen penjual telah diverifikasi dan disetujui admin.",
-        "verifiedAt": "2026-06-02T05:50:11.549Z",
-        "verifiedBy": 1,
-        "createdAt": "2026-06-02T05:49:30.760Z",
-        "updatedAt": "2026-06-02T05:50:11.551Z",
+        "verificationNote": null,
+        "verifiedAt": null,
+        "verifiedBy": null,
+        "createdAt": "2026-07-14T18:02:26.271Z",
+        "updatedAt": "2026-07-14T18:02:26.271Z",
         "user": {
-          "id": 3,
-          "nama": "penjual1",
-          "email": "penjual1@mail.com"
+          "id": 1,
+          "nama": "Penjual Test",
+          "email": "penjual_test@lelang.com"
         }
       },
       "kategori": {
-        "id": 19,
+        "id": 7,
         "nama": "Kategori Single Alternatif"
       },
       "assetProperty": null,
@@ -43,7 +43,7 @@
     },
     "kriteria": [
       {
-        "id": 65,
+        "id": 27,
         "nama": "Kriteria Benefit Single",
         "tipe": "benefit",
         "bobot": 1,
@@ -52,10 +52,10 @@
       }
     ],
     "hasil": {
-      "id": 139,
+      "id": 12,
       "nilaiPreferensi": 0.6,
       "nilaiLimit": 30000000,
-      "bobotVersionId": 32,
+      "bobotVersionId": 8,
       "metodeNormalisasi": "FIXED_SCALE_1_5",
       "versiFormula": "LIMIT_V2",
       "tingkatKeyakinan": "RENDAH",
@@ -78,11 +78,11 @@
           "jumlahScrapedReal": 3
         }
       },
-      "createdAt": "2026-07-14T16:43:37.230Z"
+      "createdAt": "2026-07-14T18:02:27.408Z"
     },
     "detailNormalisasi": [
       {
-        "kriteriaId": 65,
+        "kriteriaId": 27,
         "namaKriteria": "Kriteria Benefit Single",
         "tipe": "benefit",
         "nilaiAsli": 3,
@@ -92,14 +92,16 @@
       }
     ],
     "currentResult": {
-      "id": 66,
+      "id": 12,
       "nama": "Aset Tunggal Jurnal",
       "hargaPasar": 50000000,
       "nilaiPreferensi": 0.6,
+      "rawPreference": 0.6,
+      "safePreference": 0.6,
       "nilaiLimit": 30000000,
       "detailNormalisasi": [
         {
-          "kriteriaId": 65,
+          "kriteriaId": 27,
           "namaKriteria": "Kriteria Benefit Single",
           "tipe": "benefit",
           "nilaiAsli": 3,
@@ -121,7 +123,7 @@
       "totalBobot": 1,
       "detailKriteria": [
         {
-          "id": 65,
+          "id": 27,
           "nama": "Kriteria Benefit Single",
           "tipe": "benefit",
           "bobot": 1,
@@ -133,14 +135,16 @@
       ],
       "ranking": [
         {
-          "id": 66,
+          "id": 12,
           "nama": "Aset Tunggal Jurnal",
           "hargaPasar": 50000000,
           "nilaiPreferensi": 0.6,
+          "rawPreference": 0.6,
+          "safePreference": 0.6,
           "nilaiLimit": 30000000,
           "detailNormalisasi": [
             {
-              "kriteriaId": 65,
+              "kriteriaId": 27,
               "namaKriteria": "Kriteria Benefit Single",
               "tipe": "benefit",
               "nilaiAsli": 3,

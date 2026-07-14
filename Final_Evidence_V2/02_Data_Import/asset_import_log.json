@@ -1,0 +1,134 @@
+[
+  {
+    "id": 132,
+    "nama": "Rumah Tipe 45/90",
+    "kategoriId": 1,
+    "hargaPasar": 450000000,
+    "scores": {
+      "TB01": 4,
+      "TB02": 5,
+      "TB03": 3,
+      "TB04": 4,
+      "TB05": 4,
+      "TB06": 2,
+      "TB07": 3
+    }
+  },
+  {
+    "id": 133,
+    "nama": "Ruko 2 Lantai",
+    "kategoriId": 1,
+    "hargaPasar": 850000000,
+    "scores": {
+      "TB01": 5,
+      "TB02": 5,
+      "TB03": 4,
+      "TB04": 4,
+      "TB05": 5,
+      "TB06": 2,
+      "TB07": 4
+    }
+  },
+  {
+    "id": 134,
+    "nama": "Tanah Kavling",
+    "kategoriId": 1,
+    "hargaPasar": 300000000,
+    "scores": {
+      "TB01": 3,
+      "TB02": 4,
+      "TB03": 4,
+      "TB04": 3,
+      "TB05": 3,
+      "TB06": 3,
+      "TB07": 5
+    }
+  },
+  {
+    "id": 135,
+    "nama": "Toyota Avanza 2019",
+    "kategoriId": 2,
+    "hargaPasar": 160000000,
+    "scores": {
+      "KD01": 4,
+      "KD02": 4,
+      "KD03": 3,
+      "KD04": 4,
+      "KD05": 4,
+      "KD06": 5,
+      "KD07": 4
+    }
+  },
+  {
+    "id": 136,
+    "nama": "Honda Beat 2021",
+    "kategoriId": 2,
+    "hargaPasar": 13000000,
+    "scores": {
+      "KD01": 4,
+      "KD02": 4,
+      "KD03": 2,
+      "KD04": 5,
+      "KD05": 4,
+      "KD06": 4,
+      "KD07": 4
+    }
+  },
+  {
+    "id": 137,
+    "nama": "Mitsubishi Xpander 2018",
+    "kategoriId": 2,
+    "hargaPasar": 180000000,
+    "scores": {
+      "KD01": 4,
+      "KD02": 5,
+      "KD03": 4,
+      "KD04": 3,
+      "KD05": 3,
+      "KD06": 5,
+      "KD07": 4
+    }
+  },
+  {
+    "id": 138,
+    "nama": "Laptop Lenovo ThinkPad 2021",
+    "kategoriId": 3,
+    "hargaPasar": 7000000,
+    "scores": {
+      "EL01": 4,
+      "EL02": 4,
+      "EL03": 4,
+      "EL04": 3,
+      "EL05": 5,
+      "EL06": 4
+    }
+  },
+  {
+    "id": 139,
+    "nama": "iPhone 12 128GB",
+    "kategoriId": 3,
+    "hargaPasar": 6500000,
+    "scores": {
+      "EL01": 4,
+      "EL02": 4,
+      "EL03": 4,
+      "EL04": 3,
+      "EL05": 5,
+      "EL06": 3
+    }
+  },
+  {
+    "id": 140,
+    "nama": "Kamera Canon EOS 700D",
+    "kategoriId": 3,
+    "hargaPasar": 3500000,
+    "scores": {
+      "EL01": 3,
+      "EL02": 3,
+      "EL03": 4,
+      "EL04": 4,
+      "EL05": 4,
+      "EL06": 4
+    }
+  }
+]

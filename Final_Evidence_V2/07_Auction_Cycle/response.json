@@ -1,0 +1,56 @@
+{
+  "success": true,
+  "phases": [
+    {
+      "phase": "Phase 1",
+      "action": "Penjual login dan tambah data aset",
+      "status": "PASS"
+    },
+    {
+      "phase": "Phase 2",
+      "action": "Upload dokumen kepemilikan",
+      "status": "PASS"
+    },
+    {
+      "phase": "Phase 3",
+      "action": "Data pembanding tersedia (5 data)",
+      "status": "PASS"
+    },
+    {
+      "phase": "Phase 4",
+      "action": "Median dihitung (Rp150.000.000)",
+      "status": "PASS"
+    },
+    {
+      "phase": "Phase 5",
+      "action": "Nilai kriteria diinput, SAW dihitung",
+      "status": "PASS"
+    },
+    {
+      "phase": "Phase 6",
+      "action": "Nilai limit tampil di halaman aset",
+      "status": "PASS"
+    },
+    {
+      "phase": "Phase 7",
+      "action": "Admin memverifikasi aset",
+      "status": "PASS"
+    },
+    {
+      "phase": "Phase 8",
+      "action": "Lelang dibuat dengan harga pembukaan",
+      "status": "PASS"
+    },
+    {
+      "phase": "Phase 9",
+      "action": "Dua pembeli terverifikasi memasukkan penawaran",
+      "status": "PASS"
+    },
+    {
+      "phase": "Phase 10",
+      "action": "Lelang ditutup, pemenang ditentukan",
+      "status": "PASS"
+    }
+  ],
+  "nilaiLimit": 150000000
+}

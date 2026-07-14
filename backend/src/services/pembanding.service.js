@@ -296,6 +296,23 @@ class PembandingService {
    * }}
    */
   hitungMedianHargaReferensi(pembandingList) {
+    // Uji TC-08: Tolak median jika ada pembanding terpilih yang masih MENUNGGU atau PERLU_TINJAU
+    const pendingCount = pembandingList.filter(
+      (p) => p.statusValidasi === 'MENUNGGU' || p.statusKecocokan === 'PERLU_TINJAU'
+    ).length;
+
+    if (pendingCount > 0) {
+      return {
+        median: null,
+        diblokir: true,
+        alasan: `Kalkulasi median ditolak karena terdapat ${pendingCount} data pembanding yang berstatus MENUNGGU validasi atau PERLU_TINJAU.`,
+        tingkatKeyakinan: TINGKAT_KEYAKINAN.TIDAK_CUKUP,
+        skorKeyakinan: 0,
+        alasanKeyakinan: { alasan: [`Terdapat ${pendingCount} data pembanding belum selesai ditinjau`], statistik: {} },
+        statistik: {},
+      };
+    }
+
     // Filter ketat — hanya pembanding yang benar-benar valid
     const valid = filterValidForMedian(pembandingList).filter((p) => !p.isOutlier);
 

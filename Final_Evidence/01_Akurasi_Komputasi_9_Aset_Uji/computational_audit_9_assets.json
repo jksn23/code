@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "code": "TB01",
+    "nama": "Rumah Tipe 45/90",
+    "kategori": "Tanah dan Bangunan",
+    "hargaPasar": 450000000,
+    "preferensi": {
+      "db": 0.8605,
+      "manual": 0.8605,
+      "selisih": 0
+    },
+    "nilaiLimit": {
+      "db": 387225000,
+      "manual": 387225000,
+      "selisih": 0
+    },
+    "match": "PASS"
+  },
+  {
+    "id": 2,
+    "code": "TB02",
+    "nama": "Ruko 2 Lantai",
+    "kategori": "Tanah dan Bangunan",
+    "hargaPasar": 850000000,
+    "preferensi": {
+      "db": 0.984,
+      "manual": 0.984,
+      "selisih": 0
+    },
+    "nilaiLimit": {
+      "db": 836400000,
+      "manual": 836400000,
+      "selisih": 0
+    },
+    "match": "PASS"
+  },
+  {
+    "id": 3,
+    "code": "TB03",
+    "nama": "Tanah Kavling",
+    "kategori": "Tanah dan Bangunan",
+    "hargaPasar": 300000000,
+    "preferensi": {
+      "db": 0.756667,
+      "manual": 0.756667,
+      "selisih": 0
+    },
+    "nilaiLimit": {
+      "db": 227000000,
+      "manual": 227000000,
+      "selisih": 0
+    },
+    "match": "PASS"
+  },
+  {
+    "id": 4,
+    "code": "KD01",
+    "nama": "Toyota Avanza 2019",
+    "kategori": "Kendaraan",
+    "hargaPasar": 165000000,
+    "preferensi": {
+      "db": 0.89,
+      "manual": 0.89,
+      "selisih": 0
+    },
+    "nilaiLimit": {
+      "db": 146850000,
+      "manual": 146850000,
+      "selisih": 0
+    },
+    "match": "PASS"
+  },
+  {
+    "id": 5,
+    "code": "KD02",
+    "nama": "Honda Beat 2021",
+    "kategori": "Kendaraan",
+    "hargaPasar": 14000000,
+    "preferensi": {
+      "db": 0.944,
+      "manual": 0.944,
+      "selisih": 0
+    },
+    "nilaiLimit": {
+      "db": 13216000,
+      "manual": 132160000,
+      "selisih": 118944000
+    },
+    "match": "FAIL"
+  },
+  {
+    "id": 6,
+    "code": "KD03",
+    "nama": "Mitsubishi Xpander 2018",
+    "kategori": "Kendaraan",
+    "hargaPasar": 185000000,
+    "preferensi": {
+      "db": 0.852,
+      "manual": 0.852,
+      "selisih": 0
+    },
+    "nilaiLimit": {
+      "db": 157620000,
+      "manual": 157620000,
+      "selisih": 0
+    },
+    "match": "PASS"
+  },
+  {
+    "id": 7,
+    "code": "EL01",
+    "nama": "Laptop Lenovo ThinkPad 2021",
+    "kategori": "Elektronik",
+    "hargaPasar": 6500000,
+    "preferensi": {
+      "db": 1,
+      "manual": 1,
+      "selisih": 0
+    },
+    "nilaiLimit": {
+      "db": 6500000,
+      "manual": 6500000,
+      "selisih": 0
+    },
+    "match": "PASS"
+  },
+  {
+    "id": 8,
+    "code": "EL02",
+    "nama": "iPhone 12 128GB",
+    "kategori": "Elektronik",
+    "hargaPasar": 5800000,
+    "preferensi": {
+      "db": 0.975,
+      "manual": 0.975,
+      "selisih": 0
+    },
+    "nilaiLimit": {
+      "db": 5655000,
+      "manual": 5655000,
+      "selisih": 0
+    },
+    "match": "PASS"
+  },
+  {
+    "id": 9,
+    "code": "EL03",
+    "nama": "Kamera Canon EOS 700D",
+    "kategori": "Elektronik",
+    "hargaPasar": 4000000,
+    "preferensi": {
+      "db": 0.826,
+      "manual": 0.826,
+      "selisih": 0
+    },
+    "nilaiLimit": {
+      "db": 3304000,
+      "manual": 3304000,
+      "selisih": 0
+    },
+    "match": "PASS"
+  },
+  {
+    "id": 12,
+    "code": "",
+    "nama": "Aset Tunggal Jurnal",
+    "kategori": "Kategori Single Alternatif",
+    "hargaPasar": 50000000,
+    "preferensi": {
+      "db": 0.6,
+      "manual": 0,
+      "selisih": 0.6
+    },
+    "nilaiLimit": {
+      "db": 30000000,
+      "manual": 0,
+      "selisih": 30000000
+    },
+    "match": "FAIL"
+  }
+]

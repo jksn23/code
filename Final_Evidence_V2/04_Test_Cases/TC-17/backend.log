@@ -1,0 +1,2 @@
+{"error":"Ekstensi file \".sh\" tidak diizinkan. Format yang diperbolehkan: PDF, JPG, PNG, WEBP, DOC, DOCX","level":"error","message":"[ADMS Controller] Upload Gagal","service":"lelang-spk-backend","timestamp":"2026-07-14T19:44:09.091Z"}
+{"error":"Ekstensi file \".exe\" tidak diizinkan. Format yang diperbolehkan: PDF, JPG, PNG, WEBP, DOC, DOCX","level":"error","message":"[ADMS Controller] Upload Gagal","service":"lelang-spk-backend","timestamp":"2026-07-14T19:44:09.104Z"}

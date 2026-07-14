@@ -1,0 +1,11 @@
+{
+  "testCaseId": "TC-17",
+  "title": "Validasi file upload multipart",
+  "expectedResult": "Semua file tidak valid ditolak dengan HTTP 400/413/415",
+  "actualResult": "allRejected=true | [{\"filename\":\"exploit.sh\",\"status\":400,\"rejected\":true},{\"filename\":\"backdoor.pdf.exe\",\"status\":400,\"rejected\":true}]",
+  "validationType": "API_STORAGE",
+  "status": "PASS",
+  "executedAt": "2026-07-14T19:44:09.106Z",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943"
+}

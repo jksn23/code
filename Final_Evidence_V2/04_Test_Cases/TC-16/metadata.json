@@ -1,0 +1,11 @@
+{
+  "testCaseId": "TC-16",
+  "title": "Sanitasi payload XSS",
+  "expectedResult": "Input XSS di-escape atau ditolak, tidak dieksekusi",
+  "actualResult": "Not found/rejected",
+  "validationType": "API_DATABASE",
+  "status": "PASS",
+  "executedAt": "2026-07-14T19:44:09.036Z",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943"
+}

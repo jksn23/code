@@ -180,7 +180,10 @@ export const saveNilaiKriteria = async ({ asetId, nilaiList, actor, requireOwner
 const fetchCompleteAsetsForSAW = async (kategoriId, kriteriaIds) => {
   const asetList = await prisma.aset.findMany({
     where: { kategoriId: Number(kategoriId) },
-    include: { nilaiAset: { include: { kriteria: true } } },
+    include: {
+      nilaiAset: { include: { kriteria: true } },
+      hasil: { orderBy: { id: 'desc' }, take: 1 }
+    },
     orderBy: { id: 'asc' },
   });
 
@@ -189,7 +192,7 @@ const fetchCompleteAsetsForSAW = async (kategoriId, kriteriaIds) => {
   );
 };
 
-export const calculateAndPersistSAWForAset = async ({ asetId, actor, requireOwner = false }) => {
+export const calculateAndPersistSAWForAset = async ({ asetId, actor, requireOwner = false, forceRollback = false }) => {
   const parsedAsetId = Number(asetId);
   const aset = await getPenilaianAset(parsedAsetId);
   if (!aset) throw httpError(404, 'Aset tidak ditemukan');
@@ -203,6 +206,16 @@ export const calculateAndPersistSAWForAset = async ({ asetId, actor, requireOwne
   const activeVersion = await getActiveWeightVersion(aset.kategoriId);
   if (!activeVersion) {
     throw httpError(400, 'Belum ada versi bobot AHP yang aktif untuk kategori aset ini. Silakan hubungi Administrator.');
+  }
+
+  // Validasi total bobot
+  const totalWeight = activeVersion.bobotAhp.reduce((sum, item) => sum + Number(item.bobot), 0);
+  const tolerance = 1e-9;
+  if (Math.abs(totalWeight - 1) > tolerance) {
+    const err = httpError(422, 'Total bobot harus sama dengan 1.');
+    err.code = 'INVALID_TOTAL_WEIGHT';
+    err.totalWeight = totalWeight;
+    throw err;
   }
 
   const kriteriaWithBobot = activeVersion.bobotAhp.map((b) => ({
@@ -274,6 +287,9 @@ export const calculateAndPersistSAWForAset = async ({ asetId, actor, requireOwne
   };
 
   await prisma.$transaction(async (tx) => {
+    if (forceRollback) {
+      throw new Error('FAULT_INJECTION_TC15');
+    }
     // Hapus hasil lama untuk aset ini
     await tx.hasil.deleteMany({ where: { asetId: parsedAsetId } });
 

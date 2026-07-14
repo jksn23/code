@@ -1,0 +1,11 @@
+AsetID,Nama,JumlahPembandingValid,JumlahScrapedReal,JumlahManual,JumlahDomainUnik,TingkatKeyakinan,SkorKeyakinan,StatusKalkulasi
+1,"Rumah Tipe 45/90",0,0,0,0,TIDAK_CUKUP,0,BLOCKED
+2,"Ruko 2 Lantai",0,0,0,0,TIDAK_CUKUP,0,BLOCKED
+3,"Tanah Kavling",0,0,0,0,TIDAK_CUKUP,0,BLOCKED
+4,"Toyota Avanza 2019",0,0,0,0,TIDAK_CUKUP,0,BLOCKED
+5,"Honda Beat 2021",0,0,0,0,TIDAK_CUKUP,0,BLOCKED
+6,"Mitsubishi Xpander 2018",0,0,0,0,TIDAK_CUKUP,0,BLOCKED
+7,"Laptop Lenovo ThinkPad 2021",0,0,0,0,TIDAK_CUKUP,0,BLOCKED
+8,"iPhone 12 128GB",0,0,0,0,TIDAK_CUKUP,0,BLOCKED
+9,"Kamera Canon EOS 700D",0,0,0,0,TIDAK_CUKUP,0,BLOCKED
+12,"Aset Tunggal Jurnal",3,3,0,0,RENDAH,40,CALCULATED

@@ -1,0 +1,11 @@
+{
+  "testCaseId": "TC-04",
+  "title": "Skala kriteria out of range",
+  "expectedResult": "Ditolak dengan HTTP 400",
+  "actualResult": "HTTP 400",
+  "validationType": "API",
+  "status": "PASS",
+  "executedAt": "2026-07-14T19:44:08.166Z",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943"
+}

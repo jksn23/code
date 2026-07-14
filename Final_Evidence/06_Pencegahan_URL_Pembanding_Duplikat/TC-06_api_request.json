@@ -1,0 +1,14 @@
+{
+  "method": "POST",
+  "url": "/api/pembanding/aset/10/manual",
+  "headers": {
+    "Authorization": "Bearer [JWT_REDACTED]"
+  },
+  "body": {
+    "judul": "Comparable TC-06 Duplicate",
+    "sumber": "OLX",
+    "sourceUrl": "https://www.olx.co.id/item/tc06-mobil-iid-111?utm_source=copy",
+    "harga": 99000000,
+    "tahun": 2020
+  }
+}

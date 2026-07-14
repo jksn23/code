@@ -1,0 +1,28 @@
+{
+  "nilai_list": [
+    {
+      "kriteriaId": 255,
+      "nilai": 5
+    },
+    {
+      "kriteriaId": 256,
+      "nilai": 5
+    },
+    {
+      "kriteriaId": 257,
+      "nilai": 5
+    },
+    {
+      "kriteriaId": 258,
+      "nilai": 1
+    },
+    {
+      "kriteriaId": 259,
+      "nilai": 5
+    },
+    {
+      "kriteriaId": 260,
+      "nilai": 5
+    }
+  ]
+}

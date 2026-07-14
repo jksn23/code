@@ -7,8 +7,31 @@ import {
   updateStatusPenilaian,
 } from '../services/penilaian.service.js';
 
+import logger from '../utils/logger.js';
+
 const sendError = (res, error) => {
-  res.status(error.status || 500).json({ success: false, message: error.message });
+  const status = error.status || 500;
+  const correlationId = `corr-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  
+  if (error.message === 'FAULT_INJECTION_TC15') {
+    logger.warn(`[SPK] FAULT_INJECTION_TC15: Transaction rollback triggered. correlationId=${correlationId}`);
+    return res.status(status).json({
+      success: false,
+      code: 'TRANSACTION_ROLLED_BACK',
+      message: 'Transaksi dibatalkan karena simulasi kegagalan (Fault Injection).',
+      correlationId
+    });
+  }
+
+  logger.error(`[API Error] Status ${status}: ${error.message}`, { status, errorStack: error.stack, correlationId });
+  
+  res.status(status).json({
+    success: false,
+    message: error.message,
+    code: error.code || undefined,
+    totalWeight: error.totalWeight || undefined,
+    correlationId
+  });
 };
 
 const nilaiListFromBody = (req) => req.body.nilai_list || req.body.nilaiList || [];
@@ -52,10 +75,12 @@ export const saveSellerNilaiKriteria = async (req, res) => {
 export const hitungSellerSAW = async (req, res) => {
   try {
     const actor = getActorFromReq(req);
+    const forceRollback = req.headers['x-force-rollback'] === 'true';
     const result = await calculateAndPersistSAWForAset({
       asetId: req.params.asetId,
       actor,
       requireOwner: true,
+      forceRollback,
     });
     const detail = await buildPenilaianDetail({
       asetId: req.params.asetId,

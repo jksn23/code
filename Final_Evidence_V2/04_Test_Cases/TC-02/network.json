@@ -1,0 +1,6 @@
+{
+  "httpStatus": 403,
+  "headers": {
+    "content-type": "application/json"
+  }
+}

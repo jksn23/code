@@ -43,12 +43,58 @@ class DocumentRepositoryService {
   validateFile(file) {
     if (!file) throw new Error('File tidak ditemukan');
 
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error(`Ukuran file melebihi batas maksimal 10MB (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+    const cleanName = path.basename(file.originalname);
+    const ext = path.extname(cleanName).toLowerCase();
+    const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.doc', '.docx'];
+    
+    // Whitelist ekstensi
+    if (!allowedExtensions.includes(ext)) {
+      if (file.path && fs.existsSync(file.path)) {
+        try { fs.unlinkSync(file.path); } catch (e) {}
+      }
+      const err = new Error(`Ekstensi file "${ext}" tidak diizinkan. Format yang diperbolehkan: PDF, JPG, PNG, WEBP, DOC, DOCX`);
+      err.status = 400;
+      throw err;
     }
 
+    // Pengecekan ukuran file
+    if (file.size > MAX_FILE_SIZE) {
+      if (file.path && fs.existsSync(file.path)) {
+        try { fs.unlinkSync(file.path); } catch (e) {}
+      }
+      const err = new Error(`Ukuran file melebihi batas maksimal 10MB (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      err.status = 413;
+      throw err;
+    }
+
+    // Pengecekan MIME type
     if (file.mimetype && !ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      throw new Error(`Tipe file "${file.mimetype}" tidak didukung. Format yang diperbolehkan: PDF, JPG, PNG, WEBP, DOC, DOCX`);
+      if (file.path && fs.existsSync(file.path)) {
+        try { fs.unlinkSync(file.path); } catch (e) {}
+      }
+      const err = new Error(`Tipe file "${file.mimetype}" tidak didukung. Format yang diperbolehkan: PDF, JPG, PNG, WEBP, DOC, DOCX`);
+      err.status = 415;
+      throw err;
+    }
+
+    // Validasi Magic Bytes (khusus PDF)
+    if (ext === '.pdf' && file.path && fs.existsSync(file.path)) {
+      try {
+        const buffer = fs.readFileSync(file.path);
+        const isPdf = buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46; // %PDF
+        if (!isPdf) {
+          try { fs.unlinkSync(file.path); } catch (e) {}
+          const err = new Error('Berkas PDF tidak valid (magic bytes mismatch).');
+          err.status = 400;
+          throw err;
+        }
+      } catch (err) {
+        if (file.path && fs.existsSync(file.path)) {
+          try { fs.unlinkSync(file.path); } catch (e) {}
+        }
+        if (!err.status) err.status = 400;
+        throw err;
+      }
     }
   }
 

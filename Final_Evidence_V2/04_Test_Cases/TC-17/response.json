@@ -1,0 +1,12 @@
+[
+  {
+    "filename": "exploit.sh",
+    "status": 400,
+    "rejected": true
+  },
+  {
+    "filename": "backdoor.pdf.exe",
+    "status": 400,
+    "rejected": true
+  }
+]

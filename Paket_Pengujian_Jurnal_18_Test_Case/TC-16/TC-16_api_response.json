@@ -1,8 +1,8 @@
 {
   "success": true,
   "data": {
-    "id": 280,
-    "asetId": 64,
+    "id": 12,
+    "asetId": 10,
     "judul": "<script>alert(\"XSS\")</script>",
     "sumber": "OLX",
     "sourceUrl": "https://www.olx.co.id/item/tc16-xss-iid-555",
@@ -16,7 +16,7 @@
     "isOutlier": false,
     "statusValidasi": "MENUNGGU",
     "dipilihPenjual": true,
-    "scrapedAt": "2026-07-14T16:43:37.315Z",
+    "scrapedAt": "2026-07-14T18:02:27.527Z",
     "jenisSumber": "MANUAL",
     "statusIntegritasUrl": "DETAIL_IKLAN",
     "statusKecocokan": "TIDAK_LAYAK",
@@ -50,8 +50,13 @@
     },
     "validatedAt": null,
     "validatedBy": null,
-    "createdAt": "2026-07-14T16:43:37.315Z",
-    "updatedAt": "2026-07-14T16:43:37.315Z"
+    "lastCheckedAt": null,
+    "lastHttpStatus": null,
+    "retryCount": 0,
+    "validationStatus": null,
+    "validationReason": null,
+    "createdAt": "2026-07-14T18:02:27.527Z",
+    "updatedAt": "2026-07-14T18:02:27.527Z"
   },
   "message": "Data pembanding manual berhasil ditambahkan"
 }

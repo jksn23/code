@@ -1,0 +1,4 @@
+{"level":"info","message":"[SPK] SAW calculation for aset=\"Aset Temp Jurnal\" (ID:10): rawPreference=0.[IDENTIFICATION_REDACTED], safePreference=0.800000","service":"lelang-spk-backend","timestamp":"2026-07-14T18:02:27.251Z"}
+{"level":"info","message":"[SPK] SAW calculation for aset=\"Aset Temp Jurnal Identik\" (ID:11): rawPreference=0.[IDENTIFICATION_REDACTED], safePreference=0.800000","service":"lelang-spk-backend","timestamp":"2026-07-14T18:02:27.251Z"}
+{"level":"info","message":"[SPK] SAW calculation for aset=\"Aset Temp Jurnal\" (ID:10): rawPreference=0.[IDENTIFICATION_REDACTED], safePreference=0.800000","service":"lelang-spk-backend","timestamp":"2026-07-14T18:02:27.306Z"}
+{"level":"info","message":"[SPK] SAW calculation for aset=\"Aset Temp Jurnal Identik\" (ID:11): rawPreference=0.[IDENTIFICATION_REDACTED], safePreference=0.800000","service":"lelang-spk-backend","timestamp":"2026-07-14T18:02:27.306Z"}

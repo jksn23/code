@@ -1,0 +1,4 @@
+ScenarioID,Kategori,AssetsTested,Step1_Scrape,Step2_Median,Step3_SAW,Step4_Validation,Status
+E2E-01,"Tanah dan Bangunan","Rumah, Ruko, Kavling",PASS,PASS,PASS,PASS,PASS
+E2E-02,Kendaraan,"Avanza, Beat, Xpander",PASS,PASS,PASS,PASS,PASS
+E2E-03,Elektronik,"ThinkPad, iPhone, Kamera",PASS,PASS,PASS,PASS,PASS

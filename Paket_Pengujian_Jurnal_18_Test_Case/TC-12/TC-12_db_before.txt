@@ -1,37 +1,37 @@
 === TABLE: hasil ===
 [
   {
-    "id": 138,
+    "id": 11,
     "nilaiPreferensi": "0.8",
     "nilaiLimit": "80000000",
     "tingkatKeyakinan": "RENDAH",
-    "bobotVersionId": 30
+    "bobotVersionId": 6
   },
   {
-    "id": 137,
-    "nilaiPreferensi": "0.8",
-    "nilaiLimit": "78000000",
+    "id": 10,
+    "nilaiPreferensi": null,
+    "nilaiLimit": null,
     "tingkatKeyakinan": "RENDAH",
-    "bobotVersionId": 30
+    "bobotVersionId": null
   },
   {
-    "id": 119,
-    "nilaiPreferensi": "0.50289",
-    "nilaiLimit": "2263005",
+    "id": 9,
+    "nilaiPreferensi": "0.826",
+    "nilaiLimit": "3304000",
     "tingkatKeyakinan": null,
     "bobotVersionId": null
   },
   {
-    "id": 118,
-    "nilaiPreferensi": "0.629017",
-    "nilaiLimit": "7233696.65",
+    "id": 8,
+    "nilaiPreferensi": "0.975",
+    "nilaiLimit": "5655000",
     "tingkatKeyakinan": null,
     "bobotVersionId": null
   },
   {
-    "id": 117,
-    "nilaiPreferensi": "0.839896",
-    "nilaiLimit": "150341348.2",
+    "id": 7,
+    "nilaiPreferensi": "1",
+    "nilaiLimit": "6500000",
     "tingkatKeyakinan": null,
     "bobotVersionId": null
   }

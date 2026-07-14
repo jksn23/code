@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": {
+    "assetId": 132,
+    "categoryId": 1,
+    "assetName": "Rumah Tipe 45/90",
+    "criteriaCount": 7,
+    "comparableCount": 5,
+    "median": 690000000,
+    "preference": null,
+    "nilaiLimit": null,
+    "tingkatKeyakinan": "TINGGI",
+    "finalStatus": "PASS",
+    "executionTime": "2026-07-14T19:44:14.318Z"
+  }
+}

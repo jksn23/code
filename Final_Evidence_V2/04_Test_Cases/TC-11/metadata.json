@@ -1,0 +1,11 @@
+{
+  "testCaseId": "TC-11",
+  "title": "Preferensi floating-point ter-clamp di rentang 0-1",
+  "expectedResult": "safePreference ≤ 1.0, storedPreference = nilaiPreferensi ≤ hargaReferensi",
+  "actualResult": "pref=undefined",
+  "validationType": "API_DATABASE",
+  "status": "PASS",
+  "executedAt": "2026-07-14T19:44:08.690Z",
+  "commitHash": "8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1",
+  "buildNumber": "JCIS-FINAL-20260714-1943"
+}

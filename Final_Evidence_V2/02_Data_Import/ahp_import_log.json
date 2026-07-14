@@ -1,0 +1,142 @@
+[
+  {
+    "kategoriId": 1,
+    "kriteriaCode": "TB01",
+    "kriteriaName": "Lokasi dan Aksesibilitas",
+    "bobot": 0.2862560160088761,
+    "versionId": 37
+  },
+  {
+    "kategoriId": 1,
+    "kriteriaCode": "TB02",
+    "kriteriaName": "Legalitas",
+    "bobot": 0.24535148091488654,
+    "versionId": 37
+  },
+  {
+    "kategoriId": 1,
+    "kriteriaCode": "TB03",
+    "kriteriaName": "Luas",
+    "bobot": 0.14458768898311014,
+    "versionId": 37
+  },
+  {
+    "kategoriId": 1,
+    "kriteriaCode": "TB04",
+    "kriteriaName": "Kondisi Fisik",
+    "bobot": 0.11500394340022892,
+    "versionId": 37
+  },
+  {
+    "kategoriId": 1,
+    "kriteriaCode": "TB05",
+    "kriteriaName": "Fasilitas Sekitar",
+    "bobot": 0.07316257931629618,
+    "versionId": 37
+  },
+  {
+    "kategoriId": 1,
+    "kriteriaCode": "TB06",
+    "kriteriaName": "Lingkungan dan Risiko",
+    "bobot": 0.07397931346009305,
+    "versionId": 37
+  },
+  {
+    "kategoriId": 1,
+    "kriteriaCode": "TB07",
+    "kriteriaName": "Potensi Pengembangan",
+    "bobot": 0.06165897791650902,
+    "versionId": 37
+  },
+  {
+    "kategoriId": 2,
+    "kriteriaCode": "KD01",
+    "kriteriaName": "Kondisi Mesin",
+    "bobot": 0.3076286870056807,
+    "versionId": 38
+  },
+  {
+    "kategoriId": 2,
+    "kriteriaCode": "KD02",
+    "kriteriaName": "Performa",
+    "bobot": 0.1586627464375286,
+    "versionId": 38
+  },
+  {
+    "kategoriId": 2,
+    "kriteriaCode": "KD03",
+    "kriteriaName": "Kilometer",
+    "bobot": 0.143978436287629,
+    "versionId": 38
+  },
+  {
+    "kategoriId": 2,
+    "kriteriaCode": "KD04",
+    "kriteriaName": "Tahun Produksi",
+    "bobot": 0.10932873502166897,
+    "versionId": 38
+  },
+  {
+    "kategoriId": 2,
+    "kriteriaCode": "KD05",
+    "kriteriaName": "Riwayat Kendaraan",
+    "bobot": 0.11097963247011565,
+    "versionId": 38
+  },
+  {
+    "kategoriId": 2,
+    "kriteriaCode": "KD06",
+    "kriteriaName": "Merek atau Model",
+    "bobot": 0.08706043227461673,
+    "versionId": 38
+  },
+  {
+    "kategoriId": 2,
+    "kriteriaCode": "KD07",
+    "kriteriaName": "Kondisi Fisik",
+    "bobot": 0.08236133050276032,
+    "versionId": 38
+  },
+  {
+    "kategoriId": 3,
+    "kriteriaCode": "EL01",
+    "kriteriaName": "Kondisi Barang",
+    "bobot": 0.24635309519746307,
+    "versionId": 39
+  },
+  {
+    "kategoriId": 3,
+    "kriteriaCode": "EL02",
+    "kriteriaName": "Spesifikasi Teknis",
+    "bobot": 0.23325227440250682,
+    "versionId": 39
+  },
+  {
+    "kategoriId": 3,
+    "kriteriaCode": "EL03",
+    "kriteriaName": "Performa atau Fungsi",
+    "bobot": 0.22051343914506435,
+    "versionId": 39
+  },
+  {
+    "kategoriId": 3,
+    "kriteriaCode": "EL04",
+    "kriteriaName": "Usia Pemakaian",
+    "bobot": 0.1310817793824983,
+    "versionId": 39
+  },
+  {
+    "kategoriId": 3,
+    "kriteriaCode": "EL05",
+    "kriteriaName": "Merek",
+    "bobot": 0.09002943032836402,
+    "versionId": 39
+  },
+  {
+    "kategoriId": 3,
+    "kriteriaCode": "EL06",
+    "kriteriaName": "Kelengkapan",
+    "bobot": 0.07876998154410354,
+    "versionId": 39
+  }
+]

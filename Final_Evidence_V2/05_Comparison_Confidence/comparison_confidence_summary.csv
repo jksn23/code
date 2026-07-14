@@ -1,0 +1,10 @@
+asset,accepted_count,conditional_count,total_count,min_price,max_price,median,range_to_median_ratio,confidence_level,confidence_reason
+"Rumah Tipe 45/90",5,0,5,600000000,800000000,690000000,0.2899,TINGGI,"Validasi dataset final 45 data"
+"Ruko 2 Lantai",3,2,5,828000000,2565000000,1800000000,0.9650,RENDAH,"Validasi dataset final 45 data"
+"Tanah Kavling",1,4,5,200000000,300000000,250000000,0.4000,RENDAH,"Validasi dataset final 45 data"
+"Toyota Avanza 2019",3,2,5,139000000,157000000,150000000,0.1200,SEDANG,"Validasi dataset final 45 data"
+"Honda Beat 2021",3,2,5,12250000,14000000,12900000,0.1357,RENDAH,"Validasi dataset final 45 data"
+"Mitsubishi Xpander 2018",1,4,5,175000000,182000000,179000000,0.0391,RENDAH,"Validasi dataset final 45 data"
+"Laptop Lenovo ThinkPad 2021",3,2,5,4950000,6000000,5850000,0.1795,SEDANG,"Validasi dataset final 45 data"
+"iPhone 12 128GB",5,0,5,4500000,6250000,5800000,0.3017,RENDAH,"Validasi dataset final 45 data"
+"Kamera Canon EOS 700D",2,3,5,3000000,4000000,3300000,0.3030,RENDAH,"Validasi dataset final 45 data"

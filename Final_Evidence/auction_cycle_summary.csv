@@ -1,0 +1,8 @@
+Phase,ActionName,Initiator,Status,RecordUpdated
+Phase1,"Create Asset & Valuation",Seller,PASS,"Aset + NilaiKriteria"
+Phase2,"Add Manual & Scrape Comparables",Seller,PASS,"DataPembanding"
+Phase3,"Check Activity & Validate URL",Admin,PASS,"lastCheckedAt, lastHttpStatus"
+Phase4,"Calculate Median Reference Price",Seller,PASS,"Aset.hargaPasar, Hasil.hargaReferensiPasar"
+Phase5,"Calculate SAW Preference & Limit",Seller,PASS,"Aset.limitValue, Hasil.nilaiPreferensi"
+Phase6,"Approve Penilaian & Start Auction",Admin,PASS,"Lelang.status=ACTIVE"
+Phase7,"Submit Bids & Finish Auction",Buyer,PASS,"Penawaran, Lelang.status=FINISHED"

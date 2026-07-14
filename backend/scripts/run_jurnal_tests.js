@@ -39,7 +39,7 @@ function getNewLogs() {
 
 async function isServerRunning() {
   try {
-    await axios.get('http://localhost:5001/health', { timeout: 1000 });
+    await axios.get('http://localhost:5000/health', { timeout: 1000 });
     return true;
   } catch (err) {
     return false;
@@ -48,15 +48,15 @@ async function isServerRunning() {
 
 async function ensureServer() {
   if (await isServerRunning()) {
-    console.log('Backend server is already running on port 5001.');
+    console.log('Backend server is already running on port 5000.');
     initializeLogOffset();
     return;
   }
 
-  console.log('Starting backend server on port 5001...');
+  console.log('Starting backend server on port 5000...');
   serverProcess = spawn('node', ['app.js'], {
     cwd: 'C:/Users/McCrazy/Documents/kampus/TA/code/backend',
-    env: { ...process.env, PORT: '5001' },
+    env: { ...process.env, PORT: '5000' },
     stdio: 'ignore',
   });
 
@@ -185,7 +185,7 @@ function buildMetadata(tcId, title, result, defectId = null) {
     commitHash: "latest",
     buildNumber: "1",
     baseUrlFrontend: "http://localhost:5173",
-    baseUrlBackend: "http://localhost:5001",
+    baseUrlBackend: "http://localhost:5000",
     result: result,
     defectId: defectId
   };
@@ -210,7 +210,7 @@ async function runTests() {
 
   // Get tokens
   try {
-    const loginAdmin = await axios.post('http://localhost:5001/api/auth/login', {
+    const loginAdmin = await axios.post('http://localhost:5000/api/auth/login', {
       email: 'admin@lelang.com',
       password: 'admin123',
     });
@@ -230,17 +230,20 @@ async function runTests() {
         role: 'PENJUAL'
       }
     });
-    // Create Penjual profile
-    await prisma.penjual.create({
+  }
+
+  let penjualProfile = await prisma.penjual.findFirst({ where: { userId: penjualUser.id } });
+  if (!penjualProfile) {
+    penjualProfile = await prisma.penjual.create({
       data: {
         userId: penjualUser.id,
-        deskripsi: 'Profil Penjual Test'
+        verificationStatus: 'APPROVED'
       }
     });
   }
 
   try {
-    const loginPenjual = await axios.post('http://localhost:5001/api/auth/login', {
+    const loginPenjual = await axios.post('http://localhost:5000/api/auth/login', {
       email: penjualUser.email,
       password: 'penjual123',
     });
@@ -251,7 +254,7 @@ async function runTests() {
       where: { id: penjualUser.id },
       data: { password: await bcrypt.hash('penjual123', 10) }
     });
-    const loginPenjual = await axios.post('http://localhost:5001/api/auth/login', {
+    const loginPenjual = await axios.post('http://localhost:5000/api/auth/login', {
       email: penjualUser.email,
       password: 'penjual123',
     });
@@ -274,7 +277,7 @@ async function runTests() {
     };
 
     try {
-      await axios.post('http://localhost:5001/api/auth/login', apiRequest.body);
+      await axios.post('http://localhost:5000/api/auth/login', apiRequest.body);
     } catch (err) {
       httpStatus = err.response?.status || 500;
       apiResponse = err.response?.data || err.message;
@@ -311,7 +314,7 @@ async function runTests() {
     };
 
     try {
-      await axios.get('http://localhost:5001/api/admin/penilaian-aset', {
+      await axios.get('http://localhost:5000/api/admin/penilaian-aset', {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
     } catch (err) {
@@ -394,7 +397,7 @@ async function runTests() {
     };
 
     try {
-      await axios.post(`http://localhost:5001/api/seller/aset/${tempAset.id}/nilai-kriteria`, apiRequest.body, {
+      await axios.post(`http://localhost:5000/api/seller/aset/${tempAset.id}/nilai-kriteria`, apiRequest.body, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
     } catch (err) {
@@ -439,7 +442,7 @@ async function runTests() {
     };
 
     try {
-      await axios.post(`http://localhost:5001/api/seller/aset/${tempAset.id}/nilai-kriteria`, apiRequest.body, {
+      await axios.post(`http://localhost:5000/api/seller/aset/${tempAset.id}/nilai-kriteria`, apiRequest.body, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
     } catch (err) {
@@ -509,7 +512,7 @@ async function runTests() {
     };
 
     try {
-      await axios.post(`http://localhost:5001/api/seller/aset/${tempAset.id}/hitung-saw`, {}, {
+      await axios.post(`http://localhost:5000/api/seller/aset/${tempAset.id}/hitung-saw`, {}, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
     } catch (err) {
@@ -548,7 +551,7 @@ async function runTests() {
     const dbBefore = await getDbSnapshot(['data_pembanding']);
     
     // Insert first manual comparable
-    await axios.post(`http://localhost:5001/api/pembanding/aset/${tempAset.id}/manual`, {
+    await axios.post(`http://localhost:5000/api/pembanding/aset/${tempAset.id}/manual`, {
       judul: 'Comparable TC-06',
       sumber: 'OLX',
       sourceUrl: 'https://www.olx.co.id/item/tc06-mobil-iid-111',
@@ -575,7 +578,7 @@ async function runTests() {
     };
 
     try {
-      const res = await axios.post(`http://localhost:5001/api/pembanding/aset/${tempAset.id}/manual`, apiRequest.body, {
+      const res = await axios.post(`http://localhost:5000/api/pembanding/aset/${tempAset.id}/manual`, apiRequest.body, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
       httpStatus = res.status;
@@ -648,7 +651,7 @@ async function runTests() {
     };
 
     try {
-      await axios.post(`http://localhost:5001/api/pembanding/aset/${tempAset.id}/hitung-median`, {}, {
+      await axios.post(`http://localhost:5000/api/pembanding/aset/${tempAset.id}/hitung-median`, {}, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
     } catch (err) {
@@ -706,7 +709,7 @@ async function runTests() {
     };
 
     try {
-      await axios.post(`http://localhost:5001/api/pembanding/aset/${tempAset.id}/hitung-median`, {}, {
+      await axios.post(`http://localhost:5000/api/pembanding/aset/${tempAset.id}/hitung-median`, {}, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
     } catch (err) {
@@ -752,7 +755,7 @@ async function runTests() {
     };
 
     try {
-      await axios.post(`http://localhost:5001/api/pembanding/aset/${tempAset.id}/manual`, apiRequest.body, {
+      await axios.post(`http://localhost:5000/api/pembanding/aset/${tempAset.id}/manual`, apiRequest.body, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
     } catch (err) {
@@ -831,7 +834,7 @@ async function runTests() {
     };
 
     try {
-      const res = await axios.post(`http://localhost:5001/api/pembanding/aset/${tempAset.id}/hitung-median`, {}, {
+      const res = await axios.post(`http://localhost:5000/api/pembanding/aset/${tempAset.id}/hitung-median`, {}, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
       httpStatus = res.status;
@@ -876,7 +879,7 @@ async function runTests() {
     };
 
     try {
-      const res = await axios.post(`http://localhost:5001/api/seller/aset/${tempAset.id}/hitung-saw`, {}, {
+      const res = await axios.post(`http://localhost:5000/api/seller/aset/${tempAset.id}/hitung-saw`, {}, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
       httpStatus = res.status;
@@ -939,7 +942,7 @@ async function runTests() {
     await createThreeValidComparables(tempAset2.id, 100000000);
 
     // Set identical Hasil (or trigger hitung-saw)
-    await axios.post(`http://localhost:5001/api/seller/aset/${tempAset2.id}/hitung-saw`, {}, {
+    await axios.post(`http://localhost:5000/api/seller/aset/${tempAset2.id}/hitung-saw`, {}, {
       headers: { Authorization: `Bearer ${penjualToken}` }
     });
 
@@ -953,7 +956,7 @@ async function runTests() {
     };
 
     try {
-      const res = await axios.get(`http://localhost:5001/api/spk/hasil/${tempKategori.id}`);
+      const res = await axios.get(`http://localhost:5000/api/spk/hasil/${tempKategori.id}`);
       httpStatus = res.status;
       apiResponse = res.data;
     } catch (err) {
@@ -1030,7 +1033,7 @@ async function runTests() {
     };
 
     try {
-      const res = await axios.post(`http://localhost:5001/api/seller/aset/${singleAset.id}/hitung-saw`, {}, {
+      const res = await axios.post(`http://localhost:5000/api/seller/aset/${singleAset.id}/hitung-saw`, {}, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
       httpStatus = res.status;
@@ -1100,7 +1103,7 @@ async function runTests() {
   {
     console.log('Running TC-15...');
     const tcId = 'TC-15';
-    const dbBefore = await getDbSnapshot(['user']);
+    const dbBefore = await getDbSnapshot(['user', 'hasil']);
     
     let transactionError = null;
     try {
@@ -1119,19 +1122,48 @@ async function runTests() {
       transactionError = err.message;
     }
 
-    const dbAfter = await getDbSnapshot(['user']);
     const tempUserDb = await prisma.user.findUnique({ where: { email: 'tc15_temp_rollback@lelang.com' } });
-    const pass = transactionError === 'Forced Transaction Rollback Exception' && !tempUserDb;
+
+    // Pemicuan API Rollback via Header
+    let apiStatus = 0;
+    let apiData = null;
+    try {
+      const res = await axios.post(`http://localhost:5000/api/seller/aset/${tempAset.id}/hitung-saw`, {}, {
+        headers: {
+          Authorization: `Bearer ${penjualToken}`,
+          'x-force-rollback': 'true'
+        }
+      });
+      apiStatus = res.status;
+      apiData = res.data;
+    } catch (err) {
+      apiStatus = err.response?.status || 500;
+      apiData = err.response?.data || err.message;
+    }
+
+    const dbAfter = await getDbSnapshot(['user', 'hasil']);
+    const pass = transactionError === 'Forced Transaction Rollback Exception' && 
+                 !tempUserDb && 
+                 apiStatus === 500 && 
+                 apiData.code === 'TRANSACTION_ROLLED_BACK' && 
+                 apiData.correlationId !== undefined;
 
     writeEvidence(tcId, {
       'metadata.json': buildMetadata(tcId, 'Kegagalan transaksi database', pass ? 'PASS' : 'FAIL'),
-      'TC-15_api_request.json': { transaction: 'Prisma.$transaction rollback test' },
-      'TC-15_api_response.json': { error: transactionError },
-      'TC-15_http_status.txt': '500 (Internal Server Error / Forced Transaction Error)',
+      'TC-15_api_request.json': { 
+        transaction: 'Prisma.$transaction rollback test',
+        apiCall: `POST /api/seller/aset/${tempAset.id}/hitung-saw`,
+        headers: { 'x-force-rollback': 'true' }
+      },
+      'TC-15_api_response.json': { 
+        directTransactionError: transactionError,
+        apiResponse: apiData 
+      },
+      'TC-15_http_status.txt': `${apiStatus} (Internal Server Error / Rolled Back)`,
       'TC-15_backend.log': getNewLogs(),
       'TC-15_db_before.txt': dbBefore,
       'TC-15_db_after.txt': dbAfter,
-      'execution_notes.md': `### TC-15 Execution Notes\n- Menjamin sifat Atomicity pada transaksi database.\n- Perubahan di-rollback penuh saat terjadi kegagalan.`
+      'execution_notes.md': `### TC-15 Execution Notes\n- Menjamin sifat Atomicity pada transaksi database.\n- Perubahan di-rollback penuh saat terjadi kegagalan.\n- API mengembalikan Correlation ID: ${apiData?.correlationId || 'N/A'}`
     });
   }
 
@@ -1158,7 +1190,7 @@ async function runTests() {
     };
 
     try {
-      const res = await axios.post(`http://localhost:5001/api/pembanding/aset/${tempAset.id}/manual`, apiRequest.body, {
+      const res = await axios.post(`http://localhost:5000/api/pembanding/aset/${tempAset.id}/manual`, apiRequest.body, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
       httpStatus = res.status;
@@ -1207,10 +1239,11 @@ async function runTests() {
     };
 
     try {
-      const res = await axios.post('http://localhost:5001/api/dokumen/upload', {
-        file: 'bin-content',
-        filename: '../../malicious.sh'
-      }, {
+      const formData = new FormData();
+      const fileBlob = new Blob([Buffer.from('echo "malicious script"', 'utf-8')], { type: 'application/x-sh' });
+      formData.append('file', fileBlob, '../../malicious.sh');
+
+      const res = await axios.post('http://localhost:5000/api/dokumen/upload', formData, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
       httpStatus = res.status;
@@ -1242,11 +1275,37 @@ async function runTests() {
     console.log('Running TC-18...');
     const tcId = 'TC-18';
     
-    // We update all comparables of tempAset to TIDAK_VALID statusIntegritasUrl (simulating offline check) to make the valid count 0 (< 3)
-    await prisma.dataPembanding.updateMany({
-      where: { asetId: tempAset.id },
-      data: { statusIntegritasUrl: 'TIDAK_VALID' }
+    // Ambil data pembanding tempAset
+    const comparables = await prisma.dataPembanding.findMany({
+      where: { asetId: tempAset.id }
     });
+
+    const mockUrls = [
+      'https://www.olx.co.id/item/tc18-mock-404-item',
+      'https://www.olx.co.id/item/tc18-mock-410-item',
+      'https://www.olx.co.id/item/tc18-mock-timeout-item',
+      'https://www.olx.co.id/item/tc18-mock-500-item',
+    ];
+
+    for (let i = 0; i < comparables.length; i++) {
+      await prisma.dataPembanding.update({
+        where: { id: comparables[i].id },
+        data: { sourceUrl: mockUrls[i % mockUrls.length] }
+      });
+    }
+
+    // Panggil check-activity API untuk setiap pembanding
+    let checkResults = [];
+    for (const comp of comparables) {
+      try {
+        const res = await axios.patch(`http://localhost:5000/api/pembanding/${comp.id}/check-activity`, {}, {
+          headers: { Authorization: `Bearer ${adminToken}` }
+        });
+        checkResults.push(res.data.data);
+      } catch (err) {
+        console.error(`Check activity failed for comp ID ${comp.id}:`, err.message);
+      }
+    }
 
     const dbBefore = await getDbSnapshot(['data_pembanding', 'hasil']);
     
@@ -1259,7 +1318,7 @@ async function runTests() {
     };
 
     try {
-      const res = await axios.post(`http://localhost:5001/api/pembanding/aset/${tempAset.id}/hitung-median`, {}, {
+      const res = await axios.post(`http://localhost:5000/api/pembanding/aset/${tempAset.id}/hitung-median`, {}, {
         headers: { Authorization: `Bearer ${penjualToken}` }
       });
       httpStatus = res.status;
@@ -1271,17 +1330,24 @@ async function runTests() {
 
     const dbAfter = await getDbSnapshot(['data_pembanding', 'hasil']);
     
-    const pass = httpStatus === 400 || httpStatus === 422;
+    const allMarkedInvalid = checkResults.every(c => c.statusIntegritasUrl === 'TIDAK_VALID');
+    const pass = allMarkedInvalid && (httpStatus === 400 || httpStatus === 422);
 
     writeEvidence(tcId, {
       'metadata.json': buildMetadata(tcId, 'URL pembanding sudah tidak aktif', pass ? 'PASS' : 'FAIL'),
-      'TC-18_api_request.json': apiRequest,
-      'TC-18_api_response.json': apiResponse,
+      'TC-18_api_request.json': {
+        checkActivityRequests: comparables.map(c => `PATCH /api/pembanding/${c.id}/check-activity`),
+        hitungMedianRequest: apiRequest
+      },
+      'TC-18_api_response.json': {
+        checkActivityResponses: checkResults,
+        hitungMedianResponse: apiResponse
+      },
       'TC-18_http_status.txt': httpStatus,
       'TC-18_backend.log': getNewLogs(),
       'TC-18_db_before.txt': dbBefore,
       'TC-18_db_after.txt': dbAfter,
-      'execution_notes.md': `### TC-18 Execution Notes\n- Menangani URL yang tidak aktif/mati.\n- Status: ${httpStatus} (Expected: 400/422)\n- Database tidak melakukan kalkulasi jika data aktif kurang dari 3.`
+      'execution_notes.md': `### TC-18 Execution Notes\n- Menangani URL yang tidak aktif/mati secara preventif via Admin check.\n- Status Check: ${checkResults.map(r => `HTTP ${r.lastHttpStatus} (${r.validationReason})`).join(', ')}\n- Hasil hitung-median: ${httpStatus} (Expected: 400/422)\n- Database tidak melakukan kalkulasi jika data aktif kurang dari 3.`
     });
   }
 

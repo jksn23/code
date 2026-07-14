@@ -1,6 +1,6 @@
 # Hasil Pengujian Data Uji Jurnal AHP-SAW
 
-Tanggal pengujian: 20 Juni 2026 pukul 20.34
+Tanggal pengujian: 15 Juli 2026 pukul 01.50
 
 ## File yang Dibuat atau Diubah
 - backend/prisma/seed_data_jurnal.js

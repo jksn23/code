@@ -7,6 +7,7 @@ import {
   validasiPembanding,
   hitungMedian,
   getScrapingJobStatus,
+  checkActivityController,
 } from '../controllers/pembanding.controller.js';
 import { verifyToken, verifyAdmin, verifyPenjual } from '../middleware/auth.middleware.js';
 
@@ -23,5 +24,6 @@ router.post('/aset/:asetId/hitung-median', verifyPenjual, hitungMedian);
 
 router.patch('/:id/select', verifyPenjual, selectPembanding);
 router.patch('/:id/validasi', verifyAdmin, validasiPembanding);
+router.patch('/:id/check-activity', verifyAdmin, checkActivityController);
 
 export default router;

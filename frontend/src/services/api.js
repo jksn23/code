@@ -20,6 +20,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    if (!error.response) {
+      const offlineError = new Error('Layanan sedang tidak tersedia. Data belum tersimpan.');
+      offlineError.status = 503;
+      offlineError.details = { message: 'Backend service offline or unreachable' };
+      return Promise.reject(offlineError);
+    }
     const message = error.response?.data?.message || 'Terjadi kesalahan pada server';
     if (error.response?.status === 401 || error.response?.status === 403) {
       if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
@@ -159,6 +165,7 @@ export const addManualPembanding = (asetId, data) => api.post(`/pembanding/aset/
 export const hitungMedianPembanding = (asetId) => api.post(`/pembanding/aset/${asetId}/hitung-median`);
 export const selectPembanding = (id, data) => api.patch(`/pembanding/${id}/select`, data);
 export const validasiPembanding = (id, data) => api.patch(`/pembanding/${id}/validasi`, data);
+export const checkActivityComparable = (id) => api.patch(`/pembanding/${id}/check-activity`);
 
 // ====== LIMIT VALIDATION ======
 export const getLimitValidationsForAset = (asetId) => api.get(`/limit-validation/aset/${asetId}`);

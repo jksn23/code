@@ -1,0 +1,6 @@
+{
+  "success": false,
+  "code": "TRANSACTION_ROLLED_BACK",
+  "message": "Transaksi dibatalkan karena simulasi kegagalan (Fault Injection).",
+  "correlationId": "corr-1784058248999-j1he2gl5w"
+}

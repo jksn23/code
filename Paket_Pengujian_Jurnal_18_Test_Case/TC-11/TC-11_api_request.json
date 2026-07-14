@@ -1,7 +1,7 @@
 {
   "method": "POST",
-  "url": "/api/seller/aset/64/hitung-saw",
+  "url": "/api/seller/aset/10/hitung-saw",
   "headers": {
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sZSI6IlBFTkpVQUwiLCJlbWFpbCI6InBlbmp1YWwxQG1haWwuY29tIiwiaWF0IjoxNzg0MDQ3NDE2LCJleHAiOjE3ODQxMzM4MTZ9.smrKQpTbFCk9fev39lSpNpdfT1FzLaJ7yXp6AV-c_u8"
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6IlBFTkpVQUwiLCJlbWFpbCI6InBlbmp1YWxfdGVzdEBsZWxhbmcuY29tIiwiaWF0IjoxNzg0MDUyMTQ2LCJleHAiOjE3ODQxMzg1NDZ9.lfkAIKWbe2X9DZeykod-4yVL1BL3pTOg_S8-Tt5T3V0"
   }
 }

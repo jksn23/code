@@ -12,7 +12,10 @@ export const hitungSAWController = async (req, res) => {
     // Ambil semua aset dengan kategori tersebut beserta nilai aset
     const asetList = await prisma.aset.findMany({
       where: { kategoriId: Number(kategori_id) },
-      include: { nilaiAset: { include: { kriteria: true } } },
+      include: {
+        nilaiAset: { include: { kriteria: true } },
+        hasil: { orderBy: { id: 'desc' }, take: 1 }
+      },
     });
 
     if (asetList.length === 0) {
@@ -50,8 +53,14 @@ export const hitungSAWController = async (req, res) => {
     }
 
     const totalBobot = activeVersion.bobotAhp.reduce((sum, item) => sum + Number(item.bobot), 0);
-    if (Math.abs(totalBobot - 1) > 0.000001) {
-      return res.status(400).json({ success: false, message: `Total bobot tidak sama dengan 1 (Total = ${totalBobot}).` });
+    const tolerance = 1e-9;
+    if (Math.abs(totalBobot - 1) > tolerance) {
+      return res.status(422).json({
+        success: false,
+        code: 'INVALID_TOTAL_WEIGHT',
+        message: 'Total bobot harus sama dengan 1.',
+        totalWeight: totalBobot
+      });
     }
 
     const kriteriaWithBobot = kriteriaList.map((k) => {

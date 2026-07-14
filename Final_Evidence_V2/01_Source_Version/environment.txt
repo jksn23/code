@@ -1,0 +1,5 @@
+Commit: 8645ef9d2649da7cf47c8629ee0d8d2fa992f4a1
+Branch: research/jcis-final-evidence-v2
+Node: v22.14.0
+Build: JCIS-FINAL-20260714-1943
+Date: 2026-07-14T19:43:58.423Z
