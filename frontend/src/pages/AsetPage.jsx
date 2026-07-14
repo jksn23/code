@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAset, getKategori, createAset, createAsetProperty, createAssetVehicle, createAssetElectronic, updateAset, deleteAset, ajukanLelang } from '../services/api.js';
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 import CurrencyInput from '../components/CurrencyInput';
 import { Pencil, Trash2, Send, FileText, Lock, Plus, Tag, Eye, PenSquare, Database } from 'lucide-react';
 import { assetUrl } from '../config/env.js';
@@ -423,21 +424,24 @@ export default function AsetPage() {
   const soldCount = data.filter((item) => item.lelang?.some((lelang) => lelang.status === 'FINISHED' && lelang.pemenangId !== null)).length;
   const unsoldCount = data.length - soldCount;
 
+  const { showAlert } = useModal();
+
   const handleDelete = async (id) => {
     try { 
       await deleteAset(id); 
       setConfirmModal(null);
+      showAlert('Aset berhasil dihapus.', 'success');
       load(); 
-    } catch (e) { alert(e.message); }
+    } catch (e) { showAlert(e.message, 'error'); }
   };
 
   const handleAjukan = async (id) => {
     try { 
       await ajukanLelang(id); 
-      alert('Berhasil diajukan! Menunggu admin.');
+      showAlert('Aset berhasil diajukan! Menunggu persetujuan admin.', 'success');
       setConfirmModal(null);
       load(); 
-    } catch (e) { alert(e.message); }
+    } catch (e) { showAlert(e.message, 'error'); }
   };
 
   return (

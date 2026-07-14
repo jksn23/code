@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getKategori, createKategori, updateKategori, deleteKategori } from '../services/api.js';
-import { PenSquare, Trash2, FolderTree } from 'lucide-react';
+import { FolderTree, Plus, Pencil, Save, X, Trash2 } from 'lucide-react';
+import { useModal } from '../context/ModalContext';
 
 function KategoriModal({ item, onClose, onSave }) {
   const [nama, setNama] = useState(item?.nama || '');
@@ -23,8 +24,10 @@ function KategoriModal({ item, onClose, onSave }) {
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-header">
-          <h3>{item ? '✏️ Edit Kategori' : '➕ Tambah Kategori'}</h3>
-          <button className="btn btn-secondary btn-sm" onClick={onClose}>✕</button>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {item ? <><Pencil size={18} /> Edit Kategori</> : <><Plus size={18} /> Tambah Kategori</>}
+          </h3>
+          <button className="btn btn-secondary btn-sm" onClick={onClose}><X size={16} /></button>
         </div>
         {error && <div className="alert alert-danger">{error}</div>}
         <form onSubmit={handleSubmit}>
@@ -35,8 +38,8 @@ function KategoriModal({ item, onClose, onSave }) {
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? <span className="spinner" /> : '💾 Simpan'}
+            <button type="submit" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} disabled={loading}>
+              {loading ? <span className="spinner" /> : <><Save size={16} /> Simpan</>}
             </button>
           </div>
         </form>
@@ -46,6 +49,7 @@ function KategoriModal({ item, onClose, onSave }) {
 }
 
 export default function KategoriPage() {
+  const { showAlert, showConfirm } = useModal();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null); // null | 'add' | item
@@ -61,11 +65,21 @@ export default function KategoriPage() {
 
   useEffect(() => { load(); }, []);
 
-  const handleDelete = async (id) => {
-    if (!confirm('Hapus kategori ini? Data terkait (kriteria, aset) juga akan terhapus!')) return;
+  const handleDelete = async (id, nama) => {
+    const isConfirmed = await showConfirm(`Hapus kategori "${nama || 'ini'}"? Data kriteria & aset terkait juga akan terhapus.`, {
+      title: 'Hapus Kategori',
+      type: 'danger',
+      confirmText: 'Ya, Hapus Kategori',
+    });
+    if (!isConfirmed) return;
+
     setDeleting(id);
-    try { await deleteKategori(id); load(); }
-    catch (e) { alert(e.message); }
+    try {
+      await deleteKategori(id);
+      showAlert('Kategori berhasil dihapus.', 'success');
+      load();
+    }
+    catch (e) { showAlert(e.message, 'error'); }
     finally { setDeleting(null); }
   };
 
@@ -73,10 +87,14 @@ export default function KategoriPage() {
     <div>
       <div className="page-header flex-between">
         <div>
-          <h2>🗂️ Manajemen Kategori</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <FolderTree size={24} style={{ color: 'var(--primary)' }} /> Manajemen Kategori
+          </h2>
           <p>Kelola kategori aset lelang (Tanah & Bangunan, Kendaraan, Elektronik)</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setModal('add')}>➕ Tambah</button>
+        <button className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={() => setModal('add')}>
+          <Plus size={18} /> Tambah
+        </button>
       </div>
 
       {error && <div className="alert alert-danger">{error}</div>}

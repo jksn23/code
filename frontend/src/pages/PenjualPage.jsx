@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getSemuaPenjual } from '../services/api.js';
 import { getSellerStatusMeta, resolveSellerStatus } from '../utils/sellerVerification.js';
+import { useModal } from '../context/ModalContext';
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
 
 export default function PenjualPage() {
+  const { showAlert } = useModal();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -17,7 +19,7 @@ export default function PenjualPage() {
       const res = await getSemuaPenjual();
       setData(res.data);
     } catch (e) {
-      alert(e.message);
+      showAlert(e.message, 'error');
     } finally {
       setLoading(false);
     }

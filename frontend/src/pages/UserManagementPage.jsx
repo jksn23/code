@@ -273,42 +273,57 @@ function UserDetailModal({ detail, onClose, onEdit }) {
 }
 
 export default function UserManagementPage() {
+  const { showAlert, showConfirm } = useModal();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
-  const [modal, setModal] = useState(null);
+  const [modal, setModal] = useState(null); // 'create' | 'edit' | 'detail'
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
-  const [error, setError] = useState('');
 
-  const load = async () => {
+  // Filter & pagination
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState({ total: 0, totalPages: 1 });
+
+  const load = async (pageTarget = page) => {
     setLoading(true);
-    setError('');
     try {
       const res = await getUsersAdmin({
-        ...(roleFilter ? { role: roleFilter } : {}),
-        ...(search.trim() ? { q: search.trim() } : {}),
+        search: search || undefined,
+        role: roleFilter || undefined,
+        status: statusFilter || undefined,
+        page: pageTarget,
+        limit: 10,
       });
       setData(res.data || []);
-    } catch (err) {
-      setError(err.message);
+      setMeta(res.meta || { total: 0, totalPages: 1 });
+    } catch (e) {
+      showAlert(e.message, 'error');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    load();
-  }, [roleFilter]);
+    load(1);
+    setPage(1);
+  }, [search, roleFilter, statusFilter]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > meta.totalPages) return;
+    setPage(newPage);
+    load(newPage);
+  };
 
   const counts = useMemo(() => ({
-    total: data.length,
+    total: meta.total || data.length,
     admin: data.filter((item) => item.role === 'ADMIN').length,
     penjual: data.filter((item) => item.role === 'PENJUAL').length,
     pembeli: data.filter((item) => item.role === 'PEMBELI').length,
-  }), [data]);
+  }), [data, meta.total]);
 
   const openDetail = async (id) => {
     setDetailLoading(true);
@@ -317,7 +332,7 @@ export default function UserManagementPage() {
       setSelectedDetail(res.data);
       setModal('detail');
     } catch (err) {
-      alert(err.message);
+      showAlert(err.message, 'error');
     } finally {
       setDetailLoading(false);
     }
@@ -330,20 +345,27 @@ export default function UserManagementPage() {
       setSelectedDetail(res.data);
       setModal('edit');
     } catch (err) {
-      alert(err.message);
+      showAlert(err.message, 'error');
     } finally {
       setDetailLoading(false);
     }
   };
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Hapus user "${name}"?`)) return;
+    const isConfirmed = await showConfirm(`Hapus user "${name}" secara permanen? Data transaksi & relasi terkait akan ikut terhapus.`, {
+      title: 'Hapus User',
+      type: 'danger',
+      confirmText: 'Ya, Hapus User',
+    });
+    if (!isConfirmed) return;
+
     setDeletingId(id);
     try {
       await deleteUserAdmin(id);
+      showAlert(`User "${name}" berhasil dihapus.`, 'success');
       await load();
     } catch (err) {
-      alert(err.message);
+      showAlert(err.message, 'error');
     } finally {
       setDeletingId(null);
     }
@@ -353,11 +375,13 @@ export default function UserManagementPage() {
     <div>
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <h2>👥 Manajemen User</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Users size={24} style={{ color: 'var(--primary)' }} /> Manajemen User
+          </h2>
           <p>Admin dapat mengelola seluruh user aktif, melihat detail relasi, dan melakukan CRUD dengan validasi aman.</p>
         </div>
-        <button type="button" className="btn btn-primary" onClick={() => { setSelectedDetail(null); setModal('create'); }}>
-          ➕ Tambah User
+        <button type="button" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={() => { setSelectedDetail(null); setModal('create'); }}>
+          <Plus size={18} /> Tambah User
         </button>
       </div>
 

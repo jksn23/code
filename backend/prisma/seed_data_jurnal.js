@@ -351,16 +351,34 @@ async function ensureKriteria(kategoriId, kriteriaData) {
     });
   }
 
-  await prisma.bobotAHP.deleteMany({ where: { kriteriaId: kriteria.id } });
+  // Cari versi bobot aktif untuk kategori ini. Jika belum ada, buat.
+  let activeVersion = await prisma.bobotVersion.findFirst({
+    where: { kategoriId, aktif: true }
+  });
+
+  if (!activeVersion) {
+    activeVersion = await prisma.bobotVersion.create({
+      data: {
+        kategoriId,
+        namaVersi: `Seed Provisional ${kategoriId}`,
+        jumlahPakar: 1,
+        cr: CR_STATIS,
+        aktif: true,
+        tanggalValidasi: new Date()
+      }
+    });
+  }
+
+  await prisma.bobotAHP.deleteMany({ where: { kriteriaId: kriteria.id, versionId: activeVersion.id } });
   const bobot = await prisma.bobotAHP.create({
     data: {
+      versionId: activeVersion.id,
       kriteriaId: kriteria.id,
       bobot: kriteriaData.bobot,
-      cr: CR_STATIS,
     },
   });
 
-  return { ...kriteria, bobot: Number(bobot.bobot), cr: Number(bobot.cr) };
+  return { ...kriteria, bobot: Number(bobot.bobot), cr: Number(activeVersion.cr) };
 }
 
 async function buatAset(kategori, asetData, kriteriaMap) {
@@ -476,7 +494,10 @@ async function validasiSAW() {
         kategoriId: kategori.id,
         nama: { in: kategoriData.kriteria.map((item) => item.nama) },
       },
-      include: { bobotAhp: { orderBy: { createdAt: 'desc' }, take: 1 } },
+      include: { bobotAhp: { 
+        where: { version: { aktif: true } },
+        take: 1
+      } },
       orderBy: { id: 'asc' },
     });
 

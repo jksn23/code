@@ -12,10 +12,11 @@ datasource db {
 model Kategori {
   id        Int        @id @default(autoincrement())
   nama      String     @unique @db.VarChar(100)
-  kriteria  Kriteria[]
-  aset      Aset[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  kriteria     Kriteria[]
+  aset         Aset[]
+  bobotVersion BobotVersion[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@map("kategori")
 }
@@ -56,6 +57,7 @@ model Aset {
   hasil     Hasil[]
   lelang    Lelang[]
   dataPembanding DataPembanding[]
+  documents Document[]
 
   assetProperty   AssetProperty?
   assetVehicle    AssetVehicle?
@@ -83,14 +85,37 @@ model NilaiAset {
 
 model BobotAHP {
   id         Int      @id @default(autoincrement())
+  versionId  Int      @map("version_id")
   kriteriaId Int      @map("kriteria_id")
   bobot      Decimal  @db.Decimal(10, 6)
-  cr         Decimal  @db.Decimal(10, 6)
-  kriteria   Kriteria @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  
+  version    BobotVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  kriteria   Kriteria     @relation(fields: [kriteriaId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 
   @@map("bobot_ahp")
+}
+
+model BobotVersion {
+  id              Int      @id @default(autoincrement())
+  kategoriId      Int      @map("kategori_id")
+  namaVersi       String   @db.VarChar(100)
+  jumlahPakar     Int?     @map("jumlah_pakar")
+  lambdaMax       Decimal? @db.Decimal(10, 6)
+  ci              Decimal? @db.Decimal(10, 6)
+  ri              Decimal? @db.Decimal(10, 6)
+  cr              Decimal  @db.Decimal(10, 6)
+  tanggalValidasi DateTime? @map("tanggal_validasi")
+  aktif           Boolean  @default(false)
+  catatan         String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  kategori        Kategori @relation(fields: [kategoriId], references: [id], onDelete: Cascade)
+  bobotAhp        BobotAHP[]
+
+  @@map("bobot_version")
 }
 
 model Hasil {
@@ -163,6 +188,8 @@ model DataPembanding {
   kondisi         String?                  @db.VarChar(100)
   spesifikasi     String?                  @db.Text
   skorKecocokan   Decimal?                 @map("skor_kecocokan") @db.Decimal(5, 2)
+  similarity      Decimal?                 @db.Decimal(5, 4)    // Fuse.js fuzzy match score 0.0-1.0
+  isOutlier       Boolean                  @default(false) @map("is_outlier")   // IQR outlier flag
   statusValidasi  StatusValidasiPembanding @default(MENUNGGU) @map("status_validasi")
   dipilihPenjual  Boolean                  @default(false) @map("dipilih_penjual")
   scrapedAt       DateTime                 @default(now()) @map("scraped_at")
@@ -173,6 +200,7 @@ model DataPembanding {
 
   @@map("data_pembanding")
 }
+
 
 model User {
   id                      Int                     @id @default(autoincrement())
@@ -188,15 +216,21 @@ model User {
   createdAt               DateTime                @default(now())
   updatedAt               DateTime                @updatedAt
 
-  penjual           Penjual?
-  penawaran         Penawaran[]
-  lelangDimenangkan Lelang[]     @relation("LelangPemenang")
-  verifiedPayments  Lelang[]     @relation("PaymentVerifier")
-  notifications     Notifikasi[]
-  buyerVerifier     User?        @relation("BuyerVerifier", fields: [buyerVerifiedBy], references: [id], onDelete: SetNull)
-  verifiedBuyers    User[]       @relation("BuyerVerifier")
-  verifiedSellers   Penjual[]    @relation("SellerVerifier")
-  QuickBid          QuickBid[]
+  penjual              Penjual?
+  penawaran            Penawaran[]
+  lelangDimenangkan    Lelang[]     @relation("LelangPemenang")
+  verifiedPayments     Lelang[]     @relation("PaymentVerifier")
+  notifications        Notifikasi[]
+  buyerVerifier        User?        @relation("BuyerVerifier", fields: [buyerVerifiedBy], references: [id], onDelete: SetNull)
+  verifiedBuyers       User[]       @relation("BuyerVerifier")
+  verifiedSellers      Penjual[]    @relation("SellerVerifier")
+  QuickBid             QuickBid[]
+  dokumenDigenerate    Dokumen[]          @relation("DokumenGenerator")
+  documentsOwned       Document[]         @relation("DocumentOwner")
+  documentsUploaded    Document[]         @relation("DocumentUploader")
+  documentsVerified    Document[]         @relation("DocumentVerifier")
+  documentActivities   DocumentActivity[]
+  documentTemplates    DocumentTemplate[]
 
   @@map("users")
 }
@@ -247,6 +281,8 @@ model Lelang {
   penawaran             Penawaran[]
   pemenang              User?       @relation("LelangPemenang", fields: [pemenangId], references: [id], onDelete: SetNull)
   verifikatorPembayaran User?       @relation("PaymentVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  dokumen               Dokumen[]
+  documentsRepo         Document[]
 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -358,6 +394,29 @@ model QuickBid {
   @@map("quick_bids")
 }
 
+enum TipeDokumen {
+  SURAT_PENETAPAN
+  BERITA_ACARA
+  DOKUMEN_HASIL_LELANG
+  SURAT_PERMOHONAN
+}
+
+model Dokumen {
+  id           Int          @id @default(autoincrement())
+  lelangId     Int          @map("lelang_id")
+  tipe         TipeDokumen
+  namaFile     String       @map("nama_file") @db.VarChar(255)
+  filePath     String       @map("file_path") @db.VarChar(500)
+  generatedBy  Int          @map("generated_by")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  lelang       Lelang       @relation(fields: [lelangId], references: [id], onDelete: Cascade)
+  generator    User         @relation("DokumenGenerator", fields: [generatedBy], references: [id], onDelete: Cascade)
+
+  @@map("dokumen")
+}
+
 model PenilaianAuditLog {
   id            Int      @id @default(autoincrement())
   asetId        Int      @map("aset_id")
@@ -371,3 +430,99 @@ model PenilaianAuditLog {
   @@index([asetId])
   @@map("penilaian_audit_log")
 }
+
+enum DocumentType {
+  // Penjual
+  KTP_PENJUAL
+  NPWP_PENJUAL
+  SURAT_KUASA
+  SURAT_PERMOHONAN_LELANG
+  SURAT_PERNYATAAN
+  DAFTAR_BARANG
+  BUKTI_REKENING
+  // Aset
+  FOTO_ASET
+  DOKUMEN_KEPEMILIKAN
+  // Pengumuman
+  BUKTI_PENGUMUMAN
+  // Pembeli
+  KTP_PEMBELI
+  NPWP_PEMBELI
+  BUKTI_PEMBAYARAN
+  // Sistem / Generated
+  SURAT_PENETAPAN_LELANG
+  BERITA_ACARA
+  NOTA_PEMBAYARAN
+  RINGKASAN_HASIL_LELANG
+}
+
+enum DocumentStatus {
+  DRAFT
+  UPLOADED
+  PENDING_VERIFICATION
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+model Document {
+  id               Int            @id @default(autoincrement())
+  ownerId          Int?           @map("owner_id")
+  auctionId        Int?           @map("auction_id")
+  assetId          Int?           @map("asset_id")
+  documentType     DocumentType   @map("document_type")
+  fileName         String         @map("file_name") @db.VarChar(255)
+  originalFileName String?        @map("original_file_name") @db.VarChar(255)
+  storagePath      String         @map("storage_path") @db.VarChar(500)
+  mimeType         String?        @map("mime_type") @db.VarChar(100)
+  fileSize         Int?           @map("file_size")
+  version          Int            @default(1)
+  status           DocumentStatus @default(PENDING_VERIFICATION)
+  verificationNote String?        @map("verification_note") @db.Text
+  uploadedBy       Int            @map("uploaded_by")
+  verifiedBy       Int?           @map("verified_by")
+  verifiedAt       DateTime?      @map("verified_at")
+  deletedAt        DateTime?      @map("deleted_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  owner      User?    @relation("DocumentOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  uploader   User     @relation("DocumentUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
+  verifier   User?    @relation("DocumentVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  lelang     Lelang?  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  aset       Aset?    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  activities DocumentActivity[]
+
+  @@map("documents")
+}
+
+model DocumentActivity {
+  id         Int      @id @default(autoincrement())
+  documentId Int      @map("document_id")
+  action     String   @db.VarChar(50)  // UPLOAD, VERIFY, REJECT, REUPLOAD, GENERATE, DOWNLOAD, ARCHIVE
+  actorId    Int      @map("actor_id")
+  note       String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  actor    User     @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@map("document_activities")
+}
+
+model DocumentTemplate {
+  id           Int          @id @default(autoincrement())
+  name         String       @db.VarChar(150)
+  documentType DocumentType @map("document_type")
+  filePath     String       @map("file_path") @db.VarChar(500)
+  placeholders Json?
+  uploadedBy   Int          @map("uploaded_by")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  uploader User @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@map("document_templates")
+}
+

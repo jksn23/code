@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import CurrencyInput from '../components/CurrencyInput';
 import { assetUrl } from '../config/env.js';
+import { useModal } from '../context/ModalContext';
 
 const formatRp = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
 
 export default function QuickBidPage() {
+  const { showAlert } = useModal();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,7 +28,7 @@ export default function QuickBidPage() {
         return tutup > now && ['PENDING', 'ACTIVE'].includes(a.status);
       });
       setData(valid);
-    } catch (e) {
+    } catch {
       // silent error
     } finally {
       setLoading(false);
@@ -48,14 +50,14 @@ export default function QuickBidPage() {
           quickBid3: res.data.data.quickBid3,
         });
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
   };
 
   const handleSaveQuickBids = async () => {
     if (!qbForm.quickBid1 || !qbForm.quickBid2 || !qbForm.quickBid3) {
-      return alert('Mohon isi ketiga nominal Quick Bid.');
+      return showAlert('Mohon isi ketiga nominal Quick Bid.', 'warning');
     }
     setQbSaving(true);
     try {
@@ -65,10 +67,10 @@ export default function QuickBidPage() {
         quickBid2: qbForm.quickBid2,
         quickBid3: qbForm.quickBid3,
       });
-      alert('Quick Bid berhasil disimpan!');
+      showAlert('Preset Quick Bid berhasil disimpan!', 'success');
       setSelectedAuction(null);
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      showAlert(err.response?.data?.message || err.message, 'error');
     } finally {
       setQbSaving(false);
     }

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getBuyerPendingPayments, getInvoiceLelang, uploadBuktiPembayaranLelang } from '../services/api';
 import { assetUrl } from '../config/env.js';
+import { useModal } from '../context/ModalContext';
+import { CreditCard, Upload, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -11,6 +13,7 @@ const formatRp = (value) => new Intl.NumberFormat('id-ID', {
 const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
 
 function PaymentModal({ item, invoice, loadingInvoice, onClose, onPaid }) {
+  const { showAlert } = useModal();
   const [file, setFile] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -30,6 +33,7 @@ function PaymentModal({ item, invoice, loadingInvoice, onClose, onPaid }) {
       const formData = new FormData();
       formData.append('bukti_bayar', file);
       await uploadBuktiPembayaranLelang(item.lelangId, formData);
+      showAlert('Bukti pembayaran berhasil diunggah! Menunggu verifikasi admin.', 'success');
       await onPaid();
       onClose();
     } catch (err) {
@@ -43,60 +47,51 @@ function PaymentModal({ item, invoice, loadingInvoice, onClose, onPaid }) {
     <div className="modal-overlay" onClick={(event) => event.target === event.currentTarget && onClose()}>
       <div className="modal" style={{ maxWidth: 760 }}>
         <div className="modal-header">
-          <h3>Bayar Aset Lelang</h3>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CreditCard size={20} style={{ color: 'var(--primary)' }} /> Bayar Aset Lelang
+          </h3>
           <button type="button" className="btn btn-secondary btn-sm" onClick={onClose}>✕</button>
         </div>
 
         <div className="card" style={{ background: 'var(--surface-light)', marginBottom: 16 }}>
-          <h4 style={{ marginBottom: 12 }}>Ringkasan Pembayaran</h4>
+          <h4 style={{ marginBottom: 12 }}>Informasi Invoice</h4>
           {loadingInvoice ? (
-            <div className="empty-state">Memuat invoice...</div>
+            <div className="empty-state">Memuat detail invoice...</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div><strong>Aset:</strong> {item.aset?.nama}</div>
-              <div><strong>Invoice:</strong> {invoice?.invoiceNumber || item.invoiceNumber || '-'}</div>
-              <div><strong>Harga Menang:</strong> {formatRp(item.transaksi?.hargaMenang)}</div>
+              <div><strong>Nomor Invoice:</strong> {invoice?.invoiceNumber || item.invoiceNumber || '-'}</div>
+              <div><strong>Total Tagihan:</strong> {formatRp(item.transaksi?.hargaMenang)}</div>
               <div><strong>Jatuh Tempo:</strong> {formatDate(invoice?.paymentDueDate || item.paymentDueDate)}</div>
-              <div><strong>Bank Tujuan:</strong> {invoice?.penjual?.rekeningBank || item.penjual?.rekeningBank}</div>
-              <div><strong>No Rekening:</strong> {invoice?.penjual?.nomorRekening || item.penjual?.nomorRekening}</div>
               <div><strong>Status:</strong> {item.statusPembayaran}</div>
-              <div><strong>Catatan Admin:</strong> {invoice?.catatanPembayaran || item.catatanPembayaran || '-'}</div>
+              <div><strong>Bank Tujuan:</strong> {invoice?.penjual?.rekeningBank || item.penjual?.rekeningBank || '-'}</div>
+              <div><strong>Nomor Rekening:</strong> {invoice?.penjual?.nomorRekening || item.penjual?.nomorRekening || '-'}</div>
             </div>
           )}
         </div>
 
-        {item.buktiBayarUrl && (
-          <div className="card" style={{ background: 'var(--surface-light)', marginBottom: 16 }}>
-            <h4 style={{ marginBottom: 12 }}>Bukti Bayar Terakhir</h4>
-            <a href={assetUrl(item.buktiBayarUrl)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">
-              Lihat Bukti Bayar
-            </a>
-          </div>
-        )}
-
-        {error && <div className="alert alert-danger">{error}</div>}
+        {error && <div className="alert alert-danger" style={{ marginBottom: 16 }}>{error}</div>}
 
         {canUpload ? (
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Upload Bukti Pembayaran</label>
+            <div className="form-group" style={{ marginBottom: 16 }}>
+              <label className="form-label">Unggah Bukti Pembayaran (JPG / PNG / PDF)</label>
               <input
                 type="file"
                 className="form-control"
-                accept=".jpg,.jpeg,.png,.pdf"
-                onChange={(event) => setFile(event.target.files?.[0] || null)}
+                accept="image/*,.pdf"
+                onChange={(e) => setFile(e.target.files[0])}
               />
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={onClose}>Tutup</button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Mengirim...' : 'Kirim Bukti Bayar'}
+              <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
+              <button type="submit" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} disabled={loading}>
+                {loading ? <span className="spinner" /> : <><Upload size={16} /> Unggah Bukti Bayar</>}
               </button>
             </div>
           </form>
         ) : (
-          <div className="alert alert-info" style={{ marginBottom: 0 }}>
-            {item.statusPembayaran === 'PENDING_VERIFICATION'
+          <div className="alert alert-info">
+            {item.statusPembayaran === 'MENUNGGU_VERIFIKASI'
               ? 'Bukti bayar sudah dikirim dan sedang menunggu verifikasi admin.'
               : 'Pembayaran untuk aset ini sudah selesai.'}
           </div>
@@ -107,6 +102,7 @@ function PaymentModal({ item, invoice, loadingInvoice, onClose, onPaid }) {
 }
 
 export default function BuyerPaymentsPage() {
+  const { showAlert } = useModal();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -119,7 +115,7 @@ export default function BuyerPaymentsPage() {
       const res = await getBuyerPendingPayments();
       setItems(res.data || []);
     } catch (error) {
-      alert(error.message);
+      showAlert(error.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -146,7 +142,9 @@ export default function BuyerPaymentsPage() {
   return (
     <div>
       <div className="page-header">
-        <h2>💳 Pembayaran</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <CreditCard size={24} style={{ color: 'var(--primary)' }} /> Pembayaran Pembeli
+        </h2>
         <p>Daftar seluruh aset lelang yang masih membutuhkan tindakan pembayaran dari Anda.</p>
       </div>
 
@@ -173,23 +171,18 @@ export default function BuyerPaymentsPage() {
                 {items.map((item, index) => (
                   <tr key={item.lelangId}>
                     <td>{index + 1}</td>
-                    <td>
-                      <div style={{ fontWeight: 700 }}>{item.aset?.nama}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.invoiceNumber || '-'}</div>
-                    </td>
-                    <td style={{ fontWeight: 700, color: '#16a34a' }}>{formatRp(item.transaksi?.hargaMenang)}</td>
+                    <td style={{ fontWeight: 600 }}>{item.aset?.nama}</td>
+                    <td>{formatRp(item.transaksi?.hargaMenang)}</td>
                     <td>{formatDate(item.paymentDueDate)}</td>
                     <td>
-                      <span className={`badge ${item.statusPembayaran === 'DITOLAK' ? 'badge-danger' : item.statusPembayaran === 'PENDING_VERIFICATION' ? 'badge-warning' : 'badge-primary'}`}>
+                      <span className={`badge ${item.statusPembayaran === 'LUNAS' ? 'badge-success' : item.statusPembayaran === 'DITOLAK' ? 'badge-danger' : 'badge-primary'}`}>
                         {item.statusPembayaran}
                       </span>
                     </td>
-                    <td style={{ fontSize: 13, color: 'var(--text-muted)', maxWidth: 260 }}>
-                      {item.catatanPembayaran || '-'}
-                    </td>
+                    <td>{item.catatanPembayaran || '-'}</td>
                     <td>
                       <button type="button" className="btn btn-primary btn-sm" onClick={() => openPayment(item)}>
-                        {item.statusPembayaran === 'PENDING_VERIFICATION' ? 'Lihat Status' : 'Bayar'}
+                        Detail &amp; Bayar
                       </button>
                     </td>
                   </tr>

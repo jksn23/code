@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getKriteria, getKategori, createKriteria, updateKriteria, deleteKriteria } from '../services/api.js';
-import { ListOrdered, Pencil, Trash2 } from 'lucide-react';
+import { ListOrdered, Pencil, Trash2, Plus, Save, X } from 'lucide-react';
+import { useModal } from '../context/ModalContext';
 
 function KriteriaModal({ item, kategoriList, onClose, onSave }) {
   const [form, setForm] = useState({ nama: item?.nama || '', kategori_id: item?.kategoriId || '', tipe: item?.tipe || 'benefit' });
@@ -23,8 +24,10 @@ function KriteriaModal({ item, kategoriList, onClose, onSave }) {
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-header">
-          <h3>{item ? '✏️ Edit Kriteria' : '➕ Tambah Kriteria'}</h3>
-          <button className="btn btn-secondary btn-sm" onClick={onClose}>✕</button>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {item ? <><Pencil size={18} /> Edit Kriteria</> : <><Plus size={18} /> Tambah Kriteria</>}
+          </h3>
+          <button className="btn btn-secondary btn-sm" onClick={onClose}><X size={16} /></button>
         </div>
         {error && <div className="alert alert-danger">{error}</div>}
         <form onSubmit={handleSubmit}>
@@ -48,8 +51,8 @@ function KriteriaModal({ item, kategoriList, onClose, onSave }) {
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? <span className="spinner" /> : '💾 Simpan'}
+            <button type="submit" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} disabled={loading}>
+              {loading ? <span className="spinner" /> : <><Save size={16} /> Simpan</>}
             </button>
           </div>
         </form>
@@ -59,6 +62,7 @@ function KriteriaModal({ item, kategoriList, onClose, onSave }) {
 }
 
 export default function KriteriaPage() {
+  const { showAlert, showConfirm } = useModal();
   const [data, setData] = useState([]);
   const [kategoriList, setKategoriList] = useState([]);
   const [filterKategori, setFilterKategori] = useState('');
@@ -76,19 +80,35 @@ export default function KriteriaPage() {
 
   useEffect(() => { load(); }, [filterKategori]);
 
-  const handleDelete = async (id) => {
-    if (!confirm('Hapus kriteria ini?')) return;
-    try { await deleteKriteria(id); load(); } catch (e) { alert(e.message); }
+  const handleDelete = async (id, nama) => {
+    const isConfirmed = await showConfirm(`Hapus kriteria "${nama || 'ini'}"?`, {
+      title: 'Hapus Kriteria',
+      type: 'danger',
+      confirmText: 'Ya, Hapus Kriteria',
+    });
+    if (!isConfirmed) return;
+
+    try {
+      await deleteKriteria(id);
+      showAlert('Kriteria berhasil dihapus.', 'success');
+      load();
+    } catch (e) {
+      showAlert(e.message, 'error');
+    }
   };
 
   return (
     <div>
       <div className="page-header flex-between">
         <div>
-          <h2>📋 Manajemen Kriteria</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <ListOrdered size={24} style={{ color: 'var(--primary)' }} /> Manajemen Kriteria
+          </h2>
           <p>Kelola kriteria penilaian aset berdasarkan kategori (dinamis per kategori)</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setModal('add')}>➕ Tambah</button>
+        <button className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={() => setModal('add')}>
+          <Plus size={18} /> Tambah
+        </button>
       </div>
 
       <div className="card" style={{ marginBottom: 16 }}>

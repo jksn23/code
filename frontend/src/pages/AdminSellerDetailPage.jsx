@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getPenjualById, verifikasiPenjual } from '../services/api.js';
 import { getSellerStatusMeta, resolveSellerStatus } from '../utils/sellerVerification.js';
 import { assetUrl } from '../config/env.js';
+import { useModal } from '../context/ModalContext';
 
 const formatDate = (value) =>
   value ? new Date(value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
@@ -45,7 +46,7 @@ const DocPreview = ({ url, label }) => {
           minHeight: 180,
         }}
       >
-        <span style={{ fontSize: 32 }}>File</span>
+        <span style={{ fontSize: 32 }}>📁</span>
         <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{label} tidak diupload</span>
       </div>
     );
@@ -73,7 +74,7 @@ const DocPreview = ({ url, label }) => {
           rel="noreferrer"
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 20px', background: 'var(--bg)', borderRadius: 10, border: '1px solid var(--border)', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}
         >
-          {isPDF ? 'Buka PDF' : 'Buka Dokumen'}
+          {isPDF ? '📄 Buka PDF' : '📄 Buka Dokumen'}
         </a>
       )}
     </div>
@@ -81,6 +82,7 @@ const DocPreview = ({ url, label }) => {
 };
 
 export default function AdminSellerDetailPage() {
+  const { showConfirm, showAlert } = useModal();
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
@@ -109,28 +111,36 @@ export default function AdminSellerDetailPage() {
 
   const handleVerify = async (action) => {
     if (action === 'reject' && !note.trim()) {
+      showAlert('Catatan penolakan seller wajib diisi.', 'warning');
       setFeedback({ type: 'error', msg: 'Catatan penolakan seller wajib diisi.' });
       return;
     }
 
-    const confirmation = window.confirm(
+    const isConfirmed = await showConfirm(
       action === 'approve'
         ? `Setujui dan verifikasi akun penjual "${data?.user?.nama}"?`
-        : `Tolak verifikasi akun penjual "${data?.user?.nama}"? Seller akan diminta memperbaiki dokumen.`
+        : `Tolak verifikasi akun penjual "${data?.user?.nama}"? Seller akan diminta memperbaiki dokumen.`,
+      {
+        title: action === 'approve' ? 'Setujui Seller' : 'Tolak Verifikasi Seller',
+        type: action === 'approve' ? 'warning' : 'danger',
+        confirmText: action === 'approve' ? 'Ya, Setujui Seller' : 'Ya, Tolak Verifikasi',
+      }
     );
 
-    if (!confirmation) return;
+    if (!isConfirmed) return;
 
     setActionLoading(true);
     setFeedback(null);
     try {
       await verifikasiPenjual(Number(id), { action, note });
+      showAlert(action === 'approve' ? 'Seller berhasil diverifikasi.' : 'Seller berhasil ditandai perlu revisi.', 'success');
       setFeedback({
         type: 'success',
         msg: action === 'approve' ? 'Seller berhasil diverifikasi.' : 'Seller berhasil ditandai perlu revisi.',
       });
       load();
     } catch (error) {
+      showAlert(error.message, 'error');
       setFeedback({ type: 'error', msg: error.message });
     } finally {
       setActionLoading(false);

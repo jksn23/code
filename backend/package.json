@@ -12,7 +12,12 @@
     "generate": "prisma generate",
     "seed:jurnal": "node prisma/seed_data_jurnal.js",
     "studio": "prisma studio",
-    "test": "node src/tests/test_algoritma.js"
+    "test": "node src/tests/test_algoritma.js",
+    "test:final": "node src/tests/test_final_ahp_saw.js",
+    "test:spk": "node src/tests/spk.test.js",
+    "test:all": "node src/tests/test_algoritma.js && node src/tests/spk.test.js",
+    "apply:final": "node scripts/apply_final_weights_medians_and_recalculate.js",
+    "template:guide": "node scripts/buat_template_dokumen.js"
   },
   "keywords": [
     "lelang",
@@ -25,14 +30,24 @@
   "description": "Backend API untuk Sistem Pendukung Keputusan Lelang Online menggunakan AHP dan SAW",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "archiver": "^8.0.0",
+    "axios": "^1.18.1",
     "bcryptjs": "^3.0.3",
+    "bullmq": "^5.79.2",
+    "cheerio": "^1.2.0",
     "cors": "^2.8.6",
+    "docxtemplater": "^3.69.0",
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
+    "express-list-endpoints": "^7.1.1",
+    "fuse.js": "^7.4.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
     "mysql2": "^3.20.0",
-    "socket.io": "^4.8.3"
+    "pizzip": "^3.2.0",
+    "puppeteer": "^25.3.0",
+    "socket.io": "^4.8.3",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14",

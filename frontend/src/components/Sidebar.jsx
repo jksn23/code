@@ -67,6 +67,10 @@ export default function Sidebar({ isOpen, onClose }) {
       { label: 'Pembayaran', icon: <FileText size={18} strokeWidth={2} />, to: '/pembayaran' },
     ], roles: ['PEMBELI'] },
 
+    { group: 'Administrasi Dokumen', items: [
+      { label: role === 'PENJUAL' ? 'Dokumen Saya' : 'Dokumen ADMS', icon: <FileText size={18} strokeWidth={2} />, to: '/dokumen-adms' },
+    ], roles: ['ADMIN', 'PENJUAL'] },
+
     { group: 'Laporan', items: [
       { label: 'Generate Laporan', icon: <FileText size={18} strokeWidth={2} />, to: '/laporan' },
     ], roles: ['ADMIN'] },

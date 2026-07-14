@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import api, { konfirmasiTerimaBarang, getNextLelang, getQuickBids, saveQuickBids } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 import CurrencyInput from '../components/CurrencyInput';
 import { SOCKET_URL, assetUrl } from '../config/env.js';
 
@@ -26,8 +27,8 @@ const formatCountdown = (distance) => {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 };
 
-
 export default function LelangRoomPage() {
+  const { showAlert, showConfirm } = useModal();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -41,7 +42,6 @@ export default function LelangRoomPage() {
   const [isClosed, setIsClosed] = useState(false);
   const [konfirmLoading, setKonfirmLoading] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
-  const [nextLelang, setNextLelang] = useState(null);
   const [nextCountdown, setNextCountdown] = useState('');
   const [socketStatus, setSocketStatus] = useState('connecting');
   const [syncMessage, setSyncMessage] = useState('');
@@ -198,21 +198,21 @@ export default function LelangRoomPage() {
 
   const handleBid = (event) => {
     event.preventDefault();
-    if (!user) return alert('Anda harus login untuk bidding');
-    if (user.role === 'ADMIN') return alert('Admin tidak bisa bidding');
-    if (user.role === 'PENJUAL') return alert('Penjual tidak bisa bidding');
+    if (!user) return showAlert('Anda harus login untuk bidding', 'warning');
+    if (user.role === 'ADMIN') return showAlert('Admin tidak bisa bidding', 'warning');
+    if (user.role === 'PENJUAL') return showAlert('Penjual tidak bisa bidding', 'warning');
     if (user.buyerVerificationStatus !== 'APPROVED') {
-      return alert('Akun pembeli Anda belum lolos verifikasi KYC. Bidding dikunci sampai admin menyetujui identitas Anda.');
+      return showAlert('Akun pembeli Anda belum lolos verifikasi KYC. Bidding dikunci sampai admin menyetujui identitas Anda.', 'warning');
     }
     if (socketStatus !== 'connected') {
-      return alert('Koneksi realtime belum stabil. Tunggu sampai room kembali terhubung.');
+      return showAlert('Koneksi realtime belum stabil. Tunggu sampai room kembali terhubung.', 'warning');
     }
-    if (!canBid) return alert(isNotStarted ? 'Lelang belum dibuka. Tunggu sampai waktu mulai.' : 'Lelang belum aktif atau sudah ditutup.');
-    if (!nominal || nominal <= 0) return alert('Masukkan nominal yang valid');
+    if (!canBid) return showAlert(isNotStarted ? 'Lelang belum dibuka. Tunggu sampai waktu mulai.' : 'Lelang belum aktif atau sudah ditutup.', 'warning');
+    if (!nominal || nominal <= 0) return showAlert('Masukkan nominal yang valid', 'warning');
 
     socketRef.current.emit('submit_bid', { lelangId: id, userId: user.id, nominal }, (response) => {
       if (!response.success) {
-        alert(response.message);
+        showAlert(response.message, 'error');
       } else {
         setNominal(0);
       }
@@ -223,14 +223,14 @@ export default function LelangRoomPage() {
     const val = Number(presetValue);
     setNominal(val);
     
-    if (!user) return alert('Anda harus login untuk melakukan penawaran');
-    if (buyerBlocked) return alert('Akun Anda belum diverifikasi atau diblokir.');
-    if (!canBid) return alert(isNotStarted ? 'Lelang belum dibuka. Tunggu sampai waktu mulai.' : 'Lelang belum aktif atau sudah ditutup.');
-    if (!val || val <= 0) return alert('Nominal quick bid tidak valid');
+    if (!user) return showAlert('Anda harus login untuk melakukan penawaran', 'warning');
+    if (buyerBlocked) return showAlert('Akun Anda belum diverifikasi atau diblokir.', 'warning');
+    if (!canBid) return showAlert(isNotStarted ? 'Lelang belum dibuka. Tunggu sampai waktu mulai.' : 'Lelang belum aktif atau sudah ditutup.', 'warning');
+    if (!val || val <= 0) return showAlert('Nominal quick bid tidak valid', 'warning');
 
     socketRef.current.emit('submit_bid', { lelangId: id, userId: user.id, nominal: val }, (response) => {
       if (!response.success) {
-        alert(response.message);
+        showAlert(response.message, 'error');
       } else {
         setNominal(0);
       }
@@ -251,25 +251,31 @@ export default function LelangRoomPage() {
   useEffect(() => { loadQuickBids(); }, [loadQuickBids]);
 
   const handleSaveQuickBids = async () => {
-    if (!qbForm.quickBid1 || !qbForm.quickBid2 || !qbForm.quickBid3) return alert('Isi ketiga nominal Quick Bid');
+    if (!qbForm.quickBid1 || !qbForm.quickBid2 || !qbForm.quickBid3) return showAlert('Isi ketiga nominal Quick Bid', 'warning');
     setQbSaving(true);
     try {
       await saveQuickBids({ auctionId: Number(id), quickBid1: qbForm.quickBid1, quickBid2: qbForm.quickBid2, quickBid3: qbForm.quickBid3 });
       await loadQuickBids();
       setShowQuickBidSettings(false);
-    } catch (err) { alert(err.message); }
+      showAlert('Quick Bid berhasil disimpan', 'success');
+    } catch (err) { showAlert(err.message, 'error'); }
     finally { setQbSaving(false); }
   };
 
   const handleKonfirmasiBarang = async () => {
-    if (!window.confirm('Konfirmasi bahwa barang sudah Anda terima?')) return;
+    const isConfirmed = await showConfirm('Konfirmasi bahwa barang sudah Anda terima?', {
+      title: 'Konfirmasi Penerimaan Barang',
+      type: 'warning',
+      confirmText: 'Ya, Barang Diterima',
+    });
+    if (!isConfirmed) return;
     setKonfirmLoading(true);
     try {
       await konfirmasiTerimaBarang(id);
-      alert('Konfirmasi penerimaan barang berhasil.');
+      showAlert('Konfirmasi penerimaan barang berhasil.', 'success');
       loadLelang();
     } catch (err) {
-      alert(err.message);
+      showAlert(err.message, 'error');
     } finally {
       setKonfirmLoading(false);
     }

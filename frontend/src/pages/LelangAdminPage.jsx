@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { createLelangAndApprove, getAset, getLelangSelesaiAdmin, verifikasiPembayaranLelang } from '../services/api.js';
+import { createLelangAndApprove, getAset, getLelangSelesaiAdmin, verifikasiPembayaranLelang, generateDokumenLelang, getDokumenLelang, downloadDokumenUrl } from '../services/api.js';
 import CurrencyInput from '../components/CurrencyInput';
 import { assetUrl } from '../config/env.js';
+import { Clock, Calendar, CheckCircle2, FileText, Download, FileCheck, Eye } from 'lucide-react';
+import { useModal } from '../context/ModalContext';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value || 0);
 const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
@@ -82,6 +84,7 @@ const estimateQueue = (asetList, waktuBuka, durasiDetik) => {
 };
 
 export default function LelangAdminPage() {
+
   const [data, setData] = useState([]);
   const [dataSelesai, setDataSelesai] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +96,12 @@ export default function LelangAdminPage() {
   const [form, setForm] = useState({ waktuBuka: '', durasiDetik: DEFAULT_DURATION_SECONDS, nilaiLimitAkhir: 0 });
   const [submitting, setSubmitting] = useState(false);
 
+  // State untuk modal dokumen
+  const [modalDokumen, setModalDokumen] = useState(null); // data lelang yang sedang dilihat dokumennya
+  const [dokumenList, setDokumenList] = useState([]);
+  const [loadingDokumen, setLoadingDokumen] = useState(false);
+  const [generatingDokumen, setGeneratingDokumen] = useState(false);
+
   const load = async () => {
     setLoading(true);
     try {
@@ -100,7 +109,7 @@ export default function LelangAdminPage() {
       const filtered = (res.data || []).filter((item) => item.statusLelang !== 'DRAFT');
       setData(filtered);
     } catch (error) {
-      alert(error.message);
+      showAlert(error.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -112,7 +121,7 @@ export default function LelangAdminPage() {
       const res = await getLelangSelesaiAdmin();
       setDataSelesai(res.data || []);
     } catch (error) {
-      alert(error.message);
+      showAlert(error.message, 'error');
     } finally {
       setLoadingSelesai(false);
     }
@@ -136,7 +145,7 @@ export default function LelangAdminPage() {
   const handleApprove = async (event) => {
     event.preventDefault();
     if (formError) {
-      alert(formError);
+      showAlert(formError, 'warning');
       return;
     }
 
@@ -153,12 +162,12 @@ export default function LelangAdminPage() {
       };
       saveLastScheduleSettings(nextLastScheduleSettings);
       setLastScheduleSettings(nextLastScheduleSettings);
-      alert(res.message || 'Lelang berhasil dijadwalkan.');
+      showAlert(res.message || 'Lelang berhasil dijadwalkan.', 'success');
       setModal(null);
       setForm({ waktuBuka: '', durasiDetik: DEFAULT_DURATION_SECONDS, nilaiLimitAkhir: 0 });
       load();
     } catch (error) {
-      alert(error.message);
+      showAlert(error.message, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -172,11 +181,41 @@ export default function LelangAdminPage() {
     if (!modalBuktiBayar) return;
     try {
       await verifikasiPembayaranLelang(modalBuktiBayar.id);
-      alert('Pembayaran berhasil diverifikasi sebagai LUNAS.');
+      showAlert('Pembayaran berhasil diverifikasi sebagai LUNAS.', 'success');
       setModalBuktiBayar(null);
       loadSelesai();
     } catch (error) {
-      alert(error.message);
+      showAlert(error.message, 'error');
+    }
+  };
+
+  // --- Handler Dokumen ---
+  const handleOpenDokumen = async (lelang) => {
+    setModalDokumen(lelang);
+    setLoadingDokumen(true);
+    try {
+      const res = await getDokumenLelang(lelang.id);
+      setDokumenList(res.data || []);
+    } catch (e) {
+      showAlert(e.message, 'error');
+    } finally {
+      setLoadingDokumen(false);
+    }
+  };
+
+  const handleGenerateDokumen = async (tipe) => {
+    if (!modalDokumen) return;
+    setGeneratingDokumen(true);
+    try {
+      await generateDokumenLelang(modalDokumen.id, tipe);
+      // Refresh list dokumen setelah generate
+      const res = await getDokumenLelang(modalDokumen.id);
+      setDokumenList(res.data || []);
+      showAlert(`Dokumen ${tipe.replace(/_/g, ' ')} berhasil dibuat!`, 'success');
+    } catch (e) {
+      showAlert(e.message, 'error');
+    } finally {
+      setGeneratingDokumen(false);
     }
   };
 
@@ -323,6 +362,16 @@ export default function LelangAdminPage() {
                           )}
                           {isPaid && !isReceived && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Menunggu konfirmasi pembeli</span>}
                           {isPaid && isReceived && <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 700 }}>🎉 Selesai</span>}
+                          {item.pemenang && (
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-sm"
+                              style={{ marginTop: 4, display: 'block' }}
+                              onClick={() => handleOpenDokumen(item)}
+                            >
+                              📄 Dokumen
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );
@@ -496,6 +545,7 @@ export default function LelangAdminPage() {
           </div>
         </div>
       )}
+      
       {/* Modal Bukti Pembayaran */}
       {modalBuktiBayar && (
         <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setModalBuktiBayar(null)}>
@@ -528,6 +578,82 @@ export default function LelangAdminPage() {
               >
                 ✅ Sahkan Pembayaran LUNAS
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Dokumen */}
+      {modalDokumen && (
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setModalDokumen(null)}>
+          <div className="modal" style={{ maxWidth: 600 }}>
+            <div className="modal-header">
+              <h3 style={{ margin: 0, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <FileText size={20} style={{ color: 'var(--primary)' }} /> Dokumen Lelang
+              </h3>
+              <button className="theme-toggle-btn" onClick={() => setModalDokumen(null)}>&times;</button>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '8px 0 16px' }}>
+                Aset: <strong>{modalDokumen.aset?.nama}</strong> — Invoice: <strong>{modalDokumen.invoiceNumber || '-'}</strong>
+              </p>
+
+              <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Generate Dokumen Baru:</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+                {[
+                  { tipe: 'SURAT_PENETAPAN', label: 'Surat Penetapan', icon: <FileCheck size={14} /> },
+                  { tipe: 'BERITA_ACARA', label: 'Berita Acara', icon: <FileText size={14} /> },
+                  { tipe: 'DOKUMEN_HASIL_LELANG', label: 'Hasil Lelang', icon: <FileText size={14} /> },
+                  { tipe: 'SURAT_PERMOHONAN', label: 'Surat Permohonan', icon: <FileText size={14} /> },
+                ].map(({ tipe, label, icon }) => (
+                  <button
+                    key={tipe}
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                    disabled={generatingDokumen}
+                    onClick={() => handleGenerateDokumen(tipe)}
+                  >
+                    {generatingDokumen ? <span className="spinner" /> : <>{icon} {label}</>}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Dokumen Tersimpan:</div>
+              {loadingDokumen ? (
+                <div style={{ textAlign: 'center', padding: 16 }}><span className="spinner" /></div>
+              ) : dokumenList.length === 0 ? (
+                <div style={{ padding: 16, background: 'var(--surface-light)', borderRadius: 8, fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
+                  Belum ada dokumen. Gunakan tombol di atas untuk generate.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {dokumenList.map((doc) => (
+                    <div key={doc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--surface-light)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 13 }}>{doc.tipe.replace(/_/g, ' ')}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                          {new Date(doc.createdAt).toLocaleString('id-ID')} — oleh {doc.generatedBy}
+                        </div>
+                      </div>
+                      <a
+                        href={downloadDokumenUrl(modalDokumen.id, doc.id)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-primary btn-sm"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                      >
+                        <Download size={14} /> Unduh
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalDokumen(null)}>Tutup</button>
             </div>
           </div>
         </div>

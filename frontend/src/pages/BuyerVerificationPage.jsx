@@ -1,17 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getSemuaPembeli, verifikasiPembeli } from '../services/api';
 import { assetUrl } from '../config/env.js';
+import { useModal } from '../context/ModalContext';
+import { ShieldCheck, CheckCircle2, XCircle, Clock, FileText } from 'lucide-react';
 
 const STATUS_OPTIONS = {
-  PENDING: { label: '⏳ Pending', bg: '#fef3c7', color: '#92400e' },
-  APPROVED: { label: '✅ Approved', bg: '#dcfce7', color: '#166534' },
-  REJECTED: { label: '❌ Rejected', bg: '#fee2e2', color: '#b91c1c' },
-  UNVERIFIED: { label: '⚪ Unverified', bg: '#e2e8f0', color: '#334155' },
+  PENDING: { label: 'Pending', bg: 'var(--warning-bg)', color: 'var(--warning)', icon: <Clock size={12} /> },
+  APPROVED: { label: 'Approved', bg: 'var(--success-bg)', color: 'var(--success)', icon: <CheckCircle2 size={12} /> },
+  REJECTED: { label: 'Rejected', bg: 'var(--danger-bg)', color: 'var(--danger)', icon: <XCircle size={12} /> },
+  UNVERIFIED: { label: 'Unverified', bg: 'var(--surface-light)', color: 'var(--text-muted)', icon: <Clock size={12} /> },
 };
 
 const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
 
 export default function BuyerVerificationPage() {
+  const { showAlert, showConfirm } = useModal();
   const [buyers, setBuyers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -25,7 +28,7 @@ export default function BuyerVerificationPage() {
       const res = await getSemuaPembeli();
       setBuyers(res.data || []);
     } catch (error) {
-      alert(error.message);
+      showAlert(error.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -55,18 +58,32 @@ export default function BuyerVerificationPage() {
   const handleSubmit = async (action) => {
     if (!selected) return;
     if (action === 'reject' && !note.trim()) {
-      alert('Catatan penolakan wajib diisi.');
+      showAlert('Catatan penolakan wajib diisi.', 'warning');
       return;
     }
+
+    const isConfirmed = await showConfirm(
+      action === 'approve'
+        ? `Setujui verifikasi identitas pembeli "${selected.nama}"?`
+        : `Tolak verifikasi identitas pembeli "${selected.nama}"?`,
+      {
+        title: action === 'approve' ? 'Setujui Pembeli' : 'Tolak Verifikasi Pembeli',
+        type: action === 'approve' ? 'warning' : 'danger',
+        confirmText: action === 'approve' ? 'Ya, Setujui' : 'Ya, Tolak',
+      }
+    );
+
+    if (!isConfirmed) return;
 
     setSubmitting(true);
     try {
       await verifikasiPembeli(selected.id, { action, note });
+      showAlert(action === 'approve' ? 'Pembeli berhasil diverifikasi.' : 'Verifikasi pembeli ditolak.', 'success');
       await load();
       setSelected(null);
       setNote('');
     } catch (error) {
-      alert(error.message);
+      showAlert(error.message, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -75,16 +92,18 @@ export default function BuyerVerificationPage() {
   return (
     <div>
       <div className="page-header">
-        <h2>🪪 Verifikasi Pembeli</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <ShieldCheck size={24} style={{ color: 'var(--primary)' }} /> Verifikasi Pembeli (KYC)
+        </h2>
         <p>Review KTP pembeli dan kunci akses bidding sampai KYC disetujui.</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 16, marginBottom: 20 }}>
         {[
-          { label: 'Total Pembeli', value: counts.total, accent: '#6366f1' },
-          { label: 'Pending', value: counts.pending, accent: '#d97706' },
-          { label: 'Approved', value: counts.approved, accent: '#16a34a' },
-          { label: 'Rejected', value: counts.rejected, accent: '#dc2626' },
+          { label: 'Total Pembeli', value: counts.total, accent: 'var(--primary)' },
+          { label: 'Pending', value: counts.pending, accent: 'var(--warning)' },
+          { label: 'Approved', value: counts.approved, accent: 'var(--success)' },
+          { label: 'Rejected', value: counts.rejected, accent: 'var(--danger)' },
         ].map((item) => (
           <div key={item.label} className="card" style={{ padding: 18 }}>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.label}</div>
@@ -113,111 +132,94 @@ export default function BuyerVerificationPage() {
 
       <div className="card" style={{ padding: 0 }}>
         {loading ? (
-          <div className="empty-state"><span className="spinner" /></div>
+          <div className="spinner" style={{ margin: '40px auto' }} />
         ) : filtered.length === 0 ? (
-          <div className="empty-state">Tidak ada data pembeli pada filter ini.</div>
+          <div className="empty-state"><p>Tidak ada data pembeli pada kategori ini.</p></div>
         ) : (
-          <div className="table-wrapper">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Pembeli</th>
-                  <th>Status KYC</th>
-                  <th>Tanggal Daftar</th>
-                  <th>Catatan</th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((buyer, index) => {
-                  const tone = STATUS_OPTIONS[buyer.buyerVerificationStatus] || STATUS_OPTIONS.UNVERIFIED;
-                  return (
-                    <tr key={buyer.id}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <div style={{ fontWeight: 700 }}>{buyer.nama}</div>
-                        <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{buyer.email}</div>
-                      </td>
-                      <td>
-                        <span className="badge" style={{ background: tone.bg, color: tone.color }}>
-                          {tone.label}
-                        </span>
-                      </td>
-                      <td style={{ fontSize: 13 }}>{formatDate(buyer.createdAt)}</td>
-                      <td style={{ fontSize: 13, maxWidth: 260, color: 'var(--text-muted)' }}>
-                        {buyer.buyerVerificationNote || '-'}
-                      </td>
-                      <td>
-                        <button type="button" className="btn btn-primary btn-sm" onClick={() => openModal(buyer)}>
-                          Review KTP
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Nama Pembeli</th>
+                <th>Email</th>
+                <th>Status KYC</th>
+                <th>No KTP</th>
+                <th>Waktu Daftar</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((buyer) => {
+                const statusMeta = STATUS_OPTIONS[buyer.buyerVerificationStatus || 'UNVERIFIED'];
+                return (
+                  <tr key={buyer.id}>
+                    <td style={{ fontWeight: 600 }}>{buyer.nama}</td>
+                    <td>{buyer.email}</td>
+                    <td>
+                      <span className="badge" style={{ background: statusMeta.bg, color: statusMeta.color, border: `1px solid ${statusMeta.color}`, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        {statusMeta.icon} {statusMeta.label}
+                      </span>
+                    </td>
+                    <td>{buyer.ktpNumber || '-'}</td>
+                    <td>{formatDate(buyer.createdAt)}</td>
+                    <td>
+                      <button type="button" className="btn btn-primary btn-sm" onClick={() => openModal(buyer)}>
+                        Review KTP
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
 
       {selected && (
-        <div className="modal-overlay" onClick={(event) => event.target === event.currentTarget && setSelected(null)}>
-          <div className="modal" style={{ maxWidth: 860 }}>
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setSelected(null)}>
+          <div className="modal" style={{ maxWidth: 640 }}>
             <div className="modal-header">
-              <h3>Review KYC Pembeli</h3>
+              <h3>Verifikasi KTP — {selected.nama}</h3>
               <button type="button" className="btn btn-secondary btn-sm" onClick={() => setSelected(null)}>✕</button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-              <div className="card" style={{ background: 'var(--surface-light)' }}>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Nama</div>
-                <div style={{ fontWeight: 700, marginBottom: 12 }}>{selected.nama}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Email</div>
-                <div style={{ fontWeight: 700, marginBottom: 12 }}>{selected.email}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Status Saat Ini</div>
-                <div style={{ fontWeight: 700 }}>{selected.buyerVerificationStatus}</div>
-              </div>
+            <div style={{ display: 'grid', gap: 16 }}>
+              <div><strong>No KTP:</strong> {selected.ktpNumber || 'Belum diisi'}</div>
+              <div><strong>Status Sekarang:</strong> {selected.buyerVerificationStatus}</div>
 
-              <div className="card" style={{ background: 'var(--surface-light)' }}>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>Dokumen KTP</div>
-                {selected.ktpUrl ? (
-                  /\.(jpg|jpeg|png|gif|webp)$/i.test(selected.ktpUrl) ? (
-                    <img
-                      src={assetUrl(selected.ktpUrl)}
-                      alt="KTP Pembeli"
-                      style={{ width: '100%', maxHeight: 280, objectFit: 'contain', borderRadius: 12, border: '1px solid var(--border)' }}
-                    />
+              {selected.ktpUrl ? (
+                <div>
+                  <label className="form-label" style={{ marginBottom: 8 }}>Foto / Dokumen KTP</label>
+                  {/\.(jpg|jpeg|png|gif|webp)$/i.test(selected.ktpUrl) ? (
+                    <img src={assetUrl(selected.ktpUrl)} alt="KTP Pembeli" style={{ width: '100%', maxHeight: 280, objectFit: 'contain', borderRadius: 8, border: '1px solid var(--border)' }} />
                   ) : (
                     <a href={assetUrl(selected.ktpUrl)} target="_blank" rel="noreferrer" className="btn btn-secondary">
-                      Buka Dokumen KTP
+                      <FileText size={16} /> Lihat Dokumen KTP (PDF)
                     </a>
-                  )
-                ) : (
-                  <div className="empty-state">Pembeli belum mengunggah KTP.</div>
-                )}
-              </div>
-            </div>
+                  )}
+                </div>
+              ) : (
+                <div className="alert alert-danger">Pembeli belum mengunggah foto KTP.</div>
+              )}
 
-            <div className="form-group" style={{ marginTop: 20 }}>
-              <label className="form-label">Catatan Admin</label>
-              <textarea
-                className="form-control"
-                rows={4}
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Tulis catatan approval atau alasan penolakan KYC"
-              />
+              <div className="form-group">
+                <label className="form-label">Catatan Verifikasi</label>
+                <textarea
+                  className="form-control"
+                  rows={3}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Tulis alasan jika menolak verifikasi KYC pembeli ini..."
+                />
+              </div>
             </div>
 
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={() => setSelected(null)}>Tutup</button>
-              <button type="button" className="btn btn-danger" disabled={submitting} onClick={() => handleSubmit('reject')}>
-                {submitting ? 'Memproses...' : 'Tolak KYC'}
+              <button type="button" className="btn btn-secondary" onClick={() => setSelected(null)}>Batal</button>
+              <button type="button" className="btn btn-danger" onClick={() => handleSubmit('reject')} disabled={submitting}>
+                Tolak KTP
               </button>
-              <button type="button" className="btn btn-primary" disabled={submitting} onClick={() => handleSubmit('approve')}>
-                {submitting ? 'Memproses...' : 'Setujui KYC'}
+              <button type="button" className="btn btn-primary" onClick={() => handleSubmit('approve')} disabled={submitting}>
+                Setujui KTP
               </button>
             </div>
           </div>

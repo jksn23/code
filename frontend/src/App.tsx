@@ -32,7 +32,9 @@ import PengaturanPage from './pages/PengaturanPage';
 import QuickBidPage from './pages/QuickBidPage';
 import DataPembandingPage from './pages/DataPembandingPage';
 import ValidasiPembandingPage from './pages/ValidasiPembandingPage';
+import ADMSPage from './pages/ADMSPage';
 import { isSellerApprovedStatus, resolveSellerStatus } from './utils/sellerVerification';
+import { ModalProvider } from './context/ModalContext';
 import './index.css';
 
 const NO_SIDEBAR_PATHS = ['/login', '/register'];
@@ -77,7 +79,8 @@ const RoleRoute = ({ allowedRoles }) => {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <ModalProvider>
+        <BrowserRouter>
         <Layout>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
@@ -92,6 +95,7 @@ export default function App() {
               <Route element={<RoleRoute allowedRoles={['ADMIN', 'PENJUAL']} />}>
                 <Route path="/aset" element={<AsetPage />} />
                 <Route path="/hasil" element={<HasilPage />} />
+                <Route path="/dokumen-adms" element={<ADMSPage />} />
               </Route>
 
               <Route element={<RoleRoute allowedRoles={['PENJUAL']} />}>
@@ -124,6 +128,7 @@ export default function App() {
           </Routes>
         </Layout>
       </BrowserRouter>
-    </AuthProvider>
+    </ModalProvider>
+  </AuthProvider>
   );
 }

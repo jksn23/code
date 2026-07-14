@@ -152,12 +152,31 @@ export const importSettingsData = (data) => api.post('/settings/import', data);
 export const purgeSettingsModule = (module, data) => api.post(`/settings/purge/${module}`, data);
 export const resetSettingsData = (data) => api.post('/settings/reset', data);
 
-// ====== DATA PEMBANDING ASET ======
 export const getPembandingByAset = (asetId) => api.get(`/pembanding/aset/${asetId}`);
 export const searchPembanding = (asetId) => api.post(`/pembanding/aset/${asetId}/search`);
+export const getScrapingJobStatus = (asetId, jobId) => api.get(`/pembanding/aset/${asetId}/job-status/${jobId}`);
 export const addManualPembanding = (asetId, data) => api.post(`/pembanding/aset/${asetId}/manual`, data);
 export const hitungMedianPembanding = (asetId) => api.post(`/pembanding/aset/${asetId}/hitung-median`);
 export const selectPembanding = (id, data) => api.patch(`/pembanding/${id}/select`, data);
 export const validasiPembanding = (id, data) => api.patch(`/pembanding/${id}/validasi`, data);
 
+
+// ====== DOKUMEN & ADMS ======
+export const generateDokumenLelang = (lelangId, tipe, format = 'pdf') =>
+  api.post(`/dokumen/${lelangId}/generate`, { tipe, format });
+export const getDokumenLelang = (lelangId) => api.get(`/dokumen/${lelangId}`);
+export const downloadDokumenUrl = (lelangId, dokumenId) =>
+  `${API_URL}/dokumen/${lelangId}/${dokumenId}/download`;
+
+export const uploadADMSDocument = (formData) => api.post('/dokumen/upload', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+export const getADMSRepository = (params) => api.get('/dokumen/repository', { params });
+export const getADMSChecklist = (assetId) => api.get(`/dokumen/checklist/asset/${assetId}`);
+export const verifyADMSDocument = (id, data) => api.patch(`/dokumen/${id}/verify`, data);
+export const downloadADMSArchiveZipUrl = (lelangId) => `${API_URL}/dokumen/${lelangId}/archive/zip`;
+export const getADMSActivityLogs = () => api.get('/dokumen/activity-log');
+
 export default api;
+
+

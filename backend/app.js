@@ -22,7 +22,10 @@ import quickBidRoutes from './src/routes/quick_bid.routes.js';
 import sellerPenilaianRoutes from './src/routes/seller_penilaian.routes.js';
 import adminPenilaianRoutes from './src/routes/admin_penilaian.routes.js';
 import pembandingRoutes from './src/routes/pembanding.routes.js';
+import dokumenRoutes from './src/routes/dokumen.routes.js';
 import { syncAuctionLifecycleBatch, syncLelangLifecycle } from './src/controllers/lelang.controller.js';
+import logger from './src/utils/logger.js';
+import { initScrapingQueue } from './src/services/scraping_queue.service.js';
 
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -83,10 +86,11 @@ app.use('/api/quick-bids', quickBidRoutes);
 app.use('/api/seller/aset', sellerPenilaianRoutes);
 app.use('/api/admin/penilaian-aset', adminPenilaianRoutes);
 app.use('/api/pembanding', pembandingRoutes);
+app.use('/api/dokumen', dokumenRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err.stack);
+  logger.error('Unhandled Express Error', { message: err.message, stack: err.stack, url: req.originalUrl });
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal Server Error',
@@ -98,7 +102,7 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Setup Socket.io
 const server = createServer(app);
@@ -200,10 +204,21 @@ setInterval(() => {
 
 server.listen(PORT, () => {
   syncAuctionLifecycleBatch().catch((error) => {
-    console.error('Initial auction lifecycle sync error:', error.message);
+    logger.error('Initial auction lifecycle sync error', { message: error.message });
   });
-  console.log(`✅ Server & WebSocket berjalan di http://localhost:${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Inisialisasi BullMQ Scraping Queue (menggunakan Redis Laragon port 6379)
+  try {
+    initScrapingQueue();
+    logger.info('⚙️  BullMQ Scraping Queue aktif (Redis port 6379)');
+  } catch (queueErr) {
+    logger.warn('⚠️  BullMQ Queue tidak bisa diinisialisasi (Redis mungkin offline). Scraping akan berjalan synchronous.', {
+      message: queueErr.message
+    });
+  }
+
+  logger.info(`✅ Server & WebSocket berjalan di http://localhost:${PORT}`);
+  logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 export default app;

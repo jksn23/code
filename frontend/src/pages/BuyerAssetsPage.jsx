@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getBuyerOwnedAssets, getInvoiceLelang, konfirmasiTerimaBarang } from '../services/api';
 import { assetUrl } from '../config/env.js';
+import { useModal } from '../context/ModalContext';
+import { PackageCheck, CheckCircle2, Clock, FileText } from 'lucide-react';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -11,17 +13,25 @@ const formatRp = (value) => new Intl.NumberFormat('id-ID', {
 const formatDate = (value) => value ? new Date(value).toLocaleString('id-ID') : '-';
 
 function AssetDetailModal({ item, invoice, loadingInvoice, onClose, onRefresh }) {
+  const { showAlert, showConfirm } = useModal();
   const [submitting, setSubmitting] = useState(false);
 
   const handleConfirmReceived = async () => {
-    if (!window.confirm('Konfirmasi bahwa aset/barang sudah Anda terima?')) return;
+    const isConfirmed = await showConfirm('Konfirmasi bahwa aset/barang lelang sudah Anda terima dengan baik?', {
+      title: 'Konfirmasi Penerimaan Barang',
+      type: 'warning',
+      confirmText: 'Ya, Barang Diterima',
+    });
+    if (!isConfirmed) return;
+
     setSubmitting(true);
     try {
       await konfirmasiTerimaBarang(item.lelangId);
+      showAlert('Konfirmasi penerimaan barang berhasil disimpan.', 'success');
       await onRefresh();
       onClose();
     } catch (error) {
-      alert(error.message);
+      showAlert(error.message, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -87,6 +97,7 @@ function AssetDetailModal({ item, invoice, loadingInvoice, onClose, onRefresh })
 }
 
 export default function BuyerAssetsPage() {
+  const { showAlert } = useModal();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState(null);
@@ -100,7 +111,7 @@ export default function BuyerAssetsPage() {
       const res = await getBuyerOwnedAssets();
       setItems(res.data || []);
     } catch (error) {
-      alert(error.message);
+      showAlert(error.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -139,15 +150,30 @@ export default function BuyerAssetsPage() {
   return (
     <div>
       <div className="page-header">
-        <h2>📦 Aset Saya</h2>
-        <p>Daftar seluruh aset yang Anda menangkan dari proses lelang beserta nota pembayaran dan progres pengiriman.</p>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <PackageCheck size={24} style={{ color: 'var(--primary)' }} /> Aset Saya (Pemenang Lelang)
+        </h2>
+        <p>Kelola aset hasil lelang yang telah Anda menangkan dan lakukan konfirmasi penerimaan barang.</p>
       </div>
 
-      <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16, marginBottom: 20 }}>
+        {[
+          { label: 'Total Aset Dimenangkan', value: counts.total, accent: 'var(--primary)' },
+          { label: 'Belum Diterima', value: counts.pending, accent: 'var(--warning)' },
+          { label: 'Sudah Diterima', value: counts.received, accent: 'var(--success)' },
+        ].map((item) => (
+          <div key={item.label} className="card" style={{ padding: 18 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.label}</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: item.accent }}>{item.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
           { key: 'all', label: `Semua (${counts.total})` },
           { key: 'pending', label: `Belum Diterima (${counts.pending})` },
-          { key: 'received', label: `Diterima (${counts.received})` },
+          { key: 'received', label: `Sudah Diterima (${counts.received})` },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -162,20 +188,20 @@ export default function BuyerAssetsPage() {
 
       <div className="card" style={{ padding: 0 }}>
         {loading ? (
-          <div className="empty-state"><span className="spinner" /> Memuat aset Anda...</div>
+          <div className="empty-state"><span className="spinner" /> Memuat daftar aset...</div>
         ) : filtered.length === 0 ? (
-          <div className="empty-state">Belum ada aset pada filter ini.</div>
+          <div className="empty-state">Belum ada aset lelang yang Anda menangkan pada kategori ini.</div>
         ) : (
           <div className="table-wrapper">
             <table className="table">
               <thead>
                 <tr>
                   <th>No</th>
-                  <th>Aset</th>
+                  <th>Nama Aset</th>
+                  <th>Kategori</th>
                   <th>Harga Menang</th>
-                  <th>Profit</th>
-                  <th>Pembayaran</th>
-                  <th>Progress</th>
+                  <th>Status Bayar</th>
+                  <th>Progress Barang</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -183,24 +209,22 @@ export default function BuyerAssetsPage() {
                 {filtered.map((item, index) => (
                   <tr key={item.lelangId}>
                     <td>{index + 1}</td>
+                    <td style={{ fontWeight: 600 }}>{item.aset?.nama}</td>
+                    <td>{item.aset?.kategori}</td>
+                    <td>{formatRp(item.transaksi?.hargaMenang)}</td>
                     <td>
-                      <div style={{ fontWeight: 700 }}>{item.aset?.nama}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.aset?.kategori}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Invoice: {item.invoiceNumber || '-'}</div>
-                    </td>
-                    <td style={{ fontWeight: 700, color: '#16a34a' }}>{formatRp(item.transaksi?.hargaMenang)}</td>
-                    <td>{formatRp(item.transaksi?.profitLelang)}</td>
-                    <td>
-                      <span className="badge badge-primary">{item.statusPembayaran}</span>
-                    </td>
-                    <td>
-                      <span className={`badge ${item.statusBarang === 'DITERIMA' ? 'badge-success' : 'badge-warning'}`}>
-                        {item.statusBarang === 'DITERIMA' ? 'DITERIMA' : 'BELUM DITERIMA'}
+                      <span className={`badge ${item.statusPembayaran === 'LUNAS' ? 'badge-success' : 'badge-warning'}`}>
+                        {item.statusPembayaran}
                       </span>
                     </td>
                     <td>
-                      <button type="button" className="btn btn-primary btn-sm" onClick={() => openDetail(item)}>
-                        Detail
+                      <span className={`badge ${item.statusBarang === 'DITERIMA' ? 'badge-success' : 'badge-secondary'}`}>
+                        {item.statusBarang === 'DITERIMA' ? 'Diterima' : 'Belum Diterima'}
+                      </span>
+                    </td>
+                    <td>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => openDetail(item)}>
+                        Detail &amp; Lacak
                       </button>
                     </td>
                   </tr>

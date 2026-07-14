@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPembandingByAset, validasiPembanding } from '../services/api';
+import { useModal } from '../context/ModalContext';
 
 const ValidasiPembandingPage = () => {
+  const { showAlert } = useModal();
   const { asetId } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -17,8 +19,8 @@ const ValidasiPembandingPage = () => {
       setLoading(true);
       const res = await getPembandingByAset(asetId);
       setData(res.data || []);
-    } catch (error) {
-      alert('Gagal mengambil data pembanding');
+    } catch {
+      showAlert('Gagal mengambil data pembanding', 'error');
     } finally {
       setLoading(false);
     }
@@ -27,10 +29,10 @@ const ValidasiPembandingPage = () => {
   const handleValidasi = async (id, statusValidasi) => {
     try {
       await validasiPembanding(id, { statusValidasi });
-      alert(`Berhasil mengubah status menjadi ${statusValidasi}`);
+      showAlert(`Berhasil mengubah status menjadi ${statusValidasi}`, 'success');
       fetchData();
-    } catch (error) {
-      alert('Gagal mengubah status validasi');
+    } catch {
+      showAlert('Gagal mengubah status validasi', 'error');
     }
   };
 
