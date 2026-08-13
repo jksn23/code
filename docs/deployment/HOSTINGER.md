@@ -24,6 +24,8 @@ npm run migrate:prod
 
 Jangan menjalankan `prisma db push` pada production.
 
+Database lama pada akun Hostinger tidak digunakan oleh deployment ini. Buat database dan user baru khusus aplikasi e-Lelang agar hak akses, backup, dan pemulihan tidak bercampur dengan website lain.
+
 ## 2. Environment backend
 
 Isi melalui halaman Environment Variables website `api.e-lelangdigital.my.id`:
@@ -46,11 +48,13 @@ Pengaturan aplikasi Node.js:
 
 ```text
 Node.js version: 22.x
-Root directory: backend
-Build command: npm ci && npm run build && npm run migrate:prod
+Root directory: kosong (arsip deployment sudah berisi isi direktori backend)
+Build command: npm run build
 Start command: npm start
 Health check: /health
 ```
+
+Deployment connector otomatis menjalankan instalasi dependency sebelum `npm run build`. Setelah environment diisi, jalankan `npm run migrate:prod` satu kali melalui terminal/SSH hPanel, kemudian redeploy atau restart aplikasi Node.js. Jangan memasukkan migrasi ke build pertama sebelum `DATABASE_URL` tersedia.
 
 ## 3. Environment dan build frontend
 
@@ -73,14 +77,28 @@ Publikasikan isi `frontend/dist` ke document root website `app.e-lelangdigital.m
 
 ## 4. Urutan rilis
 
-1. Push branch deployment ke GitHub.
-2. Hubungkan website backend ke repository dan pilih root `backend`.
-3. Isi semua environment backend dan jalankan build/migrasi.
+1. Push branch `feature/penilaian-penjual` ke GitHub.
+2. Deploy isi direktori `backend` ke website `api.e-lelangdigital.my.id`.
+3. Isi semua environment backend, jalankan `npm run migrate:prod`, lalu restart/redeploy backend.
 4. Pastikan `https://api.e-lelangdigital.my.id/health` memberi `status: ok`.
 5. Build frontend menggunakan dua variabel Vite production.
 6. Deploy isi `frontend/dist` ke website frontend.
 7. Uji login, upload, penilaian penjual, pencarian pembanding, bidding dua browser, dan pembuatan PDF.
 
-## 5. Data persisten
+Rilis pertama dilakukan melalui arsip connector Hostinger. Untuk rilis berikutnya, repository GitHub dapat dihubungkan melalui hPanel ke branch yang sama agar push/merge menjadi pemicu deployment; environment rahasia tetap hanya disimpan di hPanel dan tidak masuk GitHub.
+
+## 5. DNS eksternal
+
+DNS `e-lelangdigital.my.id` dikelola oleh Cloudflare, bukan oleh akun Hostinger ini. Di hPanel, buka masing-masing website lalu salin IP hosting yang ditampilkan pada panduan koneksi domain. Tambahkan record berikut pada zone Cloudflare:
+
+```text
+Type  Name  Target
+A     app   IP_HOSTING_DARI_HPANEL
+A     api   IP_HOSTING_DARI_HPANEL
+```
+
+Gunakan nilai IP persis dari hPanel, jangan menebak dari website lain. Untuk verifikasi awal gunakan mode **DNS only**; aktifkan proxy Cloudflare setelah HTTPS dan health check berhasil. Hapus record A, AAAA, atau CNAME lama yang konflik hanya untuk host `app` dan `api`. Propagasi dapat memerlukan waktu hingga 24 jam.
+
+## 6. Data persisten
 
 Database tetap persisten antar-deployment. Direktori `uploads` harus dipertahankan oleh website backend dan tidak boleh ikut arsip source. Sebelum redeploy, buat backup database dan folder upload melalui hPanel. Untuk skala lebih besar, pindahkan upload ke object storage yang mendukung signed URL.
