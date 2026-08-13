@@ -1,0 +1,340 @@
+{
+  "success": true,
+  "message": "Perhitungan SAW berhasil",
+  "data": {
+    "versiBobot": "Group AHP Final",
+    "cr": 0.004385,
+    "metodeNormalisasi": "RELATIVE_SAW",
+    "versiFormula": "LIMIT_V3",
+    "jumlahAset": 3,
+    "jumlahKriteria": 7,
+    "totalBobot": 1,
+    "detailKriteria": [
+      {
+        "id": 136,
+        "nama": "Kondisi Mesin",
+        "tipe": "benefit",
+        "bobot": 0.307629,
+        "maxVal": 4,
+        "minVal": 4
+      },
+      {
+        "id": 137,
+        "nama": "Performa",
+        "tipe": "benefit",
+        "bobot": 0.158663,
+        "maxVal": 5,
+        "minVal": 4
+      },
+      {
+        "id": 138,
+        "nama": "Kilometer",
+        "tipe": "cost",
+        "bobot": 0.143978,
+        "maxVal": 4,
+        "minVal": 2
+      },
+      {
+        "id": 139,
+        "nama": "Tahun Produksi",
+        "tipe": "benefit",
+        "bobot": 0.109329,
+        "maxVal": 5,
+        "minVal": 3
+      },
+      {
+        "id": 140,
+        "nama": "Riwayat Kendaraan",
+        "tipe": "benefit",
+        "bobot": 0.11098,
+        "maxVal": 4,
+        "minVal": 3
+      },
+      {
+        "id": 141,
+        "nama": "Merek atau Model",
+        "tipe": "benefit",
+        "bobot": 0.08706,
+        "maxVal": 5,
+        "minVal": 4
+      },
+      {
+        "id": 142,
+        "nama": "Kondisi Fisik",
+        "tipe": "benefit",
+        "bobot": 0.082361,
+        "maxVal": 4,
+        "minVal": 4
+      }
+    ],
+    "ranking": [
+      {
+        "id": 65,
+        "nama": "Honda Beat 2021",
+        "hargaPasar": 12900000,
+        "nilaiPreferensi": 0.9508554,
+        "rawPreference": 0.9508554,
+        "safePreference": 0.9508554,
+        "nilaiLimit": 12266034.66,
+        "detailNormalisasi": [
+          {
+            "kriteriaId": 136,
+            "namaKriteria": "Kondisi Mesin",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.307629,
+            "kontribusi": 0.307629
+          },
+          {
+            "kriteriaId": 137,
+            "namaKriteria": "Performa",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 5,
+            "minVal": 4,
+            "nilaiNorm": 0.8,
+            "bobot": 0.158663,
+            "kontribusi": 0.1269304
+          },
+          {
+            "kriteriaId": 138,
+            "namaKriteria": "Kilometer",
+            "tipe": "cost",
+            "nilaiAsli": 2,
+            "maxVal": 4,
+            "minVal": 2,
+            "nilaiNorm": 1,
+            "bobot": 0.143978,
+            "kontribusi": 0.143978
+          },
+          {
+            "kriteriaId": 139,
+            "namaKriteria": "Tahun Produksi",
+            "tipe": "benefit",
+            "nilaiAsli": 5,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.109329,
+            "kontribusi": 0.109329
+          },
+          {
+            "kriteriaId": 140,
+            "namaKriteria": "Riwayat Kendaraan",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.11098,
+            "kontribusi": 0.11098
+          },
+          {
+            "kriteriaId": 141,
+            "namaKriteria": "Merek atau Model",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 5,
+            "minVal": 4,
+            "nilaiNorm": 0.8,
+            "bobot": 0.08706,
+            "kontribusi": 0.069648
+          },
+          {
+            "kriteriaId": 142,
+            "namaKriteria": "Kondisi Fisik",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.082361,
+            "kontribusi": 0.082361
+          }
+        ],
+        "ranking": 1
+      },
+      {
+        "id": 64,
+        "nama": "Toyota Avanza 2019",
+        "hargaPasar": 150000000,
+        "nilaiPreferensi": 0.8984089333333333,
+        "rawPreference": 0.8984089333333333,
+        "safePreference": 0.8984089333333333,
+        "nilaiLimit": 134761340,
+        "detailNormalisasi": [
+          {
+            "kriteriaId": 136,
+            "namaKriteria": "Kondisi Mesin",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.307629,
+            "kontribusi": 0.307629
+          },
+          {
+            "kriteriaId": 137,
+            "namaKriteria": "Performa",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 5,
+            "minVal": 4,
+            "nilaiNorm": 0.8,
+            "bobot": 0.158663,
+            "kontribusi": 0.1269304
+          },
+          {
+            "kriteriaId": 138,
+            "namaKriteria": "Kilometer",
+            "tipe": "cost",
+            "nilaiAsli": 3,
+            "maxVal": 4,
+            "minVal": 2,
+            "nilaiNorm": 0.6666666666666666,
+            "bobot": 0.143978,
+            "kontribusi": 0.09598533333333333
+          },
+          {
+            "kriteriaId": 139,
+            "namaKriteria": "Tahun Produksi",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 0.8,
+            "bobot": 0.109329,
+            "kontribusi": 0.0874632
+          },
+          {
+            "kriteriaId": 140,
+            "namaKriteria": "Riwayat Kendaraan",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.11098,
+            "kontribusi": 0.11098
+          },
+          {
+            "kriteriaId": 141,
+            "namaKriteria": "Merek atau Model",
+            "tipe": "benefit",
+            "nilaiAsli": 5,
+            "maxVal": 5,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.08706,
+            "kontribusi": 0.08706
+          },
+          {
+            "kriteriaId": 142,
+            "namaKriteria": "Kondisi Fisik",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.082361,
+            "kontribusi": 0.082361
+          }
+        ],
+        "ranking": 2
+      },
+      {
+        "id": 66,
+        "nama": "Mitsubishi Xpander 2018",
+        "hargaPasar": 179000000,
+        "nilaiPreferensi": 0.8565344000000001,
+        "rawPreference": 0.8565344000000001,
+        "safePreference": 0.8565344000000001,
+        "nilaiLimit": 153319657.60000002,
+        "detailNormalisasi": [
+          {
+            "kriteriaId": 136,
+            "namaKriteria": "Kondisi Mesin",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.307629,
+            "kontribusi": 0.307629
+          },
+          {
+            "kriteriaId": 137,
+            "namaKriteria": "Performa",
+            "tipe": "benefit",
+            "nilaiAsli": 5,
+            "maxVal": 5,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.158663,
+            "kontribusi": 0.158663
+          },
+          {
+            "kriteriaId": 138,
+            "namaKriteria": "Kilometer",
+            "tipe": "cost",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 2,
+            "nilaiNorm": 0.5,
+            "bobot": 0.143978,
+            "kontribusi": 0.071989
+          },
+          {
+            "kriteriaId": 139,
+            "namaKriteria": "Tahun Produksi",
+            "tipe": "benefit",
+            "nilaiAsli": 3,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 0.6,
+            "bobot": 0.109329,
+            "kontribusi": 0.0655974
+          },
+          {
+            "kriteriaId": 140,
+            "namaKriteria": "Riwayat Kendaraan",
+            "tipe": "benefit",
+            "nilaiAsli": 3,
+            "maxVal": 4,
+            "minVal": 3,
+            "nilaiNorm": 0.75,
+            "bobot": 0.11098,
+            "kontribusi": 0.083235
+          },
+          {
+            "kriteriaId": 141,
+            "namaKriteria": "Merek atau Model",
+            "tipe": "benefit",
+            "nilaiAsli": 5,
+            "maxVal": 5,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.08706,
+            "kontribusi": 0.08706
+          },
+          {
+            "kriteriaId": 142,
+            "namaKriteria": "Kondisi Fisik",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.082361,
+            "kontribusi": 0.082361
+          }
+        ],
+        "ranking": 3
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+Commit: 1e761475bade16eff8369172dab895a1aeec48c2
+Branch: research/jcis-final-journal-data
+Node: v22.14.0
+MySQL URL: [REDACTED]
+Date: 2026-07-15T04:31:25.971Z
+Method: RELATIVE_SAW
+Formula: LIMIT_V3 (NL = V x Median)

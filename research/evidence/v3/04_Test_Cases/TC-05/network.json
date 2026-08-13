@@ -1,0 +1,9 @@
+{
+  "expectedHttp": 422,
+  "actualHttp": 422,
+  "assertions": {
+    "httpIs422": true,
+    "codeIsINVALID_TOTAL_WEIGHT": true,
+    "httpNot404": true
+  }
+}

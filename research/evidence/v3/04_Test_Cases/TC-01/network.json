@@ -1,0 +1,8 @@
+{
+  "expectedHttp": 401,
+  "actualHttp": 401,
+  "assertions": {
+    "httpIs401": true,
+    "dbUnchanged": true
+  }
+}

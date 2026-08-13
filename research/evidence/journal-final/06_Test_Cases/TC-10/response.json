@@ -1,0 +1,58 @@
+{
+  "success": true,
+  "data": {
+    "median": 100500000,
+    "hasil": {
+      "id": 43,
+      "asetId": 174,
+      "nilaiPreferensi": null,
+      "hargaReferensiPasar": "100500000",
+      "nilaiLimit": null,
+      "bobotVersionId": null,
+      "metodeNormalisasi": "LEGACY_DYNAMIC_SAW",
+      "versiFormula": "LIMIT_V1",
+      "bobotSnapshot": null,
+      "nilaiSnapshot": null,
+      "normalisasiSnapshot": null,
+      "pembandingSnapshot": null,
+      "tingkatKeyakinan": "RENDAH",
+      "skorKeyakinan": "47",
+      "alasanKeyakinan": {
+        "alasan": [
+          "Domain unik kurang (0 < 2) — berisiko konfirmasi bias"
+        ],
+        "statistik": {
+          "cv": 0.017,
+          "domains": [],
+          "hargaMean": 100250000,
+          "hargaMedian": 100500000,
+          "hargaStdDev": 1707825.13,
+          "jumlahTotal": 5,
+          "jumlahManual": 0,
+          "jumlahOutlier": 1,
+          "jumlahDomainUnik": 0,
+          "jumlahHargaValid": 4,
+          "jumlahScrapedReal": 5
+        }
+      },
+      "jumlahPembandingValid": 4,
+      "jumlahScrapedReal": 5,
+      "jumlahManual": 0,
+      "jumlahDomainUnik": 0,
+      "calculatedAt": "2026-07-15T04:32:05.365Z",
+      "createdAt": "2026-07-15T04:32:05.369Z",
+      "updatedAt": "2026-07-15T04:32:05.369Z"
+    },
+    "outliersCount": 1,
+    "outliersFlagged": 1,
+    "hargaAwal": [
+      98000000,
+      500000000,
+      101000000,
+      100000000,
+      102000000
+    ],
+    "limitUpdated": true
+  },
+  "message": "Harga referensi pasar berhasil dihitung"
+}

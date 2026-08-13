@@ -1,0 +1,19 @@
+tc_id,skenario,status
+TC-01,"Password salah",PASS
+TC-02,"Akses lintas peran",PASS
+TC-03,"Nilai kriteria kosong",PASS
+TC-04,"Nilai di luar skala 1-5",PASS
+TC-05,"Total bobot != 1.0",PASS
+TC-06,"URL canonical duplikat",PASS
+TC-07,"Pembanding valid < 3",PASS
+TC-08,"Seluruh pembanding pending",PASS
+TC-09,"Harga negatif & nol",PASS
+TC-10,"Outlier",PASS
+TC-11,"Floating-point clamp",PASS
+TC-12,"Ranking seri",PASS
+TC-13,"Bobot kriteria negatif",PASS
+TC-14,"Backend tidak tersedia",PASS
+TC-15,"Rollback transaksi",PASS
+TC-16,"XSS",PASS
+TC-17,"Upload tidak valid",PASS
+TC-18,"URL tidak aktif",PASS

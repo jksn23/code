@@ -1,0 +1,7 @@
+{
+  "payloads": [
+    "<script>alert(\"XSS\")</script>Comparable",
+    "<img src=x onerror=alert(1)>Item",
+    "<svg onload=alert(1)>Product"
+  ]
+}

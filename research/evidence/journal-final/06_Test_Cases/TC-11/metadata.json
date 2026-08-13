@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-11",
+  "title": "Floating-point clamp",
+  "expectedHttp": "200",
+  "actualHttp": "200",
+  "status": "PASS",
+  "executedAt": "2026-07-15T04:32:08.325Z",
+  "assertions": {
+    "httpIs200": true,
+    "clampSucceeded": true
+  },
+  "notes": ""
+}

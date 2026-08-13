@@ -1,0 +1,38 @@
+[
+  {
+    "scenario": "404",
+    "mockStatus": "mock-404",
+    "http": 200,
+    "expectedIntegrity": "TIDAK_VALID",
+    "actualIntegrity": "TIDAK_VALID",
+    "integrityMatch": true,
+    "lastHttpStatus": 404
+  },
+  {
+    "scenario": "410",
+    "mockStatus": "mock-410",
+    "http": 200,
+    "expectedIntegrity": "TIDAK_VALID",
+    "actualIntegrity": "TIDAK_VALID",
+    "integrityMatch": true,
+    "lastHttpStatus": 410
+  },
+  {
+    "scenario": "timeout",
+    "mockStatus": "mock-timeout",
+    "http": 200,
+    "expectedIntegrity": "PERLU_TINJAU",
+    "actualIntegrity": "PERLU_TINJAU",
+    "integrityMatch": true,
+    "lastHttpStatus": 0
+  },
+  {
+    "scenario": "500",
+    "mockStatus": "mock-500",
+    "http": 200,
+    "expectedIntegrity": "PERLU_TINJAU",
+    "actualIntegrity": "PERLU_TINJAU",
+    "integrityMatch": true,
+    "lastHttpStatus": 500
+  }
+]

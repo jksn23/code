@@ -1,0 +1,26 @@
+[
+  {
+    "desc": "shell script",
+    "http": 400
+  },
+  {
+    "desc": "exe double extension",
+    "http": 400
+  },
+  {
+    "desc": "MIME mismatch",
+    "http": 400
+  },
+  {
+    "desc": "fake PDF content",
+    "http": 400
+  },
+  {
+    "desc": "oversized 15MB",
+    "http": 500
+  },
+  {
+    "desc": "path traversal",
+    "http": 400
+  }
+]

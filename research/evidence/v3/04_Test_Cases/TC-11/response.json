@@ -1,0 +1,568 @@
+{
+  "success": true,
+  "message": "Perhitungan SAW berhasil. Hasil menunggu verifikasi admin.",
+  "data": {
+    "aset": {
+      "id": 67,
+      "nama": "Laptop Lenovo ThinkPad 2021",
+      "deskripsi": "Aset penelitian JCIS: Laptop Lenovo ThinkPad 2021",
+      "hargaPasar": 5875000,
+      "limitValue": 5874994.13,
+      "statusLelang": "DRAFT",
+      "statusPenilaian": "MENUNGGU_VERIFIKASI",
+      "catatanPenilaian": null,
+      "penilaianSubmittedAt": "2026-07-15T01:55:35.022Z",
+      "penilaianReviewedAt": null,
+      "penjual": {
+        "id": 7,
+        "userId": 26,
+        "ktpUrl": null,
+        "npwpUrl": null,
+        "rekeningBank": null,
+        "nomorRekening": null,
+        "isVerified": true,
+        "verificationStatus": "APPROVED",
+        "verificationNote": null,
+        "verifiedAt": null,
+        "verifiedBy": null,
+        "createdAt": "2026-07-15T01:55:22.049Z",
+        "updatedAt": "2026-07-15T01:55:22.049Z",
+        "user": {
+          "id": 26,
+          "nama": "Penjual Uji",
+          "email": "penjual4@mail.com"
+        }
+      },
+      "kategori": {
+        "id": 3,
+        "nama": "Elektronik"
+      },
+      "assetProperty": null,
+      "assetVehicle": null,
+      "assetElectronic": null
+    },
+    "kriteria": [
+      {
+        "id": 143,
+        "nama": "Kondisi Barang",
+        "tipe": "benefit",
+        "bobot": 0.246353,
+        "nilai": 5,
+        "rubrik": []
+      },
+      {
+        "id": 144,
+        "nama": "Spesifikasi Teknis",
+        "tipe": "benefit",
+        "bobot": 0.233252,
+        "nilai": 5,
+        "rubrik": []
+      },
+      {
+        "id": 145,
+        "nama": "Performa atau Fungsi",
+        "tipe": "benefit",
+        "bobot": 0.220513,
+        "nilai": 5,
+        "rubrik": []
+      },
+      {
+        "id": 146,
+        "nama": "Usia Pemakaian",
+        "tipe": "cost",
+        "bobot": 0.131082,
+        "nilai": 1,
+        "rubrik": []
+      },
+      {
+        "id": 147,
+        "nama": "Merek",
+        "tipe": "benefit",
+        "bobot": 0.090029,
+        "nilai": 5,
+        "rubrik": []
+      },
+      {
+        "id": 148,
+        "nama": "Kelengkapan",
+        "tipe": "benefit",
+        "bobot": 0.07877,
+        "nilai": 5,
+        "rubrik": []
+      }
+    ],
+    "hasil": {
+      "id": 19,
+      "nilaiPreferensi": 0.999999,
+      "nilaiLimit": 5874994.13,
+      "bobotVersionId": 25,
+      "metodeNormalisasi": "RELATIVE_SAW",
+      "versiFormula": "LIMIT_V3",
+      "tingkatKeyakinan": "SEDANG",
+      "skorKeyakinan": 79,
+      "alasanKeyakinan": {
+        "alasan": [
+          "4 data valid, 4 scraped real, 3 domain unik, CV=2.5%"
+        ],
+        "statistik": {
+          "cv": 0.0252,
+          "domains": [
+            "www.olx.co.id",
+            "shopee.co.id",
+            "www.instagram.com"
+          ],
+          "hargaMean": 5850000,
+          "hargaMedian": 5875000,
+          "hargaStdDev": 147196.01,
+          "jumlahTotal": 5,
+          "jumlahManual": 1,
+          "jumlahOutlier": 1,
+          "jumlahDomainUnik": 3,
+          "jumlahHargaValid": 4,
+          "jumlahScrapedReal": 4
+        }
+      },
+      "createdAt": "2026-07-15T01:55:35.019Z"
+    },
+    "detailNormalisasi": [
+      {
+        "kriteriaId": 143,
+        "namaKriteria": "Kondisi Barang",
+        "tipe": "benefit",
+        "nilaiAsli": 5,
+        "maxVal": 5,
+        "minVal": 3,
+        "nilaiNorm": 1,
+        "bobot": 0.246353,
+        "kontribusi": 0.246353
+      },
+      {
+        "kriteriaId": 144,
+        "namaKriteria": "Spesifikasi Teknis",
+        "tipe": "benefit",
+        "nilaiAsli": 5,
+        "maxVal": 5,
+        "minVal": 3,
+        "nilaiNorm": 1,
+        "bobot": 0.233252,
+        "kontribusi": 0.233252
+      },
+      {
+        "kriteriaId": 145,
+        "namaKriteria": "Performa atau Fungsi",
+        "tipe": "benefit",
+        "nilaiAsli": 5,
+        "maxVal": 5,
+        "minVal": 4,
+        "nilaiNorm": 1,
+        "bobot": 0.220513,
+        "kontribusi": 0.220513
+      },
+      {
+        "kriteriaId": 146,
+        "namaKriteria": "Usia Pemakaian",
+        "tipe": "cost",
+        "nilaiAsli": 1,
+        "maxVal": 4,
+        "minVal": 1,
+        "nilaiNorm": 1,
+        "bobot": 0.131082,
+        "kontribusi": 0.131082
+      },
+      {
+        "kriteriaId": 147,
+        "namaKriteria": "Merek",
+        "tipe": "benefit",
+        "nilaiAsli": 5,
+        "maxVal": 5,
+        "minVal": 4,
+        "nilaiNorm": 1,
+        "bobot": 0.090029,
+        "kontribusi": 0.090029
+      },
+      {
+        "kriteriaId": 148,
+        "namaKriteria": "Kelengkapan",
+        "tipe": "benefit",
+        "nilaiAsli": 5,
+        "maxVal": 5,
+        "minVal": 3,
+        "nilaiNorm": 1,
+        "bobot": 0.07877,
+        "kontribusi": 0.07877
+      }
+    ],
+    "currentResult": {
+      "id": 67,
+      "nama": "Laptop Lenovo ThinkPad 2021",
+      "hargaPasar": 5850000,
+      "nilaiPreferensi": 0.999999,
+      "rawPreference": 0.999999,
+      "safePreference": 0.999999,
+      "nilaiLimit": 5849994.149999999,
+      "detailNormalisasi": [
+        {
+          "kriteriaId": 143,
+          "namaKriteria": "Kondisi Barang",
+          "tipe": "benefit",
+          "nilaiAsli": 5,
+          "maxVal": 5,
+          "minVal": 3,
+          "nilaiNorm": 1,
+          "bobot": 0.246353,
+          "kontribusi": 0.246353
+        },
+        {
+          "kriteriaId": 144,
+          "namaKriteria": "Spesifikasi Teknis",
+          "tipe": "benefit",
+          "nilaiAsli": 5,
+          "maxVal": 5,
+          "minVal": 3,
+          "nilaiNorm": 1,
+          "bobot": 0.233252,
+          "kontribusi": 0.233252
+        },
+        {
+          "kriteriaId": 145,
+          "namaKriteria": "Performa atau Fungsi",
+          "tipe": "benefit",
+          "nilaiAsli": 5,
+          "maxVal": 5,
+          "minVal": 4,
+          "nilaiNorm": 1,
+          "bobot": 0.220513,
+          "kontribusi": 0.220513
+        },
+        {
+          "kriteriaId": 146,
+          "namaKriteria": "Usia Pemakaian",
+          "tipe": "cost",
+          "nilaiAsli": 1,
+          "maxVal": 4,
+          "minVal": 1,
+          "nilaiNorm": 1,
+          "bobot": 0.131082,
+          "kontribusi": 0.131082
+        },
+        {
+          "kriteriaId": 147,
+          "namaKriteria": "Merek",
+          "tipe": "benefit",
+          "nilaiAsli": 5,
+          "maxVal": 5,
+          "minVal": 4,
+          "nilaiNorm": 1,
+          "bobot": 0.090029,
+          "kontribusi": 0.090029
+        },
+        {
+          "kriteriaId": 148,
+          "namaKriteria": "Kelengkapan",
+          "tipe": "benefit",
+          "nilaiAsli": 5,
+          "maxVal": 5,
+          "minVal": 3,
+          "nilaiNorm": 1,
+          "bobot": 0.07877,
+          "kontribusi": 0.07877
+        }
+      ],
+      "ranking": 1
+    },
+    "auditLog": [],
+    "hasilSAW": {
+      "metodeNormalisasi": "RELATIVE_SAW",
+      "versiFormula": "LIMIT_V3",
+      "jumlahAset": 3,
+      "jumlahKriteria": 6,
+      "totalBobot": 0.999999,
+      "detailKriteria": [
+        {
+          "id": 143,
+          "nama": "Kondisi Barang",
+          "tipe": "benefit",
+          "bobot": 0.246353,
+          "maxVal": 5,
+          "minVal": 3
+        },
+        {
+          "id": 144,
+          "nama": "Spesifikasi Teknis",
+          "tipe": "benefit",
+          "bobot": 0.233252,
+          "maxVal": 5,
+          "minVal": 3
+        },
+        {
+          "id": 145,
+          "nama": "Performa atau Fungsi",
+          "tipe": "benefit",
+          "bobot": 0.220513,
+          "maxVal": 5,
+          "minVal": 4
+        },
+        {
+          "id": 146,
+          "nama": "Usia Pemakaian",
+          "tipe": "cost",
+          "bobot": 0.131082,
+          "maxVal": 4,
+          "minVal": 1
+        },
+        {
+          "id": 147,
+          "nama": "Merek",
+          "tipe": "benefit",
+          "bobot": 0.090029,
+          "maxVal": 5,
+          "minVal": 4
+        },
+        {
+          "id": 148,
+          "nama": "Kelengkapan",
+          "tipe": "benefit",
+          "bobot": 0.07877,
+          "maxVal": 5,
+          "minVal": 3
+        }
+      ],
+      "ranking": [
+        {
+          "id": 67,
+          "nama": "Laptop Lenovo ThinkPad 2021",
+          "hargaPasar": 5850000,
+          "nilaiPreferensi": 0.999999,
+          "rawPreference": 0.999999,
+          "safePreference": 0.999999,
+          "nilaiLimit": 5849994.149999999,
+          "detailNormalisasi": [
+            {
+              "kriteriaId": 143,
+              "namaKriteria": "Kondisi Barang",
+              "tipe": "benefit",
+              "nilaiAsli": 5,
+              "maxVal": 5,
+              "minVal": 3,
+              "nilaiNorm": 1,
+              "bobot": 0.246353,
+              "kontribusi": 0.246353
+            },
+            {
+              "kriteriaId": 144,
+              "namaKriteria": "Spesifikasi Teknis",
+              "tipe": "benefit",
+              "nilaiAsli": 5,
+              "maxVal": 5,
+              "minVal": 3,
+              "nilaiNorm": 1,
+              "bobot": 0.233252,
+              "kontribusi": 0.233252
+            },
+            {
+              "kriteriaId": 145,
+              "namaKriteria": "Performa atau Fungsi",
+              "tipe": "benefit",
+              "nilaiAsli": 5,
+              "maxVal": 5,
+              "minVal": 4,
+              "nilaiNorm": 1,
+              "bobot": 0.220513,
+              "kontribusi": 0.220513
+            },
+            {
+              "kriteriaId": 146,
+              "namaKriteria": "Usia Pemakaian",
+              "tipe": "cost",
+              "nilaiAsli": 1,
+              "maxVal": 4,
+              "minVal": 1,
+              "nilaiNorm": 1,
+              "bobot": 0.131082,
+              "kontribusi": 0.131082
+            },
+            {
+              "kriteriaId": 147,
+              "namaKriteria": "Merek",
+              "tipe": "benefit",
+              "nilaiAsli": 5,
+              "maxVal": 5,
+              "minVal": 4,
+              "nilaiNorm": 1,
+              "bobot": 0.090029,
+              "kontribusi": 0.090029
+            },
+            {
+              "kriteriaId": 148,
+              "namaKriteria": "Kelengkapan",
+              "tipe": "benefit",
+              "nilaiAsli": 5,
+              "maxVal": 5,
+              "minVal": 3,
+              "nilaiNorm": 1,
+              "bobot": 0.07877,
+              "kontribusi": 0.07877
+            }
+          ],
+          "ranking": 1
+        },
+        {
+          "id": 68,
+          "nama": "iPhone 12 128GB",
+          "hargaPasar": 5800000,
+          "nilaiPreferensi": 0.7410794,
+          "rawPreference": 0.7410794,
+          "safePreference": 0.7410794,
+          "nilaiLimit": 4298260.5200000005,
+          "detailNormalisasi": [
+            {
+              "kriteriaId": 143,
+              "namaKriteria": "Kondisi Barang",
+              "tipe": "benefit",
+              "nilaiAsli": 4,
+              "maxVal": 5,
+              "minVal": 3,
+              "nilaiNorm": 0.8,
+              "bobot": 0.246353,
+              "kontribusi": 0.1970824
+            },
+            {
+              "kriteriaId": 144,
+              "namaKriteria": "Spesifikasi Teknis",
+              "tipe": "benefit",
+              "nilaiAsli": 4,
+              "maxVal": 5,
+              "minVal": 3,
+              "nilaiNorm": 0.8,
+              "bobot": 0.233252,
+              "kontribusi": 0.1866016
+            },
+            {
+              "kriteriaId": 145,
+              "namaKriteria": "Performa atau Fungsi",
+              "tipe": "benefit",
+              "nilaiAsli": 4,
+              "maxVal": 5,
+              "minVal": 4,
+              "nilaiNorm": 0.8,
+              "bobot": 0.220513,
+              "kontribusi": 0.1764104
+            },
+            {
+              "kriteriaId": 146,
+              "namaKriteria": "Usia Pemakaian",
+              "tipe": "cost",
+              "nilaiAsli": 3,
+              "maxVal": 4,
+              "minVal": 1,
+              "nilaiNorm": 0.3333333333333333,
+              "bobot": 0.131082,
+              "kontribusi": 0.043694
+            },
+            {
+              "kriteriaId": 147,
+              "namaKriteria": "Merek",
+              "tipe": "benefit",
+              "nilaiAsli": 5,
+              "maxVal": 5,
+              "minVal": 4,
+              "nilaiNorm": 1,
+              "bobot": 0.090029,
+              "kontribusi": 0.090029
+            },
+            {
+              "kriteriaId": 148,
+              "namaKriteria": "Kelengkapan",
+              "tipe": "benefit",
+              "nilaiAsli": 3,
+              "maxVal": 5,
+              "minVal": 3,
+              "nilaiNorm": 0.6,
+              "bobot": 0.07877,
+              "kontribusi": 0.047262000000000005
+            }
+          ],
+          "ranking": 2
+        },
+        {
+          "id": 69,
+          "nama": "Kamera Canon EOS 700D",
+          "hargaPasar": 3300000,
+          "nilaiPreferensi": 0.6319830999999999,
+          "rawPreference": 0.6319830999999999,
+          "safePreference": 0.6319830999999999,
+          "nilaiLimit": 2085544.2299999997,
+          "detailNormalisasi": [
+            {
+              "kriteriaId": 143,
+              "namaKriteria": "Kondisi Barang",
+              "tipe": "benefit",
+              "nilaiAsli": 3,
+              "maxVal": 5,
+              "minVal": 3,
+              "nilaiNorm": 0.6,
+              "bobot": 0.246353,
+              "kontribusi": 0.1478118
+            },
+            {
+              "kriteriaId": 144,
+              "namaKriteria": "Spesifikasi Teknis",
+              "tipe": "benefit",
+              "nilaiAsli": 3,
+              "maxVal": 5,
+              "minVal": 3,
+              "nilaiNorm": 0.6,
+              "bobot": 0.233252,
+              "kontribusi": 0.1399512
+            },
+            {
+              "kriteriaId": 145,
+              "namaKriteria": "Performa atau Fungsi",
+              "tipe": "benefit",
+              "nilaiAsli": 4,
+              "maxVal": 5,
+              "minVal": 4,
+              "nilaiNorm": 0.8,
+              "bobot": 0.220513,
+              "kontribusi": 0.1764104
+            },
+            {
+              "kriteriaId": 146,
+              "namaKriteria": "Usia Pemakaian",
+              "tipe": "cost",
+              "nilaiAsli": 4,
+              "maxVal": 4,
+              "minVal": 1,
+              "nilaiNorm": 0.25,
+              "bobot": 0.131082,
+              "kontribusi": 0.0327705
+            },
+            {
+              "kriteriaId": 147,
+              "namaKriteria": "Merek",
+              "tipe": "benefit",
+              "nilaiAsli": 4,
+              "maxVal": 5,
+              "minVal": 4,
+              "nilaiNorm": 0.8,
+              "bobot": 0.090029,
+              "kontribusi": 0.0720232
+            },
+            {
+              "kriteriaId": 148,
+              "namaKriteria": "Kelengkapan",
+              "tipe": "benefit",
+              "nilaiAsli": 4,
+              "maxVal": 5,
+              "minVal": 3,
+              "nilaiNorm": 0.8,
+              "bobot": 0.07877,
+              "kontribusi": 0.063016
+            }
+          ],
+          "ranking": 3
+        }
+      ]
+    }
+  }
+}

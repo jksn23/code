@@ -1,0 +1,30 @@
+[
+  {
+    "scenario": "404",
+    "http": 200,
+    "expectedIntegrity": "TIDAK_VALID",
+    "actualIntegrity": "TIDAK_VALID",
+    "match": true
+  },
+  {
+    "scenario": "410",
+    "http": 200,
+    "expectedIntegrity": "TIDAK_VALID",
+    "actualIntegrity": "TIDAK_VALID",
+    "match": true
+  },
+  {
+    "scenario": "timeout",
+    "http": 200,
+    "expectedIntegrity": "PERLU_TINJAU",
+    "actualIntegrity": "PERLU_TINJAU",
+    "match": true
+  },
+  {
+    "scenario": "500",
+    "http": 200,
+    "expectedIntegrity": "PERLU_TINJAU",
+    "actualIntegrity": "PERLU_TINJAU",
+    "match": true
+  }
+]

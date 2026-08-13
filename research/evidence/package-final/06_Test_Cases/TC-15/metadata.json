@@ -1,0 +1,15 @@
+{
+  "testCaseId": "TC-15",
+  "title": "Rollback transaksi",
+  "expectedHttp": "500",
+  "actualHttp": "500",
+  "status": "PASS",
+  "executedAt": "2026-07-15T03:12:22.988Z",
+  "assertions": {
+    "dbCountUnchanged": true,
+    "dbHashUnchanged": true,
+    "statusUnchanged": true,
+    "httpIs500": true
+  },
+  "notes": ""
+}

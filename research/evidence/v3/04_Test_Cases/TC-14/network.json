@@ -1,0 +1,8 @@
+{
+  "expectedHttp": 503,
+  "actualHttp": 503,
+  "assertions": {
+    "connectionRefused": true,
+    "errorPresent": true
+  }
+}

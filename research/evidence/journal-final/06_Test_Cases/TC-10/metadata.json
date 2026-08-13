@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-10",
+  "title": "Outlier",
+  "expectedHttp": "200",
+  "actualHttp": "200",
+  "status": "PASS",
+  "executedAt": "2026-07-15T04:32:05.400Z",
+  "assertions": {
+    "httpIs200": true,
+    "outlierDetected": true
+  },
+  "notes": ""
+}

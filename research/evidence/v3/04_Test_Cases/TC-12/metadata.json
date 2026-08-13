@@ -1,0 +1,14 @@
+{
+  "testCaseId": "TC-12",
+  "title": "Ranking tie-breaker stabil 20 run",
+  "expectedHttp": 200,
+  "actualHttp": 200,
+  "assertions": {
+    "stable": true,
+    "stableCount20": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:35.351Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": "stable=true, count=20"
+}

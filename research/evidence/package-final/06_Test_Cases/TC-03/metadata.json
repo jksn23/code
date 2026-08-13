@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-03",
+  "title": "Nilai kriteria kosong",
+  "expectedHttp": "400",
+  "actualHttp": "400",
+  "status": "PASS",
+  "executedAt": "2026-07-15T03:11:30.426Z",
+  "assertions": {
+    "httpIs400": true,
+    "dbUnchanged": true
+  },
+  "notes": ""
+}

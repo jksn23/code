@@ -1,0 +1,17 @@
+{
+  "testCaseId": "TC-09",
+  "title": "Harga pembanding negatif dan nol ditolak",
+  "expectedHttp": "400/422",
+  "actualHttp": 400,
+  "assertions": {
+    "negativeRejected": true,
+    "zeroRejected": true,
+    "httpNot404_negative": true,
+    "httpNot404_zero": true,
+    "dbUnchanged": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:34.684Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": "negative: 400, zero: 400"
+}

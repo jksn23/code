@@ -15,7 +15,7 @@ const SOURCE_FILES = {
   lampiranAnalisis: 'C:/Users/McCrazy/Documents/kampus/TA/jurnal/output/Lampiran_Analisis_Revisi_JCIS_Final.xlsx'
 };
 
-const FINAL_EVIDENCE_DIR = 'C:/Users/McCrazy/Documents/kampus/TA/code/Final_Evidence_V2';
+const FINAL_EVIDENCE_DIR = process.env.TARGET_DIR || 'C:/Users/McCrazy/Documents/kampus/TA/code/Final_Evidence_V2';
 
 const MEDIAN_ACUAN = {
   'Rumah Tipe 45/90': 690000000,

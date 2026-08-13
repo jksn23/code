@@ -1,0 +1,42 @@
+{
+  "success": false,
+  "message": "Kalkulasi median diblokir karena tingkat keyakinan referensi tidak cukup: Median diblokir: Hanya 0 data valid setelah filter outlier (minimum: 3)",
+  "data": {
+    "median": null,
+    "diblokir": true,
+    "alasan": "Median diblokir: Hanya 0 data valid setelah filter outlier (minimum: 3)",
+    "tingkatKeyakinan": "TIDAK_CUKUP",
+    "skorKeyakinan": 0,
+    "alasanKeyakinan": {
+      "alasan": [
+        "Hanya 0 data valid setelah filter outlier (minimum: 3)"
+      ],
+      "statistik": {
+        "jumlahTotal": 0,
+        "jumlahHargaValid": 0,
+        "jumlahScrapedReal": 0,
+        "jumlahManual": 0,
+        "jumlahDomainUnik": 0,
+        "jumlahOutlier": 0,
+        "hargaMedian": null,
+        "hargaMean": 0,
+        "hargaStdDev": 0,
+        "cv": 0,
+        "domains": []
+      }
+    },
+    "statistik": {
+      "jumlahTotal": 0,
+      "jumlahHargaValid": 0,
+      "jumlahScrapedReal": 0,
+      "jumlahManual": 0,
+      "jumlahDomainUnik": 0,
+      "jumlahOutlier": 0,
+      "hargaMedian": null,
+      "hargaMean": 0,
+      "hargaStdDev": 0,
+      "cv": 0,
+      "domains": []
+    }
+  }
+}

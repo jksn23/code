@@ -1,0 +1,16 @@
+{
+  "testCaseId": "TC-17",
+  "title": "Upload file tidak valid (6 jenis)",
+  "expectedHttp": "400/413/415",
+  "actualHttp": 400,
+  "assertions": {
+    "shellRejected": true,
+    "exeRejected": true,
+    "mimeMismatchRejected": true,
+    "dbUnchanged": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:36.423Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": "shell script: HTTP 400; exe double extension: HTTP 400; MIME mismatch: HTTP 400; fake PDF content: HTTP 400; oversized 15MB: HTTP 500; path traversal: HTTP 400"
+}

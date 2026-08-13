@@ -1,0 +1,16 @@
+{
+  "testCaseId": "TC-06",
+  "title": "URL canonical duplikat → HTTP 409/422",
+  "expectedHttp": "409/422",
+  "actualHttp": 400,
+  "assertions": {
+    "firstPostSucceeded": true,
+    "duplicateRejected": true,
+    "canonicalCountStable": true,
+    "httpNot404": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:34.360Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": "First: 200, Dup: 400. CanCount: 6→6"
+}

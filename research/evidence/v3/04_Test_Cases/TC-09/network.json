@@ -1,0 +1,11 @@
+{
+  "expectedHttp": "400/422",
+  "actualHttp": 400,
+  "assertions": {
+    "negativeRejected": true,
+    "zeroRejected": true,
+    "httpNot404_negative": true,
+    "httpNot404_zero": true,
+    "dbUnchanged": true
+  }
+}

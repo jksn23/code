@@ -1,0 +1,61 @@
+AssetID,Name,Category,CriteriaCode,CriteriaName,Score
+189,"Rumah Tipe 45/90","Tanah dan Bangunan",TB01,"Lokasi dan Aksesibilitas",4
+189,"Rumah Tipe 45/90","Tanah dan Bangunan",TB02,"Legalitas",5
+189,"Rumah Tipe 45/90","Tanah dan Bangunan",TB03,"Luas",3
+189,"Rumah Tipe 45/90","Tanah dan Bangunan",TB04,"Kondisi Fisik",4
+189,"Rumah Tipe 45/90","Tanah dan Bangunan",TB05,"Fasilitas Sekitar",4
+189,"Rumah Tipe 45/90","Tanah dan Bangunan",TB06,"Lingkungan dan Risiko",2
+189,"Rumah Tipe 45/90","Tanah dan Bangunan",TB07,"Potensi Pengembangan",3
+190,"Ruko 2 Lantai","Tanah dan Bangunan",TB01,"Lokasi dan Aksesibilitas",5
+190,"Ruko 2 Lantai","Tanah dan Bangunan",TB02,"Legalitas",5
+190,"Ruko 2 Lantai","Tanah dan Bangunan",TB03,"Luas",4
+190,"Ruko 2 Lantai","Tanah dan Bangunan",TB04,"Kondisi Fisik",4
+190,"Ruko 2 Lantai","Tanah dan Bangunan",TB05,"Fasilitas Sekitar",5
+190,"Ruko 2 Lantai","Tanah dan Bangunan",TB06,"Lingkungan dan Risiko",2
+190,"Ruko 2 Lantai","Tanah dan Bangunan",TB07,"Potensi Pengembangan",4
+191,"Tanah Kavling","Tanah dan Bangunan",TB01,"Lokasi dan Aksesibilitas",3
+191,"Tanah Kavling","Tanah dan Bangunan",TB02,"Legalitas",4
+191,"Tanah Kavling","Tanah dan Bangunan",TB03,"Luas",4
+191,"Tanah Kavling","Tanah dan Bangunan",TB04,"Kondisi Fisik",3
+191,"Tanah Kavling","Tanah dan Bangunan",TB05,"Fasilitas Sekitar",3
+191,"Tanah Kavling","Tanah dan Bangunan",TB06,"Lingkungan dan Risiko",3
+191,"Tanah Kavling","Tanah dan Bangunan",TB07,"Potensi Pengembangan",5
+192,"Toyota Avanza 2019","Kendaraan",KD01,"Kondisi Mesin",4
+192,"Toyota Avanza 2019","Kendaraan",KD02,"Performa",4
+192,"Toyota Avanza 2019","Kendaraan",KD03,"Kilometer",3
+192,"Toyota Avanza 2019","Kendaraan",KD04,"Tahun Produksi",4
+192,"Toyota Avanza 2019","Kendaraan",KD05,"Riwayat Kendaraan",4
+192,"Toyota Avanza 2019","Kendaraan",KD06,"Merek atau Model",5
+192,"Toyota Avanza 2019","Kendaraan",KD07,"Kondisi Fisik",4
+193,"Honda Beat 2021","Kendaraan",KD01,"Kondisi Mesin",4
+193,"Honda Beat 2021","Kendaraan",KD02,"Performa",4
+193,"Honda Beat 2021","Kendaraan",KD03,"Kilometer",2
+193,"Honda Beat 2021","Kendaraan",KD04,"Tahun Produksi",5
+193,"Honda Beat 2021","Kendaraan",KD05,"Riwayat Kendaraan",4
+193,"Honda Beat 2021","Kendaraan",KD06,"Merek atau Model",4
+193,"Honda Beat 2021","Kendaraan",KD07,"Kondisi Fisik",4
+194,"Mitsubishi Xpander 2018","Kendaraan",KD01,"Kondisi Mesin",4
+194,"Mitsubishi Xpander 2018","Kendaraan",KD02,"Performa",5
+194,"Mitsubishi Xpander 2018","Kendaraan",KD03,"Kilometer",4
+194,"Mitsubishi Xpander 2018","Kendaraan",KD04,"Tahun Produksi",3
+194,"Mitsubishi Xpander 2018","Kendaraan",KD05,"Riwayat Kendaraan",3
+194,"Mitsubishi Xpander 2018","Kendaraan",KD06,"Merek atau Model",5
+194,"Mitsubishi Xpander 2018","Kendaraan",KD07,"Kondisi Fisik",4
+195,"Laptop Lenovo ThinkPad 2021","Elektronik",EL01,"Kondisi Barang",4
+195,"Laptop Lenovo ThinkPad 2021","Elektronik",EL02,"Spesifikasi Teknis",4
+195,"Laptop Lenovo ThinkPad 2021","Elektronik",EL03,"Performa atau Fungsi",4
+195,"Laptop Lenovo ThinkPad 2021","Elektronik",EL04,"Usia Pemakaian",3
+195,"Laptop Lenovo ThinkPad 2021","Elektronik",EL05,"Merek",5
+195,"Laptop Lenovo ThinkPad 2021","Elektronik",EL06,"Kelengkapan",4
+196,"iPhone 12 128GB","Elektronik",EL01,"Kondisi Barang",4
+196,"iPhone 12 128GB","Elektronik",EL02,"Spesifikasi Teknis",4
+196,"iPhone 12 128GB","Elektronik",EL03,"Performa atau Fungsi",4
+196,"iPhone 12 128GB","Elektronik",EL04,"Usia Pemakaian",3
+196,"iPhone 12 128GB","Elektronik",EL05,"Merek",5
+196,"iPhone 12 128GB","Elektronik",EL06,"Kelengkapan",3
+197,"Kamera Canon EOS 700D","Elektronik",EL01,"Kondisi Barang",3
+197,"Kamera Canon EOS 700D","Elektronik",EL02,"Spesifikasi Teknis",3
+197,"Kamera Canon EOS 700D","Elektronik",EL03,"Performa atau Fungsi",4
+197,"Kamera Canon EOS 700D","Elektronik",EL04,"Usia Pemakaian",4
+197,"Kamera Canon EOS 700D","Elektronik",EL05,"Merek",4
+197,"Kamera Canon EOS 700D","Elektronik",EL06,"Kelengkapan",4

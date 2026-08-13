@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-14",
+  "title": "Backend tidak tersedia",
+  "expectedHttp": "503",
+  "actualHttp": "503",
+  "status": "PASS",
+  "executedAt": "2026-07-15T04:32:18.664Z",
+  "assertions": {
+    "connectionRefused": true,
+    "errorReported": true
+  },
+  "notes": ""
+}

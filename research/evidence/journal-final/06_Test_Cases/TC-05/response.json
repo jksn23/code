@@ -1,0 +1,6 @@
+{
+  "success": false,
+  "code": "INVALID_TOTAL_WEIGHT",
+  "message": "Total bobot harus sama dengan 1.",
+  "totalWeight": 1.2
+}

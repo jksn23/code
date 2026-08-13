@@ -1,0 +1,10 @@
+{
+  "expectedHttp": "400/413/415",
+  "actualHttp": 400,
+  "assertions": {
+    "shellRejected": true,
+    "exeRejected": true,
+    "mimeMismatchRejected": true,
+    "dbUnchanged": true
+  }
+}

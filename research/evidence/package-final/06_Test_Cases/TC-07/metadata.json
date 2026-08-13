@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-07",
+  "title": "Pembanding valid < 3",
+  "expectedHttp": "400",
+  "actualHttp": "400",
+  "status": "PASS",
+  "executedAt": "2026-07-15T03:11:47.045Z",
+  "assertions": {
+    "httpIs400": true,
+    "messagePresent": true
+  },
+  "notes": ""
+}

@@ -1,0 +1,14 @@
+{
+  "testCaseId": "TC-02",
+  "title": "Akses lintas peran",
+  "expectedHttp": "403",
+  "actualHttp": "403",
+  "status": "PASS",
+  "executedAt": "2026-07-15T04:31:42.076Z",
+  "assertions": {
+    "httpIs403": true,
+    "dbUnchanged": true,
+    "storageUnchanged": true
+  },
+  "notes": ""
+}

@@ -204,9 +204,12 @@ export const addManualPembanding = async (req, res) => {
       }
     }
 
+    // Sanitasi XSS sederhana pada judul manual
+    const cleanJudul = judul.replace(/<[^>]*>?/gm, '');
+
     // P0: Evaluasi kelayakan pembanding (hard gates & fuzzy matching)
     const matchResult = matchPembanding(aset, {
-      judul,
+      judul: cleanJudul,
       spesifikasi: spesifikasi || 'Data diinput manual oleh penjual',
       kondisi: kondisi || 'Bekas - Baik',
       tahun: tahun ? Number(tahun) : null,
@@ -218,7 +221,7 @@ export const addManualPembanding = async (req, res) => {
     const pembanding = await prisma.dataPembanding.create({
       data: {
         asetId,
-        judul,
+        judul: cleanJudul,
         sumber,
         sourceUrl,
         harga: Number(harga),
@@ -472,8 +475,22 @@ export const checkActivityController = async (req, res) => {
       }
     }
 
-    const validationStatus = status === 200 ? 'DETAIL_IKLAN' : 'TIDAK_VALID';
-    const statusIntegritasUrl = status === 200 ? 'DETAIL_IKLAN' : 'TIDAK_VALID';
+    let validationStatus = 'BELUM_DIVERIFIKASI';
+    let statusIntegritasUrl = 'BELUM_DIVERIFIKASI';
+
+    if (status === 200) {
+      validationStatus = 'DETAIL_IKLAN';
+      statusIntegritasUrl = 'DETAIL_IKLAN';
+    } else if (status === 404 || status === 410) {
+      validationStatus = 'TIDAK_VALID';
+      statusIntegritasUrl = 'TIDAK_VALID';
+    } else if (status === 0 || status === 500) {
+      validationStatus = 'PERLU_TINJAU';
+      statusIntegritasUrl = 'TIDAK_VALID';
+    } else {
+      validationStatus = 'TIDAK_VALID';
+      statusIntegritasUrl = 'TIDAK_VALID';
+    }
 
     const updated = await prisma.dataPembanding.update({
       where: { id },

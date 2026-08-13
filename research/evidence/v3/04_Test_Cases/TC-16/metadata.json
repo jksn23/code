@@ -1,0 +1,15 @@
+{
+  "testCaseId": "TC-16",
+  "title": "Sanitasi XSS — payload tidak dieksekusi",
+  "expectedHttp": "200/400",
+  "actualHttp": 200,
+  "assertions": {
+    "allEndpointsResponded": true,
+    "noExecutableTagsExecuted": true,
+    "httpNot404_all": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:36.186Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": "Endpoint yang benar: /api/pembanding/aset/:id/manual"
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "id": 189,
+    "nama": "Rumah Tipe 45/90",
+    "rawPref": 0.8673056,
+    "safePref": 0.8673056,
+    "median": 690000000,
+    "limit": 598440864
+  },
+  {
+    "id": 190,
+    "nama": "Ruko 2 Lantai",
+    "rawPref": 0.9876682000000001,
+    "safePref": 0.9876682000000001,
+    "median": 1800000000,
+    "limit": 1777802760.0000002
+  },
+  {
+    "id": 191,
+    "nama": "Tanah Kavling",
+    "rawPref": 0.7537515333333334,
+    "safePref": 0.7537515333333334,
+    "median": 250000000,
+    "limit": 188437883.33333337
+  },
+  {
+    "id": 192,
+    "nama": "Toyota Avanza 2019",
+    "rawPref": 0.8984089333333333,
+    "safePref": 0.8984089333333333,
+    "median": 150000000,
+    "limit": 134761340
+  },
+  {
+    "id": 193,
+    "nama": "Honda Beat 2021",
+    "rawPref": 0.9508554,
+    "safePref": 0.9508554,
+    "median": 12900000,
+    "limit": 12266034.66
+  },
+  {
+    "id": 194,
+    "nama": "Mitsubishi Xpander 2018",
+    "rawPref": 0.8565344000000001,
+    "safePref": 0.8565344000000001,
+    "median": 179000000,
+    "limit": 153319657.60000002
+  },
+  {
+    "id": 195,
+    "nama": "Laptop Lenovo ThinkPad 2021",
+    "rawPref": 0.999999,
+    "safePref": 0.999999,
+    "median": 5850000,
+    "limit": 5849994.149999999
+  },
+  {
+    "id": 196,
+    "nama": "iPhone 12 128GB",
+    "rawPref": 0.9803065,
+    "safePref": 0.9803065,
+    "median": 5800000,
+    "limit": 5685777.7
+  },
+  {
+    "id": 197,
+    "nama": "Kamera Canon EOS 700D",
+    "rawPref": 0.8293214499999999,
+    "safePref": 0.8293214499999999,
+    "median": 3300000,
+    "limit": 2736760.7849999997
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-16",
+  "title": "XSS",
+  "expectedHttp": "200",
+  "actualHttp": "200",
+  "status": "PASS",
+  "executedAt": "2026-07-15T03:12:28.359Z",
+  "assertions": {
+    "allResponded": true,
+    "noTagsStored": true
+  },
+  "notes": ""
+}

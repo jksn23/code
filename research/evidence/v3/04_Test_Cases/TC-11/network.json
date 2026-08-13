@@ -1,0 +1,10 @@
+{
+  "expectedHttp": 200,
+  "actualHttp": 200,
+  "assertions": {
+    "safePrefLeq1": true,
+    "storedPrefLeq1": true,
+    "storedPrefNotNull": true,
+    "nilaiLimitLeqHargaRef": true
+  }
+}

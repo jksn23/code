@@ -1,2 +1,21 @@
 # Added by code-review-graph
 .code-review-graph/
+
+# Dependencies and local credentials
+node_modules/
+**/node_modules/
+.env
+**/.env
+ssh/
+*.pem
+.claude/settings.local.json
+
+# Runtime and generated scratch data
+backend/logs/
+backend/uploads/
+backend/scratch/
+backend/test_status_temp.json
+backend/output.txt
+backend/login_test.png
+*.tmp
+*.temp

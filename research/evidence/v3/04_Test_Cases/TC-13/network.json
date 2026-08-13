@@ -1,0 +1,8 @@
+{
+  "expectedHttp": "400/422",
+  "actualHttp": 500,
+  "assertions": {
+    "httpNot404": true,
+    "requestReached": true
+  }
+}

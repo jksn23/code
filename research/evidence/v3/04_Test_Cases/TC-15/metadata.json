@@ -1,0 +1,17 @@
+{
+  "testCaseId": "TC-15",
+  "title": "Rollback transaksi database (fault injection)",
+  "expectedHttp": 500,
+  "actualHttp": 500,
+  "assertions": {
+    "dbCountUnchanged": true,
+    "dbHashUnchanged": true,
+    "statusUnchanged": true,
+    "correlationIdPresent": true,
+    "httpIs500orFault": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:36.068Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": "DB unchanged: count 1==1, hash true, correlationId=corr-1784080535554-jnk5xkwbr"
+}

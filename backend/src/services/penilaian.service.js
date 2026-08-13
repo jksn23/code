@@ -1,5 +1,5 @@
 import prisma from '../models/prisma.client.js';
-import { hitungSAW } from './saw.service.js';
+import { hitungSAW, METODE_NORMALISASI, VERSI_FORMULA } from './saw.service.js';
 import { getActiveWeightVersion, createBobotSnapshot } from './weight_version.service.js';
 import { pembandingService } from './pembanding.service.js';
 
@@ -210,7 +210,7 @@ export const calculateAndPersistSAWForAset = async ({ asetId, actor, requireOwne
 
   // Validasi total bobot
   const totalWeight = activeVersion.bobotAhp.reduce((sum, item) => sum + Number(item.bobot), 0);
-  const tolerance = 1e-9;
+  const tolerance = 0.01;
   if (Math.abs(totalWeight - 1) > tolerance) {
     const err = httpError(422, 'Total bobot harus sama dengan 1.');
     err.code = 'INVALID_TOTAL_WEIGHT';
@@ -301,8 +301,8 @@ export const calculateAndPersistSAWForAset = async ({ asetId, actor, requireOwne
         hargaReferensiPasar: hargaReferensi,
         nilaiLimit,
         bobotVersionId: activeVersion.id,
-        metodeNormalisasi: 'FIXED_SCALE_1_5',
-        versiFormula: 'LIMIT_V2',
+        metodeNormalisasi: METODE_NORMALISASI,
+        versiFormula: VERSI_FORMULA,
         bobotSnapshot: bobotSnap,
         nilaiSnapshot: nilaiSnap,
         normalisasiSnapshot: normalisasiSnap,

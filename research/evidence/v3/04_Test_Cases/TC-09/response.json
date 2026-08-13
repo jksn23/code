@@ -1,0 +1,12 @@
+[
+  {
+    "harga": -100000,
+    "http": 400,
+    "rejected": true
+  },
+  {
+    "harga": 0,
+    "http": 400,
+    "rejected": true
+  }
+]

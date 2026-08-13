@@ -1,0 +1,10 @@
+aset_id,nama_aset,jumlah_pembanding,layak_count,perlu_tinjau_count,median,confidence_level
+162,"Rumah Tipe 45/90",5,5,0,690000000,CUKUP
+163,"Ruko 2 Lantai",5,5,2,1800000000,CUKUP
+164,"Tanah Kavling",5,5,4,250000000,CUKUP
+165,"Toyota Avanza 2019",5,5,2,150000000,CUKUP
+166,"Honda Beat 2021",5,5,2,12900000,CUKUP
+167,"Mitsubishi Xpander 2018",5,5,4,179000000,CUKUP
+168,"Laptop Lenovo ThinkPad 2021",5,5,2,5850000,CUKUP
+169,"iPhone 12 128GB",5,5,0,5800000,CUKUP
+170,"Kamera Canon EOS 700D",5,5,3,3300000,CUKUP

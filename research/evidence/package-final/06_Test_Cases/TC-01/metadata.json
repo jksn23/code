@@ -1,0 +1,14 @@
+{
+  "testCaseId": "TC-01",
+  "title": "Password salah",
+  "expectedHttp": "401",
+  "actualHttp": "401",
+  "status": "PASS",
+  "executedAt": "2026-07-15T03:11:24.359Z",
+  "assertions": {
+    "httpIs401": true,
+    "dbUnchanged": true,
+    "storageUnchanged": true
+  },
+  "notes": ""
+}

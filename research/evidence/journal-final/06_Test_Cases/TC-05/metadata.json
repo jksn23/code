@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-05",
+  "title": "Total bobot != 1.0",
+  "expectedHttp": "422",
+  "actualHttp": "422",
+  "status": "PASS",
+  "executedAt": "2026-07-15T04:31:50.878Z",
+  "assertions": {
+    "httpIs422": true,
+    "codeIsINVALID_TOTAL_WEIGHT": true
+  },
+  "notes": ""
+}

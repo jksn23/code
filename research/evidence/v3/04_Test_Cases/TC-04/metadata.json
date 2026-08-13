@@ -1,0 +1,14 @@
+{
+  "testCaseId": "TC-04",
+  "title": "Nilai kriteria di luar skala 1-5",
+  "expectedHttp": 400,
+  "actualHttp": 400,
+  "assertions": {
+    "httpIs400": true,
+    "dbUnchanged": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:34.121Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": ""
+}

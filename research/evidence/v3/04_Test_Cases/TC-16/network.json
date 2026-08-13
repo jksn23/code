@@ -1,0 +1,9 @@
+{
+  "expectedHttp": "200/400",
+  "actualHttp": 200,
+  "assertions": {
+    "allEndpointsResponded": true,
+    "noExecutableTagsExecuted": true,
+    "httpNot404_all": true
+  }
+}

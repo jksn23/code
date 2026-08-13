@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-12",
+  "title": "Ranking seri",
+  "expectedHttp": "200",
+  "actualHttp": "200",
+  "status": "PASS",
+  "executedAt": "2026-07-15T03:12:06.379Z",
+  "assertions": {
+    "stableRanking": true,
+    "stableCount20": true
+  },
+  "notes": ""
+}

@@ -1,0 +1,4 @@
+peran,skenario,rata_rata_skor,penerimaan
+Penilai Lelang,INPUT_ASET,5.0,100%
+Pakar AHP,HITUNG_AHP,4.0,100%
+Penjual Aset,MEDIAN_SAW,5.0,100%

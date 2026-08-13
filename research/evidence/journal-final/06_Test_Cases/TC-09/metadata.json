@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-09",
+  "title": "Harga negatif & nol",
+  "expectedHttp": "400/422",
+  "actualHttp": "400",
+  "status": "PASS",
+  "executedAt": "2026-07-15T04:32:02.597Z",
+  "assertions": {
+    "httpIs400": true,
+    "dbUnchanged": true
+  },
+  "notes": ""
+}

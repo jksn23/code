@@ -1,0 +1,15 @@
+{
+  "testCaseId": "TC-03",
+  "title": "nilai_list kosong",
+  "expectedHttp": 400,
+  "actualHttp": 400,
+  "assertions": {
+    "httpIs400": true,
+    "dbUnchanged": true,
+    "messagePresent": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:34.067Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": ""
+}

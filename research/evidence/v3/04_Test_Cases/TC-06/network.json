@@ -1,0 +1,10 @@
+{
+  "expectedHttp": "409/422",
+  "actualHttp": 400,
+  "assertions": {
+    "firstPostSucceeded": true,
+    "duplicateRejected": true,
+    "canonicalCountStable": true,
+    "httpNot404": true
+  }
+}

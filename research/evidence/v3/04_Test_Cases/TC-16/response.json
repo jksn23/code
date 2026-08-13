@@ -1,0 +1,23 @@
+[
+  {
+    "payload": "<script>alert(\"XSS\")",
+    "http": 200,
+    "stored": true,
+    "hasExecutableTag": false,
+    "httpNot404": true
+  },
+  {
+    "payload": "<img src=x onerror=a",
+    "http": 200,
+    "stored": true,
+    "hasExecutableTag": false,
+    "httpNot404": true
+  },
+  {
+    "payload": "<svg onload=alert(1)",
+    "http": 200,
+    "stored": true,
+    "hasExecutableTag": false,
+    "httpNot404": true
+  }
+]

@@ -1,0 +1,68 @@
+{
+  "success": true,
+  "data": {
+    "median": 631000000,
+    "hasil": {
+      "id": 18,
+      "asetId": 61,
+      "nilaiPreferensi": null,
+      "hargaReferensiPasar": "631000000",
+      "nilaiLimit": null,
+      "bobotVersionId": null,
+      "metodeNormalisasi": "LEGACY_DYNAMIC_SAW",
+      "versiFormula": "LIMIT_V1",
+      "bobotSnapshot": null,
+      "nilaiSnapshot": null,
+      "normalisasiSnapshot": null,
+      "pembandingSnapshot": null,
+      "tingkatKeyakinan": "RENDAH",
+      "skorKeyakinan": "59",
+      "alasanKeyakinan": {
+        "alasan": [
+          "Sebaran harga tinggi CV=62.4% > 30%"
+        ],
+        "statistik": {
+          "cv": 0.6235,
+          "domains": [
+            "www.instagram.com",
+            "www.pinhome.id",
+            "www.facebook.com",
+            "www.rumah123.com"
+          ],
+          "hargaMean": 502070000,
+          "hargaMedian": 631000000,
+          "hargaStdDev": 313064430.89,
+          "jumlahTotal": 10,
+          "jumlahManual": 2,
+          "jumlahOutlier": 0,
+          "jumlahDomainUnik": 4,
+          "jumlahHargaValid": 10,
+          "jumlahScrapedReal": 8
+        }
+      },
+      "jumlahPembandingValid": 10,
+      "jumlahScrapedReal": 8,
+      "jumlahManual": 2,
+      "jumlahDomainUnik": 4,
+      "calculatedAt": "2026-07-15T01:55:34.846Z",
+      "createdAt": "2026-07-15T01:55:34.848Z",
+      "updatedAt": "2026-07-15T01:55:34.848Z"
+    },
+    "outliersCount": 0,
+    "outliersFlagged": 0,
+    "hargaAwal": [
+      690000000,
+      145000000,
+      152000000,
+      150000000,
+      766700000,
+      600000000,
+      900000000,
+      800000000,
+      155000000,
+      662000000
+    ],
+    "limitUpdated": true
+  },
+  "message": "Harga referensi pasar berhasil dihitung"
+}

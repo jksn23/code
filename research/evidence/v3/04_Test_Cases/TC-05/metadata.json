@@ -1,0 +1,15 @@
+{
+  "testCaseId": "TC-05",
+  "title": "Total bobot AHP != 1.0 → HTTP 422",
+  "expectedHttp": 422,
+  "actualHttp": 422,
+  "assertions": {
+    "httpIs422": true,
+    "codeIsINVALID_TOTAL_WEIGHT": true,
+    "httpNot404": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:34.262Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": "Used POST /api/spk/hitung-saw with deliberately invalid total weight"
+}

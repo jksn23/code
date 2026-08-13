@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-06",
+  "title": "URL canonical duplikat",
+  "expectedHttp": "400/409/422",
+  "actualHttp": "400",
+  "status": "PASS",
+  "executedAt": "2026-07-15T04:31:53.698Z",
+  "assertions": {
+    "firstInserted": true,
+    "secondRejected": true
+  },
+  "notes": ""
+}

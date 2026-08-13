@@ -1,0 +1,8 @@
+Commit: 1e761475bade16eff8369172dab895a1aeec48c2
+Branch: research/jcis-final-regression
+Node: v22.14.0
+Build: JCIS-V3-20260715015521
+DB: lelang_jcis_final_regression
+Date: 2026-07-15T01:55:21.190Z
+Method: RELATIVE_SAW
+Formula: LIMIT_V3 (NL = V × median)

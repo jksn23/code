@@ -1,0 +1,38 @@
+[
+  {
+    "desc": "shell script",
+    "filename": "exploit.sh",
+    "http": 400,
+    "rejected": true
+  },
+  {
+    "desc": "exe double extension",
+    "filename": "backdoor.pdf.exe",
+    "http": 400,
+    "rejected": true
+  },
+  {
+    "desc": "MIME mismatch",
+    "filename": "legit.png",
+    "http": 400,
+    "rejected": true
+  },
+  {
+    "desc": "fake PDF content",
+    "filename": "fake.pdf",
+    "http": 400,
+    "rejected": true
+  },
+  {
+    "desc": "oversized 15MB",
+    "filename": "oversized.jpg",
+    "http": 500,
+    "rejected": true
+  },
+  {
+    "desc": "path traversal",
+    "filename": "../../../etc/passwd",
+    "http": 400,
+    "rejected": true
+  }
+]

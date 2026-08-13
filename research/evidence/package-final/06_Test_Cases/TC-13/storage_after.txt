@@ -1,0 +1,26 @@
+[
+  {
+    "name": "archives",
+    "size": 0
+  },
+  {
+    "name": "aset",
+    "size": 0
+  },
+  {
+    "name": "dokumen",
+    "size": 0
+  },
+  {
+    "name": "pembayaran",
+    "size": 0
+  },
+  {
+    "name": "penjual",
+    "size": 0
+  },
+  {
+    "name": "repository",
+    "size": 0
+  }
+]

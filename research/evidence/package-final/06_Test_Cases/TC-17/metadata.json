@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-17",
+  "title": "Upload tidak valid",
+  "expectedHttp": "400/413/415",
+  "actualHttp": "400",
+  "status": "PASS",
+  "executedAt": "2026-07-15T03:12:31.978Z",
+  "assertions": {
+    "allRejected": true,
+    "dbUnchanged": true
+  },
+  "notes": ""
+}

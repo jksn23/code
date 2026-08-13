@@ -1,0 +1,20 @@
+{
+  "scenarioId": "E2E-Tanah_dan_Bangunan",
+  "assetName": "Rumah Tipe 45/90",
+  "assetId": 61,
+  "kategoriId": 1,
+  "sawHttp": 200,
+  "preference": 0.867306,
+  "nilaiLimit": 547269833.6,
+  "hasilId": 21,
+  "assertions": {
+    "prefNotNull": true,
+    "limitNotNull": true,
+    "hasilInDb": true,
+    "prefIs0to1": true,
+    "limitIsPositive": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:37.180Z",
+  "buildNumber": "JCIS-V3-20260715015521"
+}

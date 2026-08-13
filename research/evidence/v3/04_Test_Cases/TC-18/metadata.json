@@ -1,0 +1,17 @@
+{
+  "testCaseId": "TC-18",
+  "title": "URL pembanding tidak aktif (4 kondisi)",
+  "expectedHttp": 200,
+  "actualHttp": 200,
+  "assertions": {
+    "case404IsNOT_VALID": true,
+    "case410IsNOT_VALID": true,
+    "caseTimeoutIsPERLU_TINJAU": true,
+    "case500IsPERLU_TINJAU": true,
+    "allEndpointsNot404": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:36.591Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": "404: TIDAK_VALID; 410: TIDAK_VALID; timeout: PERLU_TINJAU; 500: PERLU_TINJAU"
+}

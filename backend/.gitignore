@@ -4,3 +4,8 @@ node_modules
 
 /generated/prisma
 /uploads/
+/logs/
+/scratch/
+/test_status_temp.json
+/output.txt
+/login_test.png

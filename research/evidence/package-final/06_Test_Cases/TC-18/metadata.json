@@ -1,0 +1,12 @@
+{
+  "testCaseId": "TC-18",
+  "title": "URL tidak aktif",
+  "expectedHttp": "200",
+  "actualHttp": "200",
+  "status": "PASS",
+  "executedAt": "2026-07-15T03:12:35.800Z",
+  "assertions": {
+    "allMockChecksPassed": true
+  },
+  "notes": ""
+}

@@ -1,0 +1,18 @@
+{
+  "success": false,
+  "message": "Kalkulasi median diblokir karena tingkat keyakinan referensi tidak cukup: Kalkulasi median ditolak karena terdapat 3 data pembanding yang berstatus MENUNGGU validasi atau PERLU_TINJAU.",
+  "data": {
+    "median": null,
+    "diblokir": true,
+    "alasan": "Kalkulasi median ditolak karena terdapat 3 data pembanding yang berstatus MENUNGGU validasi atau PERLU_TINJAU.",
+    "tingkatKeyakinan": "TIDAK_CUKUP",
+    "skorKeyakinan": 0,
+    "alasanKeyakinan": {
+      "alasan": [
+        "Terdapat 3 data pembanding belum selesai ditinjau"
+      ],
+      "statistik": {}
+    },
+    "statistik": {}
+  }
+}

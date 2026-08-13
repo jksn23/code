@@ -1,0 +1,8 @@
+{
+  "expectedHttp": 400,
+  "actualHttp": 400,
+  "assertions": {
+    "httpIs400": true,
+    "messagePresent": true
+  }
+}

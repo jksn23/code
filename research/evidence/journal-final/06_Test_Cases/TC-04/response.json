@@ -1,0 +1,5 @@
+{
+  "success": false,
+  "message": "Nilai kriteria hanya dapat diubah saat status penilaian DRAFT atau PERLU_REVISI",
+  "correlationId": "corr-1784089907945-e9lc4doc7"
+}

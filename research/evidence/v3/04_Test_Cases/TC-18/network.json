@@ -1,0 +1,11 @@
+{
+  "expectedHttp": 200,
+  "actualHttp": 200,
+  "assertions": {
+    "case404IsNOT_VALID": true,
+    "case410IsNOT_VALID": true,
+    "caseTimeoutIsPERLU_TINJAU": true,
+    "case500IsPERLU_TINJAU": true,
+    "allEndpointsNot404": true
+  }
+}

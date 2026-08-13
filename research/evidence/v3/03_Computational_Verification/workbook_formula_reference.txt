@@ -1,0 +1,31 @@
+# SAW Relative Normalization Formula Reference
+
+## Benefit: r_ij = x_ij / max(x_j)
+## Cost: r_ij = min(x_j) / x_ij
+## Preference: V_i = Σ(w_j × r_ij)
+## Limit: NL_i = V_i × median_pembanding
+
+## Per-Category Max/Min:
+### Tanah dan Bangunan:
+  Lokasi dan Aksesibilitas (benefit): max=5, min=3
+  Legalitas (benefit): max=5, min=4
+  Luas (benefit): max=4, min=3
+  Kondisi Fisik (benefit): max=4, min=3
+  Fasilitas Sekitar (benefit): max=5, min=3
+  Lingkungan dan Risiko (cost): max=3, min=2
+  Potensi Pengembangan (benefit): max=5, min=3
+### Kendaraan:
+  Kondisi Mesin (benefit): max=4, min=4
+  Performa (benefit): max=5, min=4
+  Kilometer (cost): max=4, min=2
+  Tahun Produksi (benefit): max=5, min=3
+  Riwayat Kendaraan (benefit): max=4, min=3
+  Merek atau Model (benefit): max=5, min=4
+  Kondisi Fisik (benefit): max=4, min=4
+### Elektronik:
+  Kondisi Barang (benefit): max=4, min=3
+  Spesifikasi Teknis (benefit): max=4, min=3
+  Performa atau Fungsi (benefit): max=4, min=4
+  Usia Pemakaian (cost): max=4, min=3
+  Merek (benefit): max=5, min=4
+  Kelengkapan (benefit): max=4, min=3

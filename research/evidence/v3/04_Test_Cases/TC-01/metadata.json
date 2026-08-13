@@ -1,0 +1,14 @@
+{
+  "testCaseId": "TC-01",
+  "title": "Login password salah",
+  "expectedHttp": 401,
+  "actualHttp": 401,
+  "assertions": {
+    "httpIs401": true,
+    "dbUnchanged": true
+  },
+  "status": "PASS",
+  "executedAt": "2026-07-15T01:55:33.959Z",
+  "buildNumber": "JCIS-V3-20260715015521",
+  "notes": ""
+}

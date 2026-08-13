@@ -1,0 +1,68 @@
+{
+  "first": {
+    "success": true,
+    "data": {
+      "id": 348,
+      "asetId": 61,
+      "judul": "TC06 First Item",
+      "sumber": "OLX",
+      "sourceUrl": "https://www.olx.co.id/item/tc06-regression-dup-1784080534280",
+      "harga": "500000000",
+      "lokasi": "Indonesia",
+      "tahun": null,
+      "kondisi": "Bekas - Baik",
+      "spesifikasi": "Data diinput manual oleh penjual",
+      "skorKecocokan": "10",
+      "similarity": "0.1",
+      "isOutlier": false,
+      "statusValidasi": "MENUNGGU",
+      "dipilihPenjual": true,
+      "scrapedAt": "2026-07-15T01:55:34.301Z",
+      "jenisSumber": "MANUAL",
+      "statusIntegritasUrl": "DETAIL_IKLAN",
+      "statusKecocokan": "TIDAK_LAYAK",
+      "canonicalUrl": "https://www.olx.co.id/item/tc06-regression-dup-1784080534280",
+      "canonicalUrlHash": "ba53a83bc446a6e8d2dcec8bb91a62896ceae1728ffbaf6aa48d97364754637e",
+      "sourceDomain": "olx.co.id",
+      "alasanKecocokan": {
+        "totalBobot": 0.6,
+        "dimensiSkor": {
+          "tahun": {
+            "skor": null,
+            "bobot": 0,
+            "keterangan": "Data tahun tidak tersedia"
+          },
+          "lokasi": {
+            "skor": null,
+            "bobot": 0,
+            "keterangan": "Data lokasi tidak tersedia"
+          },
+          "kondisi": {
+            "skor": 0.6,
+            "bobot": 0.1
+          },
+          "spesifikasi": {
+            "skor": 0,
+            "bobot": 0.5
+          }
+        },
+        "hardGateFailed": false,
+        "similarityWeighted": 0.1
+      },
+      "validatedAt": null,
+      "validatedBy": null,
+      "lastCheckedAt": null,
+      "lastHttpStatus": null,
+      "retryCount": 0,
+      "validationStatus": null,
+      "validationReason": null,
+      "createdAt": "2026-07-15T01:55:34.301Z",
+      "updatedAt": "2026-07-15T01:55:34.301Z"
+    },
+    "message": "Data pembanding manual berhasil ditambahkan"
+  },
+  "duplicate": {
+    "success": false,
+    "message": "Data pembanding dengan URL yang sama sudah ada untuk aset ini"
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "success": true,
+  "message": "Perhitungan SAW berhasil",
+  "data": {
+    "versiBobot": "Group AHP Final",
+    "cr": 0.006928,
+    "metodeNormalisasi": "RELATIVE_SAW",
+    "versiFormula": "LIMIT_V3",
+    "jumlahAset": 3,
+    "jumlahKriteria": 7,
+    "totalBobot": 1,
+    "detailKriteria": [
+      {
+        "id": 129,
+        "nama": "Lokasi dan Aksesibilitas",
+        "tipe": "benefit",
+        "bobot": 0.286256,
+        "maxVal": 5,
+        "minVal": 3
+      },
+      {
+        "id": 130,
+        "nama": "Legalitas",
+        "tipe": "benefit",
+        "bobot": 0.245351,
+        "maxVal": 5,
+        "minVal": 4
+      },
+      {
+        "id": 131,
+        "nama": "Luas",
+        "tipe": "benefit",
+        "bobot": 0.144588,
+        "maxVal": 4,
+        "minVal": 3
+      },
+      {
+        "id": 132,
+        "nama": "Kondisi Fisik",
+        "tipe": "benefit",
+        "bobot": 0.115004,
+        "maxVal": 4,
+        "minVal": 3
+      },
+      {
+        "id": 133,
+        "nama": "Fasilitas Sekitar",
+        "tipe": "benefit",
+        "bobot": 0.073163,
+        "maxVal": 5,
+        "minVal": 3
+      },
+      {
+        "id": 134,
+        "nama": "Lingkungan dan Risiko",
+        "tipe": "cost",
+        "bobot": 0.073979,
+        "maxVal": 3,
+        "minVal": 2
+      },
+      {
+        "id": 135,
+        "nama": "Potensi Pengembangan",
+        "tipe": "benefit",
+        "bobot": 0.061659,
+        "maxVal": 5,
+        "minVal": 3
+      }
+    ],
+    "ranking": [
+      {
+        "id": 62,
+        "nama": "Ruko 2 Lantai",
+        "hargaPasar": 1800000000,
+        "nilaiPreferensi": 0.9876682000000001,
+        "rawPreference": 0.9876682000000001,
+        "safePreference": 0.9876682000000001,
+        "nilaiLimit": 1777802760.0000002,
+        "detailNormalisasi": [
+          {
+            "kriteriaId": 129,
+            "namaKriteria": "Lokasi dan Aksesibilitas",
+            "tipe": "benefit",
+            "nilaiAsli": 5,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.286256,
+            "kontribusi": 0.286256
+          },
+          {
+            "kriteriaId": 130,
+            "namaKriteria": "Legalitas",
+            "tipe": "benefit",
+            "nilaiAsli": 5,
+            "maxVal": 5,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.245351,
+            "kontribusi": 0.245351
+          },
+          {
+            "kriteriaId": 131,
+            "namaKriteria": "Luas",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.144588,
+            "kontribusi": 0.144588
+          },
+          {
+            "kriteriaId": 132,
+            "namaKriteria": "Kondisi Fisik",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.115004,
+            "kontribusi": 0.115004
+          },
+          {
+            "kriteriaId": 133,
+            "namaKriteria": "Fasilitas Sekitar",
+            "tipe": "benefit",
+            "nilaiAsli": 5,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.073163,
+            "kontribusi": 0.073163
+          },
+          {
+            "kriteriaId": 134,
+            "namaKriteria": "Lingkungan dan Risiko",
+            "tipe": "cost",
+            "nilaiAsli": 2,
+            "maxVal": 3,
+            "minVal": 2,
+            "nilaiNorm": 1,
+            "bobot": 0.073979,
+            "kontribusi": 0.073979
+          },
+          {
+            "kriteriaId": 135,
+            "namaKriteria": "Potensi Pengembangan",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 0.8,
+            "bobot": 0.061659,
+            "kontribusi": 0.0493272
+          }
+        ],
+        "ranking": 1
+      },
+      {
+        "id": 61,
+        "nama": "Rumah Tipe 45/90",
+        "hargaPasar": 631000000,
+        "nilaiPreferensi": 0.8673056,
+        "rawPreference": 0.8673056,
+        "safePreference": 0.8673056,
+        "nilaiLimit": 547269833.6,
+        "detailNormalisasi": [
+          {
+            "kriteriaId": 129,
+            "namaKriteria": "Lokasi dan Aksesibilitas",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 0.8,
+            "bobot": 0.286256,
+            "kontribusi": 0.2290048
+          },
+          {
+            "kriteriaId": 130,
+            "namaKriteria": "Legalitas",
+            "tipe": "benefit",
+            "nilaiAsli": 5,
+            "maxVal": 5,
+            "minVal": 4,
+            "nilaiNorm": 1,
+            "bobot": 0.245351,
+            "kontribusi": 0.245351
+          },
+          {
+            "kriteriaId": 131,
+            "namaKriteria": "Luas",
+            "tipe": "benefit",
+            "nilaiAsli": 3,
+            "maxVal": 4,
+            "minVal": 3,
+            "nilaiNorm": 0.75,
+            "bobot": 0.144588,
+            "kontribusi": 0.108441
+          },
+          {
+            "kriteriaId": 132,
+            "namaKriteria": "Kondisi Fisik",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.115004,
+            "kontribusi": 0.115004
+          },
+          {
+            "kriteriaId": 133,
+            "namaKriteria": "Fasilitas Sekitar",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 0.8,
+            "bobot": 0.073163,
+            "kontribusi": 0.05853040000000001
+          },
+          {
+            "kriteriaId": 134,
+            "namaKriteria": "Lingkungan dan Risiko",
+            "tipe": "cost",
+            "nilaiAsli": 2,
+            "maxVal": 3,
+            "minVal": 2,
+            "nilaiNorm": 1,
+            "bobot": 0.073979,
+            "kontribusi": 0.073979
+          },
+          {
+            "kriteriaId": 135,
+            "namaKriteria": "Potensi Pengembangan",
+            "tipe": "benefit",
+            "nilaiAsli": 3,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 0.6,
+            "bobot": 0.061659,
+            "kontribusi": 0.0369954
+          }
+        ],
+        "ranking": 2
+      },
+      {
+        "id": 63,
+        "nama": "Tanah Kavling",
+        "hargaPasar": 250000000,
+        "nilaiPreferensi": 0.7537515333333334,
+        "rawPreference": 0.7537515333333334,
+        "safePreference": 0.7537515333333334,
+        "nilaiLimit": 188437883.33333337,
+        "detailNormalisasi": [
+          {
+            "kriteriaId": 129,
+            "namaKriteria": "Lokasi dan Aksesibilitas",
+            "tipe": "benefit",
+            "nilaiAsli": 3,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 0.6,
+            "bobot": 0.286256,
+            "kontribusi": 0.1717536
+          },
+          {
+            "kriteriaId": 130,
+            "namaKriteria": "Legalitas",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 5,
+            "minVal": 4,
+            "nilaiNorm": 0.8,
+            "bobot": 0.245351,
+            "kontribusi": 0.19628080000000003
+          },
+          {
+            "kriteriaId": 131,
+            "namaKriteria": "Luas",
+            "tipe": "benefit",
+            "nilaiAsli": 4,
+            "maxVal": 4,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.144588,
+            "kontribusi": 0.144588
+          },
+          {
+            "kriteriaId": 132,
+            "namaKriteria": "Kondisi Fisik",
+            "tipe": "benefit",
+            "nilaiAsli": 3,
+            "maxVal": 4,
+            "minVal": 3,
+            "nilaiNorm": 0.75,
+            "bobot": 0.115004,
+            "kontribusi": 0.086253
+          },
+          {
+            "kriteriaId": 133,
+            "namaKriteria": "Fasilitas Sekitar",
+            "tipe": "benefit",
+            "nilaiAsli": 3,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 0.6,
+            "bobot": 0.073163,
+            "kontribusi": 0.0438978
+          },
+          {
+            "kriteriaId": 134,
+            "namaKriteria": "Lingkungan dan Risiko",
+            "tipe": "cost",
+            "nilaiAsli": 3,
+            "maxVal": 3,
+            "minVal": 2,
+            "nilaiNorm": 0.6666666666666666,
+            "bobot": 0.073979,
+            "kontribusi": 0.04931933333333333
+          },
+          {
+            "kriteriaId": 135,
+            "namaKriteria": "Potensi Pengembangan",
+            "tipe": "benefit",
+            "nilaiAsli": 5,
+            "maxVal": 5,
+            "minVal": 3,
+            "nilaiNorm": 1,
+            "bobot": 0.061659,
+            "kontribusi": 0.061659
+          }
+        ],
+        "ranking": 3
+      }
+    ]
+  }
+}

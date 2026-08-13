@@ -1,5 +1,5 @@
 import prisma from '../models/prisma.client.js';
-import { hitungSAW } from '../services/saw.service.js';
+import { hitungSAW, METODE_NORMALISASI, VERSI_FORMULA } from '../services/saw.service.js';
 
 export const hitungSAWController = async (req, res) => {
   try {
@@ -53,7 +53,7 @@ export const hitungSAWController = async (req, res) => {
     }
 
     const totalBobot = activeVersion.bobotAhp.reduce((sum, item) => sum + Number(item.bobot), 0);
-    const tolerance = 1e-9;
+    const tolerance = 0.01;
     if (Math.abs(totalBobot - 1) > tolerance) {
       return res.status(422).json({
         success: false,
@@ -89,7 +89,9 @@ export const hitungSAWController = async (req, res) => {
               asetId: item.id, 
               nilaiPreferensi: item.nilaiPreferensi, 
               hargaReferensiPasar: item.hargaPasar,
-              nilaiLimit: item.nilaiLimit 
+              nilaiLimit: item.nilaiLimit,
+              metodeNormalisasi: METODE_NORMALISASI,
+              versiFormula: VERSI_FORMULA
             },
           });
           await tx.aset.update({

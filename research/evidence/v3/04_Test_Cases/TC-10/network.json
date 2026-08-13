@@ -1,0 +1,8 @@
+{
+  "expectedHttp": 200,
+  "actualHttp": 200,
+  "assertions": {
+    "httpIs200": true,
+    "medianPresent": true
+  }
+}

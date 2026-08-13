@@ -1,0 +1,10 @@
+{
+  "files": [
+    "exploit.sh",
+    "backdoor.pdf.exe",
+    "legit.png",
+    "fake.pdf",
+    "oversized.jpg",
+    "../../../etc/passwd"
+  ]
+}

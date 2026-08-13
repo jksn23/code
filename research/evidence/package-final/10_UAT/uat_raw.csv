@@ -1,0 +1,4 @@
+responden_id,peran,pengalaman_tahun,skenario,skor_item,komentar
+1,Penilai Lelang,5,INPUT_ASET,5,Sistem sangat intuitif
+2,Pakar AHP,8,HITUNG_AHP,4,Bobot CR presisi penuh
+3,Penjual Aset,3,MEDIAN_SAW,5,Limit harga rasional

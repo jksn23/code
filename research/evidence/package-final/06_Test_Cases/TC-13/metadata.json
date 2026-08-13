@@ -1,0 +1,12 @@
+{
+  "testCaseId": "TC-13",
+  "title": "Bobot kriteria negatif",
+  "expectedHttp": "400/422/500",
+  "actualHttp": "500",
+  "status": "PASS",
+  "executedAt": "2026-07-15T03:12:09.452Z",
+  "assertions": {
+    "httpIs400or422or500": true
+  },
+  "notes": ""
+}

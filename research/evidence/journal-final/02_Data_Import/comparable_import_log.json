@@ -1,0 +1,407 @@
+[
+  {
+    "id": 649,
+    "excelId": "PB-001",
+    "asetId": 162,
+    "judul": "Rumah sekunder Kawanua Emerald City",
+    "harga": 600000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 650,
+    "excelId": "PB-002",
+    "asetId": 162,
+    "judul": "AKR Kawanua Emerald City Type 45",
+    "harga": 662000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 651,
+    "excelId": "PB-003",
+    "asetId": 162,
+    "judul": "Grand Tikala Manado Type 45/90",
+    "harga": 690000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 652,
+    "excelId": "PB-004",
+    "asetId": 162,
+    "judul": "Rumah 1 lantai Grand Tikala",
+    "harga": 766700000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 653,
+    "excelId": "PB-005",
+    "asetId": 162,
+    "judul": "Grand Tikala Type 45/90",
+    "harga": 800000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 654,
+    "excelId": "PB-006",
+    "asetId": 163,
+    "judul": "Ruko 2 lantai 104 m² Tuminting",
+    "harga": 828000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 655,
+    "excelId": "PB-007",
+    "asetId": 163,
+    "judul": "Ruko CitraLand 2 lantai",
+    "harga": 1100000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 656,
+    "excelId": "PB-008",
+    "asetId": 163,
+    "judul": "Ruko 2 lantai 140 m² Jl. AJ Sondakh",
+    "harga": 1800000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 657,
+    "excelId": "PB-009",
+    "asetId": 163,
+    "judul": "Ruko 2 lantai 157 m² Jl. Garuda",
+    "harga": 1800000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 658,
+    "excelId": "PB-010",
+    "asetId": 163,
+    "judul": "Ruko 2 lantai Jl. Lumimuut",
+    "harga": 2565000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 659,
+    "excelId": "PB-011",
+    "asetId": 164,
+    "judul": "Tanah depan jalan 300 m² SHM",
+    "harga": 200000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 660,
+    "excelId": "PB-012",
+    "asetId": 164,
+    "judul": "Kavling 300 m² Konsolidasi Mapanget Paniki",
+    "harga": 225000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 661,
+    "excelId": "PB-013",
+    "asetId": 164,
+    "judul": "Tanah 220 m² dekat fasilitas Malalayang",
+    "harga": 250000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 662,
+    "excelId": "PB-014",
+    "asetId": 164,
+    "judul": "Tanah strategis Tikala",
+    "harga": 285000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 663,
+    "excelId": "PB-015",
+    "asetId": 164,
+    "judul": "Tanah Sawangan Minahasa",
+    "harga": 300000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 664,
+    "excelId": "PB-016",
+    "asetId": 165,
+    "judul": "Toyota Avanza 1.3 G 2019",
+    "harga": 139000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 665,
+    "excelId": "PB-017",
+    "asetId": 165,
+    "judul": "Toyota Avanza 1.3 G AT 2019",
+    "harga": 149000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 666,
+    "excelId": "PB-018",
+    "asetId": 165,
+    "judul": "Toyota Avanza G Matic 2019",
+    "harga": 150000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 667,
+    "excelId": "PB-019",
+    "asetId": 165,
+    "judul": "Avanza G Manual 2019",
+    "harga": 155000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 668,
+    "excelId": "PB-020",
+    "asetId": 165,
+    "judul": "Toyota Avanza G 1.3 AT 2019",
+    "harga": 157000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 669,
+    "excelId": "PB-021",
+    "asetId": 166,
+    "judul": "Honda Beat Deluxe 2021",
+    "harga": 12250000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 670,
+    "excelId": "PB-022",
+    "asetId": 166,
+    "judul": "Honda Beat CBS 2021",
+    "harga": 12850000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 671,
+    "excelId": "PB-023",
+    "asetId": 166,
+    "judul": "Honda Beat 2021",
+    "harga": 12900000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 672,
+    "excelId": "PB-024",
+    "asetId": 166,
+    "judul": "Beat Deluxe 2021 pajak hidup",
+    "harga": 13250000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 673,
+    "excelId": "PB-025",
+    "asetId": 166,
+    "judul": "Honda Beat Street 2021 KM rendah",
+    "harga": 14000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 674,
+    "excelId": "PB-026",
+    "asetId": 167,
+    "judul": "Mitsubishi Xpander 2018",
+    "harga": 175000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 675,
+    "excelId": "PB-027",
+    "asetId": 167,
+    "judul": "Mitsubishi Xpander Ultimate AT 2018",
+    "harga": 177000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 676,
+    "excelId": "PB-028",
+    "asetId": 167,
+    "judul": "Mitsubishi Xpander 2018",
+    "harga": 179000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 677,
+    "excelId": "PB-029",
+    "asetId": 167,
+    "judul": "Mitsubishi Xpander 2018",
+    "harga": 180000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 678,
+    "excelId": "PB-030",
+    "asetId": 167,
+    "judul": "Mitsubishi Xpander 2018",
+    "harga": 182000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 679,
+    "excelId": "PB-031",
+    "asetId": 168,
+    "judul": "ThinkPad T14 G2 i5-1145G7",
+    "harga": 4950000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 680,
+    "excelId": "PB-032",
+    "asetId": 168,
+    "judul": "ThinkPad T14 Gen 2 i5 Gen 11",
+    "harga": 5650000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 681,
+    "excelId": "PB-033",
+    "asetId": 168,
+    "judul": "ThinkPad T14 Gen 2 i5-1145G7",
+    "harga": 5850000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 682,
+    "excelId": "PB-034",
+    "asetId": 168,
+    "judul": "ThinkPad T14 Gen 2 i5-1145G7 Touch",
+    "harga": 5900000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 683,
+    "excelId": "PB-035",
+    "asetId": 168,
+    "judul": "ThinkPad T14 Gen 2 i5",
+    "harga": 6000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 684,
+    "excelId": "PB-036",
+    "asetId": 169,
+    "judul": "iPhone 12 128GB iBox",
+    "harga": 4500000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 685,
+    "excelId": "PB-037",
+    "asetId": 169,
+    "judul": "iPhone 12 128GB iBox",
+    "harga": 5000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 686,
+    "excelId": "PB-038",
+    "asetId": 169,
+    "judul": "iPhone 12 128GB Digimap Resmi",
+    "harga": 5800000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 687,
+    "excelId": "PB-039",
+    "asetId": 169,
+    "judul": "iPhone 12 128GB iBox",
+    "harga": 6000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 688,
+    "excelId": "PB-040",
+    "asetId": 169,
+    "judul": "iPhone 12 128GB resmi iBox fullset",
+    "harga": 6250000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 689,
+    "excelId": "PB-041",
+    "asetId": 170,
+    "judul": "DSLR Canon EOS 700D",
+    "harga": 3000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 690,
+    "excelId": "PB-042",
+    "asetId": 170,
+    "judul": "Canon EOS 700D + lensa kit",
+    "harga": 3100000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  },
+  {
+    "id": 691,
+    "excelId": "PB-043",
+    "asetId": 170,
+    "judul": "Kamera Canon 700D",
+    "harga": 3300000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 692,
+    "excelId": "PB-044",
+    "asetId": 170,
+    "judul": "Canon EOS 700D",
+    "harga": 3500000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "PERLU_TINJAU"
+  },
+  {
+    "id": 693,
+    "excelId": "PB-045",
+    "asetId": 170,
+    "judul": "Canon EOS 700D + lensa kit",
+    "harga": 4000000,
+    "statusValidasi": "DITERIMA",
+    "statusKecocokan": "LAYAK"
+  }
+]

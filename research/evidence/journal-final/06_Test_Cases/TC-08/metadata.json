@@ -1,0 +1,13 @@
+{
+  "testCaseId": "TC-08",
+  "title": "Seluruh pembanding pending",
+  "expectedHttp": "400",
+  "actualHttp": "400",
+  "status": "PASS",
+  "executedAt": "2026-07-15T04:31:59.831Z",
+  "assertions": {
+    "httpIs400": true,
+    "messagePresent": true
+  },
+  "notes": ""
+}

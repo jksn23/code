@@ -1,0 +1,7 @@
+{
+  "expectedHttp": 403,
+  "actualHttp": 403,
+  "assertions": {
+    "httpIs403": true
+  }
+}

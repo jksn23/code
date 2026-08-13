@@ -1,0 +1,11 @@
+{
+  "expectedHttp": 500,
+  "actualHttp": 500,
+  "assertions": {
+    "dbCountUnchanged": true,
+    "dbHashUnchanged": true,
+    "statusUnchanged": true,
+    "correlationIdPresent": true,
+    "httpIs500orFault": true
+  }
+}
