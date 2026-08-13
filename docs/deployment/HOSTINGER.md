@@ -45,7 +45,7 @@ Konfigurasi production saat ini disimpan pada file server-only berikut dengan pe
 /home/u878272139/domains/api.e-lelangdigital.my.id/.env.production
 ```
 
-`backend/bootstrap.js` membacanya sebelum memulai aplikasi. File ini berada di luar direktori release, tidak ikut Git/deployment archive, dan tetap tersedia ketika release baru dibuat. Nilai yang dikonfigurasi:
+`backend/src/config/load_env.js` membacanya secara sinkron sebelum aplikasi memuat route atau service. File environment berada di luar direktori release, tidak ikut Git/deployment archive, dan tetap tersedia ketika release baru dibuat. Nilai yang dikonfigurasi:
 
 ```text
 NODE_ENV=production

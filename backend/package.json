@@ -2,13 +2,13 @@
   "name": "backend-lelang-spk",
   "version": "1.0.0",
   "type": "module",
-  "main": "bootstrap.js",
+  "main": "app.js",
   "engines": {
     "node": "22.x"
   },
   "scripts": {
-    "dev": "nodemon bootstrap.js",
-    "start": "node bootstrap.js",
+    "dev": "nodemon app.js",
+    "start": "node app.js",
     "build": "prisma generate",
     "db:push": "prisma db push",
     "migrate": "prisma migrate dev",
