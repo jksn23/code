@@ -150,11 +150,15 @@ export const getProfile = async (req, res) => {
     });
 
     if (!user) return res.status(404).json({ success: false, message: 'User tidak ditemukan' });
+
+    // Never expose the password hash (or any future authentication secret)
+    // through the profile endpoint.
+    const { password: _password, ...safeUser } = user;
     
     res.json({
       success: true,
       data: {
-        ...user,
+        ...safeUser,
         userSummary: buildUserPayload(user),
       },
     });

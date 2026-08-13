@@ -16,10 +16,12 @@ Database production yang sudah dibuat:
 Nama database: u878272139_elelang_prod
 User database: u878272139_elelang_app
 Website: api.e-lelangdigital.my.id
-Host lokal aplikasi: localhost
+Host database: auth-db1983.hstgr.io:3306
 ```
 
-Password dibuat acak dan hanya disimpan di server. Empat migrasi Prisma sudah diterapkan dan schema telah diverifikasi tanpa drift. Remote MySQL dinonaktifkan setelah verifikasi.
+Password dibuat acak dan hanya disimpan di server. Empat migrasi Prisma sudah diterapkan dan schema telah diverifikasi tanpa drift. Pada paket hosting ini proses Node.js harus memakai hostname MySQL Hostinger di atas; koneksi melalui `localhost` ditolak karena identitas user database tidak cocok.
+
+Remote MySQL saat ini mengizinkan host `%`. Pengujian dengan IP publik keluar website tidak dapat dipakai sebagai allowlist karena koneksi database melewati alamat NAT internal Hostinger yang berbeda; membatasi ke IP tersebut membuat health check gagal. Risiko dibatasi dengan database/user khusus aplikasi, password acak kuat, dan kredensial yang hanya tersimpan pada file server berpermission `600`. Tinjau kembali allowlist jika Hostinger menyediakan alamat sumber database yang stabil.
 
 Buat database dan user MySQL melalui hPanel. Jangan simpan password di Git. Setelah Hostinger menampilkan host, port, nama database, user, dan password, susun nilai berikut di environment website backend:
 
@@ -49,7 +51,7 @@ Konfigurasi production saat ini disimpan pada file server-only berikut dengan pe
 
 ```text
 NODE_ENV=production
-DATABASE_URL=mysql://u878272139_elelang_app:PASSWORD@localhost/u878272139_elelang_prod
+DATABASE_URL=mysql://u878272139_elelang_app:PASSWORD@auth-db1983.hstgr.io:3306/u878272139_elelang_prod
 JWT_SECRET=RANDOM_SECRET_MINIMUM_32_BYTES
 FRONTEND_URL=https://app.e-lelangdigital.my.id
 CORS_ORIGINS=https://app.e-lelangdigital.my.id
@@ -60,6 +62,14 @@ SCRAPER_USER_AGENT=ELelangComparableBot/1.0
 ```
 
 Hostinger memasok `PORT` otomatis; jangan mengunci nilai `PORT` production. Buat `JWT_SECRET` baru dan acak, misalnya dengan password generator, minimal 32 byte. Mengganti nilai ini akan membuat token login lama tidak berlaku.
+
+Origin CORS production harus ditulis persis tanpa trailing slash:
+
+```text
+CORS_ORIGINS=https://app.e-lelangdigital.my.id
+```
+
+Jika browser melaporkan tidak ada `Access-Control-Allow-Origin`, periksa `/health` dan log startup terlebih dahulu. Respons error dari Passenger sebelum Express berjalan memang tidak melewati middleware CORS. Entry point `app.js` sengaja memuat environment tanpa top-level `await` agar kompatibel dengan loader Passenger.
 
 Pengaturan aplikasi Node.js:
 

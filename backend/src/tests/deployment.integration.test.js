@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import prisma from '../models/prisma.client.js';
 import { submitBid } from '../controllers/lelang.controller.js';
+import { getProfile } from '../controllers/auth.controller.js';
 import { getJobStatus } from '../services/scraping_queue.service.js';
 
 const fixture = {};
@@ -34,6 +35,12 @@ try {
     },
   });
   fixture.buyerId = buyer.id;
+
+  const profile = await invoke(getProfile, { userId: buyer.id });
+  assert.equal(profile.statusCode, 200);
+  assert.equal(profile.payload.success, true);
+  assert.equal(profile.payload.data.email, buyer.email);
+  assert.equal('password' in profile.payload.data, false, 'Profile must not expose the password hash');
 
   const kategori = await prisma.kategori.create({ data: { nama: `Deployment Test ${suffix}` } });
   fixture.kategoriId = kategori.id;
