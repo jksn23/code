@@ -10,16 +10,16 @@ WebSocket, Redis, dan Chromium tidak diperlukan. Bidding menggunakan REST dengan
 
 ## 1. Database
 
-Database production yang sudah dibuat:
+Database production aktif setelah import dump lokal `db_lelang_spk.sql`:
 
 ```text
-Nama database: u878272139_elelang_prod
-User database: u878272139_elelang_app
+Nama database: u878272139_elelang_import
+User database: u878272139_elelang_import
 Website: api.e-lelangdigital.my.id
 Host database: auth-db1983.hstgr.io:3306
 ```
 
-Password dibuat acak dan hanya disimpan di server. Empat migrasi Prisma sudah diterapkan dan schema telah diverifikasi tanpa drift. Pada paket hosting ini proses Node.js harus memakai hostname MySQL Hostinger di atas; koneksi melalui `localhost` ditolak karena identitas user database tidak cocok.
+Password dibuat acak, dirotasi setelah import, dan hanya disimpan di server. Empat migrasi Prisma sudah diterapkan dan schema telah diverifikasi tanpa drift. Database lama `u878272139_elelang_prod` tetap dipertahankan sementara sebagai rollback. Pada paket hosting ini proses Node.js harus memakai hostname MySQL Hostinger di atas; koneksi melalui `localhost` ditolak karena identitas user database tidak cocok.
 
 Remote MySQL saat ini mengizinkan host `%`. Pengujian dengan IP publik keluar website tidak dapat dipakai sebagai allowlist karena koneksi database melewati alamat NAT internal Hostinger yang berbeda; membatasi ke IP tersebut membuat health check gagal. Risiko dibatasi dengan database/user khusus aplikasi, password acak kuat, dan kredensial yang hanya tersimpan pada file server berpermission `600`. Tinjau kembali allowlist jika Hostinger menyediakan alamat sumber database yang stabil.
 
@@ -51,7 +51,7 @@ Konfigurasi production saat ini disimpan pada file server-only berikut dengan pe
 
 ```text
 NODE_ENV=production
-DATABASE_URL=mysql://u878272139_elelang_app:PASSWORD@auth-db1983.hstgr.io:3306/u878272139_elelang_prod
+DATABASE_URL=mysql://u878272139_elelang_import:PASSWORD@auth-db1983.hstgr.io:3306/u878272139_elelang_import
 JWT_SECRET=RANDOM_SECRET_MINIMUM_32_BYTES
 FRONTEND_URL=https://app.e-lelangdigital.my.id
 CORS_ORIGINS=https://app.e-lelangdigital.my.id
@@ -62,6 +62,8 @@ SCRAPER_USER_AGENT=ELelangComparableBot/1.0
 ```
 
 Hostinger memasok `PORT` otomatis; jangan mengunci nilai `PORT` production. Buat `JWT_SECRET` baru dan acak, misalnya dengan password generator, minimal 32 byte. Mengganti nilai ini akan membuat token login lama tidak berlaku.
+
+Konfigurasi sebelum perpindahan database dicadangkan pada server sebagai `.env.production.before-local-import-20260813`. Jangan mengembalikan file tersebut kecuali rollback memang diperlukan.
 
 Origin CORS production harus ditulis persis tanpa trailing slash:
 
