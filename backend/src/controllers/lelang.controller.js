@@ -2,6 +2,12 @@ import prisma from '../models/prisma.client.js';
 import { createNotifications, createNotification } from '../utils/notification.util.js';
 import { getUploadedFilePath } from '../middleware/upload.middleware.js';
 
+const formatCurrency = (value) => new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  maximumFractionDigits: 0,
+}).format(Number(value) || 0);
+
 const lelangDetailInclude = {
   aset: {
     include: {
@@ -500,6 +506,87 @@ export const getLelangById = async (req, res) => {
     res.json({ success: true, data: lelang });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const submitBid = async (req, res) => {
+  const lelangId = Number(req.params.id);
+  const nominal = Number(req.body.nominal);
+
+  if (!Number.isInteger(lelangId) || lelangId <= 0) {
+    return res.status(400).json({ success: false, message: 'ID lelang tidak valid' });
+  }
+  if (!Number.isFinite(nominal) || nominal <= 0) {
+    return res.status(400).json({ success: false, message: 'Nominal penawaran tidak valid' });
+  }
+
+  try {
+    await syncLelangLifecycle(lelangId);
+
+    let newBid;
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      try {
+        newBid = await prisma.$transaction(async (tx) => {
+          const user = await tx.user.findUnique({
+            where: { id: Number(req.userId) },
+            select: { id: true, role: true, buyerVerificationStatus: true },
+          });
+
+          if (!user || user.role !== 'PEMBELI') {
+            const error = new Error('Hanya pembeli yang dapat mengajukan penawaran');
+            error.status = 403;
+            throw error;
+          }
+          if (user.buyerVerificationStatus !== 'APPROVED') {
+            const error = new Error('Akun pembeli belum lolos verifikasi KYC');
+            error.status = 403;
+            throw error;
+          }
+
+          const lelang = await tx.lelang.findUnique({
+            where: { id: lelangId },
+            include: { aset: { include: { hasil: { orderBy: { id: 'desc' }, take: 1 } } } },
+          });
+          if (!lelang) {
+            const error = new Error('Lelang tidak ditemukan');
+            error.status = 404;
+            throw error;
+          }
+
+          const now = new Date();
+          if (lelang.status !== 'ACTIVE' || (lelang.waktuBuka && now < lelang.waktuBuka) || now > lelang.waktuTutup) {
+            const error = new Error('Lelang belum aktif atau sudah ditutup');
+            error.status = 409;
+            throw error;
+          }
+
+          const highestBid = await tx.penawaran.findFirst({
+            where: { lelangId },
+            orderBy: { nominal: 'desc' },
+          });
+          const nilaiLimit = Number(lelang.aset.hasil?.[0]?.nilaiLimit || 0);
+          const currentMax = highestBid ? Number(highestBid.nominal) : nilaiLimit;
+          if (nominal <= currentMax) {
+            const error = new Error(`Penawaran harus lebih tinggi dari ${formatCurrency(currentMax)}`);
+            error.status = 409;
+            throw error;
+          }
+
+          return tx.penawaran.create({
+            data: { lelangId, userId: user.id, nominal },
+            include: { user: { select: { id: true, nama: true } } },
+          });
+        }, { isolationLevel: 'Serializable' });
+        break;
+      } catch (error) {
+        if (error.code === 'P2034' && attempt < 3) continue;
+        throw error;
+      }
+    }
+
+    return res.status(201).json({ success: true, data: newBid });
+  } catch (error) {
+    return res.status(error.status || 500).json({ success: false, message: error.message });
   }
 };
 

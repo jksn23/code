@@ -58,6 +58,7 @@ model Aset {
   hasil     Hasil[]
   lelang    Lelang[]
   dataPembanding DataPembanding[]
+  scrapingJobs ScrapingJob[]
   saranPencarian SaranPencarianPembanding[]
   validasiNilaiLimit ValidasiNilaiLimit[]
   documents Document[]
@@ -286,6 +287,33 @@ model DataPembanding {
   @@index([asetId, statusKecocokan])
   @@unique([asetId, canonicalUrlHash], name: "unique_aset_canonical_url")
   @@map("data_pembanding")
+}
+
+enum ScrapingJobStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  FAILED
+}
+
+model ScrapingJob {
+  id          Int               @id @default(autoincrement())
+  asetId      Int               @map("aset_id")
+  status      ScrapingJobStatus @default(WAITING)
+  attempts    Int               @default(0)
+  maxAttempts Int               @default(2) @map("max_attempts")
+  result      Json?
+  failReason  String?           @map("fail_reason") @db.Text
+  startedAt   DateTime?         @map("started_at")
+  finishedAt  DateTime?         @map("finished_at")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  aset Aset @relation(fields: [asetId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([asetId, createdAt])
+  @@map("scraping_jobs")
 }
 
 // ── Model P0: Saran Tautan Pencarian (tanpa harga) ──────────────────────────

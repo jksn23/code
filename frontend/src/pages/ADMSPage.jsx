@@ -650,7 +650,7 @@ const ADMSPage = () => {
                     checked={formatGen === 'pdf'}
                     onChange={() => setFormatGen('pdf')}
                   />
-                  <span>PDF (Puppeteer Render)</span>
+                  <span>PDF (Server Render)</span>
                 </label>
                 <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
                   <input

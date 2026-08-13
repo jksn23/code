@@ -112,6 +112,7 @@ export const getBuyerOwnedAssets = () => api.get('/lelang/pemenang/aset-saya');
 export const getBuyerPendingPayments = () => api.get('/lelang/pemenang/pembayaran');
 export const getLelangSayaMenang = () => api.get('/lelang/pemenang/saya');
 export const getInvoiceLelang = (id) => api.get(`/lelang/${id}/invoice`);
+export const submitBid = (id, nominal) => api.post(`/lelang/${id}/bids`, { nominal });
 export const uploadBuktiPembayaranLelang = (id, formData) => api.post(`/lelang/${id}/upload-bukti`, formData, {
   headers: { 'Content-Type': 'multipart/form-data' }
 });

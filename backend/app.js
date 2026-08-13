@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import { PrismaClient } from '@prisma/client';
 
 // Routes
@@ -24,19 +25,14 @@ import adminPenilaianRoutes from './src/routes/admin_penilaian.routes.js';
 import pembandingRoutes from './src/routes/pembanding.routes.js';
 import dokumenRoutes from './src/routes/dokumen.routes.js';
 import limitValidationRoutes from './src/routes/limit_validation.routes.js';
-import { syncAuctionLifecycleBatch, syncLelangLifecycle } from './src/controllers/lelang.controller.js';
+import { syncAuctionLifecycleBatch } from './src/controllers/lelang.controller.js';
 import logger from './src/utils/logger.js';
-import { initScrapingQueue } from './src/services/scraping_queue.service.js';
-
-import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { initScrapingQueue, stopScrapingQueue } from './src/services/scraping_queue.service.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
@@ -49,14 +45,30 @@ const allowedOrigins = [
 const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 
 // Middleware
+app.disable('x-powered-by');
+app.set('trust proxy', 1);
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+}));
 app.use(cors({
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(uploadDir));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use('/uploads', express.static(uploadDir, {
+  dotfiles: 'deny',
+  index: false,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+  },
+}));
 
 // Health Check
 app.get('/health', async (req, res) => {
@@ -64,12 +76,21 @@ app.get('/health', async (req, res) => {
     await prisma.$queryRaw`SELECT 1`;
     res.json({ status: 'ok', database: 'connected', timestamp: new Date().toISOString() });
   } catch (error) {
-    res.status(500).json({ status: 'error', database: 'disconnected', message: error.message });
+    res.status(503).json({
+      status: 'error',
+      database: 'disconnected',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Database unavailable',
+    });
   }
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+}), authRoutes);
 app.use('/api/penjual', penjualRoutes);
 app.use('/api/kategori', kategoriRoutes);
 app.use('/api/kriteria', kriteriaRoutes);
@@ -106,121 +127,43 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 5001;
 
-// Setup Socket.io
-const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-  }
-});
-
-io.on('connection', (socket) => {
-  console.log('🔗 Client connected via WebSocket:', socket.id);
-  
-  socket.on('join_lelang', (lelangId) => {
-    socket.join(`lelang_${lelangId}`);
-    console.log(`Socket ${socket.id} joined room lelang_${lelangId}`);
-  });
-
-  socket.on('submit_bid', async (payload, callback) => {
-    try {
-       const { lelangId, userId, nominal } = payload;
-
-       const user = await prisma.user.findUnique({
-         where: { id: Number(userId) },
-         select: {
-           id: true,
-           role: true,
-           buyerVerificationStatus: true,
-         },
-       });
-
-       if (!user || user.role !== 'PEMBELI') {
-         throw new Error('Hanya pembeli yang dapat mengajukan penawaran');
-       }
-
-       if (user.buyerVerificationStatus !== 'APPROVED') {
-         throw new Error('Akun pembeli Anda belum lolos verifikasi KYC. Bidding dikunci sampai admin menyetujui identitas Anda.');
-       }
-
-       await syncLelangLifecycle(lelangId);
-       
-       const lelang = await prisma.lelang.findUnique({ 
-         where: { id: Number(lelangId) }, 
-         include: { aset: { include: { hasil: true } } } 
-       });
-       
-       if (!lelang) throw new Error("Lelang tidak ditemukan");
-       if (lelang.status !== 'ACTIVE') throw new Error("Lelang belum aktif atau sudah ditutup");
-       
-       const now = new Date();
-       if (lelang.waktuBuka && now < lelang.waktuBuka) throw new Error("Lelang belum dibuka");
-       if (now > lelang.waktuTutup) throw new Error("Waktu lelang sudah habis");
-
-       const limit = lelang.aset.hasil?.[0]?.nilaiLimit || 0;
-       
-       const highestBid = await prisma.penawaran.findFirst({
-          where: { lelangId: lelang.id },
-          orderBy: { nominal: 'desc' }
-       });
-       
-       const currentMax = highestBid ? Number(highestBid.nominal) : Number(limit);
-       if (Number(nominal) <= currentMax) {
-          throw new Error(`Penawaran harus lebih tinggi dari ${new Intl.NumberFormat('id-ID', {currency: 'IDR', style:'currency'}).format(currentMax)}`);
-       }
-       
-       const newBid = await prisma.penawaran.create({
-          data: {
-             lelangId: lelang.id,
-             userId: Number(userId),
-             nominal: Number(nominal)
-          },
-          include: { user: { select: { nama: true } } }
-       });
-       
-       // Broadcast the new bid to everyone in the room
-       io.to(`lelang_${lelangId}`).emit('new_bid', newBid);
-       if (callback) callback({ success: true });
-       
-    } catch(err) {
-       console.error('Bid error:', err.message);
-       if (callback) callback({ success: false, message: err.message });
-    }
-  });
-
-  socket.on('disconnect', () => {
-    console.log('❌ Client disconnected:', socket.id);
-  });
-});
-
-app.set('io', io); // inject to express app
-
 const AUCTION_SYNC_INTERVAL_MS = 15000;
 
-setInterval(() => {
+const auctionTimer = setInterval(() => {
   syncAuctionLifecycleBatch().catch((error) => {
     console.error('Auction lifecycle sync error:', error.message);
   });
 }, AUCTION_SYNC_INTERVAL_MS);
+auctionTimer.unref?.();
 
-server.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   syncAuctionLifecycleBatch().catch((error) => {
     logger.error('Initial auction lifecycle sync error', { message: error.message });
   });
 
-  // Inisialisasi BullMQ Scraping Queue (menggunakan Redis Laragon port 6379)
   try {
-    initScrapingQueue();
-    logger.info('⚙️  BullMQ Scraping Queue aktif (Redis port 6379)');
+    await initScrapingQueue();
   } catch (queueErr) {
-    logger.warn('⚠️  BullMQ Queue tidak bisa diinisialisasi (Redis mungkin offline). Scraping akan berjalan synchronous.', {
+    logger.error('MySQL scraping queue gagal diinisialisasi.', {
       message: queueErr.message
     });
   }
 
-  logger.info(`✅ Server & WebSocket berjalan di http://localhost:${PORT}`);
+  logger.info(`✅ Server REST berjalan di http://localhost:${PORT}`);
   logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+const shutdown = (signal) => {
+  logger.info(`${signal} diterima, menghentikan server.`);
+  clearInterval(auctionTimer);
+  stopScrapingQueue();
+  server.close(async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+};
+
+process.once('SIGTERM', () => shutdown('SIGTERM'));
+process.once('SIGINT', () => shutdown('SIGINT'));
 
 export default app;

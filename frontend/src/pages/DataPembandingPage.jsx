@@ -92,7 +92,7 @@ const DataPembandingPage = () => {
       const res = await searchPembanding(asetId);
 
       if (res.jobId) {
-        // Async mode dengan BullMQ
+        // Asynchronous mode backed by the MySQL job queue.
         setJobId(res.jobId);
         startPolling(res.jobId);
       } else {

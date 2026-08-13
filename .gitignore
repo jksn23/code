@@ -1,2 +1,22 @@
 # Added by code-review-graph
 .code-review-graph/
+
+# Local credentials and agent settings
+.env
+**/.env
+ssh/
+*.pem
+.claude/settings.local.json
+
+# Runtime-only backend files
+backend/logs/
+backend/uploads/
+backend/scratch/
+backend/test_status_temp.json
+backend/output.txt
+backend/login_test.png
+
+# Dependency and build output
+node_modules/
+**/node_modules/
+frontend/dist/

@@ -1,156 +1,187 @@
 /**
- * SCRAPING QUEUE SERVICE
+ * Persistent scraping queue backed by the application's MySQL database.
  *
- * Menggunakan BullMQ + Redis (Laragon port 6379) untuk mengelola
- * antrean job scraping secara asynchronous.
- *
- * Alur:
- *   POST /search-job  → enqueue job → HTTP 202 Accepted (instant)
- *   Background Worker → Puppeteer scraping → simpan hasil ke DB
- *   GET  /job-status  → polling status PENDING|PROCESSING|COMPLETED|FAILED
+ * Hostinger Business does not provide Redis, so jobs and their status are
+ * stored in MySQL and processed by the single Node.js application process.
  */
 
-import { Queue, Worker, QueueEvents } from 'bullmq';
 import prisma from '../models/prisma.client.js';
 import { pembandingService } from './pembanding.service.js';
 import logger from '../utils/logger.js';
 
-// ─── Konfigurasi Redis ─────────────────────────────────────────────────────
+const POLL_INTERVAL_MS = Number(process.env.SCRAPING_QUEUE_POLL_MS || 5000);
 
-const REDIS_CONNECTION = {
-  host: process.env.REDIS_HOST || '127.0.0.1',
-  port: parseInt(process.env.REDIS_PORT || '6379', 10),
-};
+let workerTimer = null;
+let drainInProgress = false;
 
-const QUEUE_NAME = 'scraping-pembanding';
+async function saveScrapingResult(asetId, result) {
+  const pembanding = result?.pembanding || [];
+  const saranPencarian = result?.saranPencarian || [];
 
-// ─── Queue Instance ────────────────────────────────────────────────────────
+  await prisma.$transaction(async (tx) => {
+    await tx.dataPembanding.deleteMany({
+      where: {
+        asetId,
+        OR: [
+          { sourceUrl: { contains: 'example.com' } },
+          { statusValidasi: 'MENUNGGU', dipilihPenjual: false },
+        ],
+      },
+    });
 
-let scrapingQueue = null;
-let scrapingWorker = null;
-let queueEvents = null;
-
-/**
- * Inisialisasi Queue & Worker BullMQ
- * Dipanggil sekali saat server app.js startup
- */
-export function initScrapingQueue() {
-  scrapingQueue = new Queue(QUEUE_NAME, { connection: REDIS_CONNECTION });
-
-  queueEvents = new QueueEvents(QUEUE_NAME, { connection: REDIS_CONNECTION });
-
-  // Worker: memproses setiap job di background
-  scrapingWorker = new Worker(
-    QUEUE_NAME,
-    async (job) => {
-      const { asetId } = job.data;
-      logger.info(`[BullMQ Worker] Mulai memproses scraping job untuk asetId=${asetId}`);
-
-      try {
-        // Ambil data aset lengkap dari DB
-        const aset = await prisma.aset.findUnique({
-          where: { id: asetId },
-          include: { assetVehicle: true, assetProperty: true, assetElectronic: true },
-        });
-
-        if (!aset) throw new Error(`Aset tidak ditemukan: asetId=${asetId}`);
-
-        // Bersihkan data lama yang belum divalidasi / masih menunggu
-        await prisma.dataPembanding.deleteMany({
-          where: {
-            asetId,
-            OR: [
-              { sourceUrl: { contains: 'example.com' } },
-              { statusValidasi: 'MENUNGGU', dipilihPenjual: false },
-            ],
-          },
-        });
-
-        // Jalankan scraping + fuzzy matching + outlier detection
-        const results = await pembandingService.findComparableAssets(aset);
-
-        // Simpan hasil ke database
-        const saved = await Promise.all(
-          results.map((item) =>
-            prisma.dataPembanding.create({
-              data: { ...item, asetId },
-            })
-          )
-        );
-
-        logger.info(`[BullMQ Worker] Selesai scraping asetId=${asetId}, ${saved.length} data disimpan`);
-        return { count: saved.length };
-      } catch (err) {
-        logger.error('[BullMQ Worker] Scraping gagal', { asetId, message: err.message });
-        throw err; // BullMQ akan mencatat job sebagai FAILED
-      }
-    },
-    {
-      connection: REDIS_CONNECTION,
-      concurrency: 2,
+    for (const item of pembanding) {
+      await tx.dataPembanding.create({ data: { ...item, asetId } });
     }
-  );
 
-  scrapingWorker.on('completed', (job, result) => {
-    logger.info(`[BullMQ] Job ${job.id} selesai`, result);
-  });
-
-  scrapingWorker.on('failed', (job, err) => {
-    logger.error(`[BullMQ] Job ${job?.id} gagal`, { error: err.message });
-  });
-
-  logger.info('[BullMQ] Scraping Queue & Worker berhasil diinisialisasi', REDIS_CONNECTION);
-  return { scrapingQueue, scrapingWorker };
-}
-
-/**
- * Enqueue job scraping baru untuk sebuah aset
- * @param {number} asetId
- * @returns {Promise<{jobId: string}>}
- */
-export async function enqueueScraping(asetId) {
-  if (!scrapingQueue) throw new Error('Scraping Queue belum diinisialisasi');
-
-  const job = await scrapingQueue.add(
-    `scrape-aset-${asetId}`,
-    { asetId },
-    {
-      attempts: 2,          // Coba ulang maksimal 2x jika gagal
-      backoff: { type: 'exponential', delay: 3000 },
-      removeOnComplete: 100, // Simpan maksimal 100 job completed di Redis
-      removeOnFail: 50,
+    await tx.saranPencarianPembanding.deleteMany({ where: { asetId } });
+    if (saranPencarian.length > 0) {
+      await tx.saranPencarianPembanding.createMany({
+        data: saranPencarian.map((item) => ({ ...item, asetId })),
+      });
     }
-  );
-
-  logger.info(`[BullMQ] Job scraping dienqueue untuk asetId=${asetId}`, { jobId: job.id });
-  return { jobId: job.id };
-}
-
-/**
- * Cek status job scraping berdasarkan jobId
- * @param {string} jobId
- * @returns {Promise<{jobId, status, progress, result?, failReason?}>}
- */
-export async function getJobStatus(jobId) {
-  if (!scrapingQueue) throw new Error('Scraping Queue belum diinisialisasi');
-
-  const job = await scrapingQueue.getJob(jobId);
-
-  if (!job) {
-    return { jobId, status: 'NOT_FOUND' };
-  }
-
-  const state = await job.getState();
-  const progress = job.progress || 0;
+  });
 
   return {
-    jobId,
-    status: state.toUpperCase(),   // waiting → WAITING, active → ACTIVE, completed → COMPLETED, failed → FAILED
-    progress,
-    result: state === 'completed' ? await job.returnvalue : null,
-    failReason: state === 'failed' ? job.failedReason : null,
-    addedAt: new Date(job.timestamp).toISOString(),
+    count: pembanding.length,
+    suggestionCount: saranPencarian.length,
+    insufficientData: Boolean(result?.tidakCukupData),
   };
 }
 
-export { scrapingQueue };
+async function claimNextJob() {
+  const candidate = await prisma.scrapingJob.findFirst({
+    where: { status: 'WAITING' },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  if (!candidate) return null;
+
+  const claimed = await prisma.scrapingJob.updateMany({
+    where: { id: candidate.id, status: 'WAITING' },
+    data: {
+      status: 'ACTIVE',
+      attempts: { increment: 1 },
+      startedAt: new Date(),
+      failReason: null,
+    },
+  });
+
+  if (claimed.count !== 1) return null;
+  return prisma.scrapingJob.findUnique({ where: { id: candidate.id } });
+}
+
+async function processJob(job) {
+  try {
+    const aset = await prisma.aset.findUnique({
+      where: { id: job.asetId },
+      include: { assetVehicle: true, assetProperty: true, assetElectronic: true },
+    });
+    if (!aset) throw new Error(`Aset tidak ditemukan: asetId=${job.asetId}`);
+
+    logger.info(`[MySQL Queue] Memproses scraping job ${job.id}`, { asetId: job.asetId });
+    const result = await pembandingService.findComparableAssets(aset);
+    const summary = await saveScrapingResult(job.asetId, result);
+
+    await prisma.scrapingJob.update({
+      where: { id: job.id },
+      data: {
+        status: 'COMPLETED',
+        result: summary,
+        finishedAt: new Date(),
+      },
+    });
+    logger.info(`[MySQL Queue] Scraping job ${job.id} selesai`, summary);
+  } catch (error) {
+    const shouldRetry = job.attempts < job.maxAttempts;
+    await prisma.scrapingJob.update({
+      where: { id: job.id },
+      data: {
+        status: shouldRetry ? 'WAITING' : 'FAILED',
+        failReason: error.message,
+        finishedAt: shouldRetry ? null : new Date(),
+      },
+    });
+    logger.error(`[MySQL Queue] Scraping job ${job.id} gagal`, {
+      attempt: job.attempts,
+      retry: shouldRetry,
+      message: error.message,
+    });
+  }
+}
+
+async function drainQueue() {
+  if (drainInProgress) return;
+  drainInProgress = true;
+  try {
+    let job = await claimNextJob();
+    while (job) {
+      await processJob(job);
+      job = await claimNextJob();
+    }
+  } finally {
+    drainInProgress = false;
+  }
+}
+
+export async function initScrapingQueue() {
+  if (workerTimer) return;
+
+  // A process restart must not leave a claimed job stuck forever.
+  await prisma.scrapingJob.updateMany({
+    where: { status: 'ACTIVE' },
+    data: { status: 'WAITING', failReason: 'Worker restarted before completion' },
+  });
+
+  workerTimer = setInterval(() => {
+    drainQueue().catch((error) => {
+      logger.error('[MySQL Queue] Worker loop gagal', { message: error.message });
+    });
+  }, POLL_INTERVAL_MS);
+  workerTimer.unref?.();
+
+  queueMicrotask(() => {
+    drainQueue().catch((error) => {
+      logger.error('[MySQL Queue] Initial drain gagal', { message: error.message });
+    });
+  });
+
+  logger.info('[MySQL Queue] Worker aktif', { pollIntervalMs: POLL_INTERVAL_MS });
+}
+
+export function stopScrapingQueue() {
+  if (workerTimer) clearInterval(workerTimer);
+  workerTimer = null;
+}
+
+export async function enqueueScraping(asetId) {
+  const job = await prisma.scrapingJob.create({
+    data: { asetId: Number(asetId) },
+  });
+
+  queueMicrotask(() => {
+    drainQueue().catch((error) => {
+      logger.error('[MySQL Queue] Drain setelah enqueue gagal', { message: error.message });
+    });
+  });
+
+  return { jobId: String(job.id) };
+}
+
+export async function getJobStatus(jobId) {
+  const numericJobId = Number(jobId);
+  if (!Number.isInteger(numericJobId) || numericJobId <= 0) {
+    return { jobId, status: 'NOT_FOUND' };
+  }
+
+  const job = await prisma.scrapingJob.findUnique({ where: { id: numericJobId } });
+  if (!job) return { jobId, status: 'NOT_FOUND' };
+
+  return {
+    jobId: String(job.id),
+    status: job.status,
+    progress: job.status === 'COMPLETED' ? 100 : job.status === 'ACTIVE' ? 50 : 0,
+    result: job.status === 'COMPLETED' ? job.result : null,
+    failReason: job.status === 'FAILED' ? job.failReason : null,
+    addedAt: job.createdAt.toISOString(),
+  };
+}

@@ -47,7 +47,7 @@ export const getPembandingByAset = async (req, res) => {
 
 
 // ─── POST /pembanding/aset/:asetId/search ─────────────────────────────────────
-// Asynchronous: enqueue BullMQ job, return jobId HTTP 202 Accepted
+// Asynchronous: enqueue a persistent MySQL job, return HTTP 202 Accepted.
 
 export const searchPembanding = async (req, res) => {
   try {
@@ -69,47 +69,21 @@ export const searchPembanding = async (req, res) => {
       }
     }
 
-    // ── Enqueue async scraping job ke BullMQ ──────────────────────────────
+    // Enqueue asynchronous scraping job in MySQL.
     const { jobId } = await enqueueScraping(asetId);
 
     res.status(202).json({
       success: true,
-      message: 'Proses scraping telah dimulai. Pantau progress melalui endpoint job-status.',
+      message: 'Proses pencarian pembanding telah masuk antrean. Pantau melalui endpoint job-status.',
       jobId,
       pollUrl: `/api/pembanding/aset/${asetId}/job-status/${jobId}`,
     });
   } catch (error) {
-    // Fallback: jika BullMQ/Redis tidak tersedia, jalankan scraping synchronous
-    try {
-      const asetId = Number(req.params.asetId);
-      const aset = await prisma.aset.findUnique({
-        where: { id: asetId },
-        include: { assetVehicle: true, assetProperty: true, assetElectronic: true },
-      });
-
-      await prisma.dataPembanding.deleteMany({
-        where: {
-          asetId,
-          OR: [
-            { sourceUrl: { contains: 'example.com' } },
-            { statusValidasi: 'MENUNGGU', dipilihPenjual: false },
-          ],
-        },
-      });
-
-      const realData = await pembandingService.findComparableAssets(aset);
-      const savedData = await Promise.all(
-        realData.map((data) => prisma.dataPembanding.create({ data: { ...data, asetId } }))
-      );
-
-      res.json({
-        success: true,
-        data: savedData,
-        message: 'Scraping selesai (mode synchronous — Redis tidak tersedia)',
-      });
-    } catch (fallbackError) {
-      res.status(500).json({ success: false, message: fallbackError.message });
-    }
+    res.status(503).json({
+      success: false,
+      message: 'Antrean pencarian pembanding sedang tidak tersedia.',
+      detail: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
   }
 };
 

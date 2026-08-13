@@ -9,6 +9,7 @@ import {
   getNextLelang,
   getLelangSummary,
   getInvoiceLelang,
+  submitBid,
   uploadBuktiPembayaran,
   verifikasiPembayaran,
   tolakPembayaran,
@@ -38,6 +39,9 @@ router.get('/next/:currentId', getNextLelang);
 
 // Auth: lihat invoice
 router.get('/:id/invoice', verifyToken, getInvoiceLelang);
+
+// REST bidding; frontend refreshes bid state using short polling.
+router.post('/:id/bids', verifyToken, verifyPembeli, submitBid);
 
 // Login: lihat detail lelang (untuk bidding)
 router.get('/:id', verifyToken, getLelangById);

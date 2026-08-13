@@ -13,22 +13,42 @@ import { documentRepositoryService } from '../services/document_repository.servi
 import { documentWorkflowService } from '../services/document_workflow.service.js';
 import { dokumenGeneratorService } from '../services/dokumen.service.js';
 import { documentArchiveService } from '../services/document_archive.service.js';
+import bcrypt from 'bcryptjs';
 
 async function runADMSTests() {
   console.log('🚀 === MULAI PENGUJIAN ADMS (Auction Document Management System) ===\n');
   let passed = 0;
   let failed = 0;
+  const fixture = {};
 
   try {
-    // 1. Ambil admin & aset contoh dari DB
-    const adminUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
-    const asetSample = await prisma.aset.findFirst();
-    const lelangSample = await prisma.lelang.findFirst();
+    // Create isolated fixtures so this suite validates a fresh production schema.
+    const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const adminUser = await prisma.user.create({
+      data: {
+        email: `adms-admin-${suffix}@test.invalid`,
+        password: await bcrypt.hash('integration-test-only', 4),
+        nama: 'ADMS Integration Admin',
+        role: 'ADMIN',
+      },
+    });
+    fixture.adminId = adminUser.id;
 
-    if (!adminUser || !asetSample) {
-      console.log('⚠️ Data contoh (Admin / Aset) tidak cukup di database. Melewati test.');
-      process.exit(0);
-    }
+    const kategori = await prisma.kategori.create({ data: { nama: `ADMS Test ${suffix}` } });
+    fixture.kategoriId = kategori.id;
+    const asetSample = await prisma.aset.create({
+      data: { nama: 'Aset Integrasi ADMS', kategoriId: kategori.id, hargaPasar: 100000000 },
+    });
+    fixture.asetId = asetSample.id;
+    const lelangSample = await prisma.lelang.create({
+      data: {
+        asetId: asetSample.id,
+        status: 'FINISHED',
+        waktuBuka: new Date(Date.now() - 7200000),
+        waktuTutup: new Date(Date.now() - 3600000),
+      },
+    });
+    fixture.lelangId = lelangSample.id;
 
     // ── TEST 1: Document Repository Upload & Versioning ───────────────────────
     console.log('📋 Test 1: Upload Dokumen Repository & Versioning (v1 -> v2)...');
@@ -96,7 +116,7 @@ async function runADMSTests() {
 
     // ── TEST 4: Multi-Format Document Generator (PDF) ─────────────────────────
     if (lelangSample) {
-      console.log('\n📋 Test 4: PDF Document Generator (Puppeteer Render)...');
+      console.log('\n📋 Test 4: PDF Document Generator (PDFKit Render)...');
 
       const pdfDoc = await dokumenGeneratorService.generateDokumen({
         lelangId: lelangSample.id,
@@ -138,8 +158,21 @@ async function runADMSTests() {
     console.log('===============================================================\n');
   } catch (err) {
     console.error('❌ Terjadi kesalahan pada test ADMS:', err.message, err.stack);
+    failed++;
   } finally {
+    if (fixture.lelangId) {
+      await prisma.document.deleteMany({ where: { auctionId: fixture.lelangId } }).catch(() => null);
+      await prisma.dokumen.deleteMany({ where: { lelangId: fixture.lelangId } }).catch(() => null);
+      await prisma.lelang.delete({ where: { id: fixture.lelangId } }).catch(() => null);
+    }
+    if (fixture.asetId) {
+      await prisma.document.deleteMany({ where: { assetId: fixture.asetId } }).catch(() => null);
+      await prisma.aset.delete({ where: { id: fixture.asetId } }).catch(() => null);
+    }
+    if (fixture.kategoriId) await prisma.kategori.delete({ where: { id: fixture.kategoriId } }).catch(() => null);
+    if (fixture.adminId) await prisma.user.delete({ where: { id: fixture.adminId } }).catch(() => null);
     await prisma.$disconnect();
+    if (failed > 0) process.exitCode = 1;
   }
 }
 

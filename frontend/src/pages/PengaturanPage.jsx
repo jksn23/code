@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import * as XLSX from 'xlsx';
+import { downloadJsonTemplate, readFirstWorksheet } from '../utils/excel';
 import {
   AlertTriangle,
   Database,
@@ -211,12 +211,14 @@ export default function PengaturanPage() {
     loadSummary();
   }, []);
 
-  const handleDownloadTemplate = () => {
+  const handleDownloadTemplate = async () => {
     const target = getTarget(importTarget);
-    const worksheet = XLSX.utils.json_to_sheet(target.sample, { header: target.columns });
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, target.label);
-    XLSX.writeFile(workbook, `template-${target.value}.xlsx`);
+    await downloadJsonTemplate(
+      target.sample,
+      target.columns,
+      target.label,
+      `template-${target.value}.xlsx`,
+    );
   };
 
   const handleFileChange = (event) => {
@@ -228,12 +230,9 @@ export default function PengaturanPage() {
     setImportFileName(file.name);
 
     const reader = new FileReader();
-    reader.onload = (loadEvent) => {
+    reader.onload = async (loadEvent) => {
       try {
-        const workbook = XLSX.read(loadEvent.target.result, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '', raw: false });
+        const rows = await readFirstWorksheet(loadEvent.target.result);
         const cleanedRows = rows.filter((row) =>
           Object.values(row).some((value) => String(value || '').trim() !== '')
         );

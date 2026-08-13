@@ -3,7 +3,7 @@
  * 
  * Mendukung 2 Format Output:
  * 1. DOCX: docxtemplater + pizzip (mengisi placeholder {{var}} pada template .docx)
- * 2. PDF : Puppeteer HTML-to-PDF Rendering (tampilan PDF resmi & terformat rapi)
+ * 2. PDF : PDFKit rendering tanpa browser/Chromium
  * 
  * Dokumen Sistem yang Didukung:
  * - SURAT_PENETAPAN_LELANG
@@ -17,7 +17,8 @@ import Docxtemplater from 'docxtemplater';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import puppeteer from 'puppeteer';
+import PDFDocument from 'pdfkit';
+import * as cheerio from 'cheerio';
 import prisma from '../models/prisma.client.js';
 import logger from '../utils/logger.js';
 
@@ -54,21 +55,6 @@ const formatTanggal = (date) => {
     month: 'long',
     year: 'numeric',
   });
-};
-
-/**
- * Cari Chrome executable untuk Puppeteer di Windows
- */
-const getSystemChromePath = () => {
-  const possiblePaths = [
-    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-  ];
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p)) return p;
-  }
-  return null;
 };
 
 class DokumenGeneratorService {
@@ -257,35 +243,34 @@ class DokumenGeneratorService {
   }
 
   /**
-   * Generate PDF file menggunakan Puppeteer
+   * Generate PDF menggunakan PDFKit agar kompatibel dengan shared hosting.
    */
   async generatePDF(htmlContent, outputFilename) {
-    let browser = null;
     const outputPath = path.join(OUTPUT_DIR, outputFilename);
+    const $ = cheerio.load(htmlContent);
+    $('br').replaceWith('\n');
+    $('h1, h2, h3, p, tr, li').each((_, element) => {
+      $(element).append('\n');
+    });
+    const text = $('body').text()
+      .replace(/\r/g, '')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/ *\n */g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
 
-    try {
-      const execPath = getSystemChromePath();
-      const launchOptions = {
-        headless: 'new',
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      };
-      if (execPath) launchOptions.executablePath = execPath;
+    await new Promise((resolve, reject) => {
+      const output = fs.createWriteStream(outputPath);
+      const document = new PDFDocument({ size: 'A4', margins: { top: 56, right: 56, bottom: 56, left: 56 } });
+      output.on('finish', resolve);
+      output.on('error', reject);
+      document.on('error', reject);
+      document.pipe(output);
+      document.font('Helvetica').fontSize(10).lineGap(4).text(text, { align: 'left' });
+      document.end();
+    });
 
-      browser = await puppeteer.launch(launchOptions);
-      const page = await browser.newPage();
-      await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-      await page.pdf({
-        path: outputPath,
-        format: 'A4',
-        margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' },
-        printBackground: true,
-      });
-
-      return outputPath;
-    } finally {
-      if (browser) await browser.close();
-    }
+    return outputPath;
   }
 
   /**

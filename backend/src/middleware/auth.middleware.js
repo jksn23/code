@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
-
-const SECRET = process.env.JWT_SECRET || 'secret_key_lelang_spk_2026';
+import { jwtSecret } from '../config/env.js';
 
 export const verifyToken = (req, res, next) => {
   const bearerHeader = req.headers['authorization'];
@@ -11,7 +10,7 @@ export const verifyToken = (req, res, next) => {
   const token = bearerHeader.split(' ')[1];
   if (!token) return res.status(403).json({ success: false, message: 'Invalid token format' });
 
-  jwt.verify(token, SECRET, (err, decoded) => {
+  jwt.verify(token, jwtSecret, (err, decoded) => {
     if (err) {
       return res.status(401).json({ success: false, message: 'Unauthorized / Token expired' });
     }

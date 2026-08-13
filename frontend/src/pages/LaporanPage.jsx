@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import api from '../services/api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import { downloadRowsAsExcel } from '../utils/excel';
 import { Tag, Megaphone, FileText } from 'lucide-react';
 
 const formatRp = (value) =>
@@ -140,7 +140,7 @@ export default function LaporanPage() {
     doc.save(`laporan_${activeTab}_${Date.now()}.pdf`);
   };
 
-  const exportExcel = () => {
+  const exportExcel = async () => {
     let sheetData = [];
     let sheetName = '';
     let fileName = '';
@@ -208,19 +208,7 @@ export default function LaporanPage() {
       ];
     }
 
-    const ws = XLSX.utils.aoa_to_sheet(sheetData);
-    const colWidths = sheetData.reduce((acc, row) => {
-      row.forEach((cell, index) => {
-        const len = cell ? String(cell).length : 10;
-        acc[index] = Math.max(acc[index] || 10, len + 4);
-      });
-      return acc;
-    }, []);
-    ws['!cols'] = colWidths.map((width) => ({ wch: Math.min(width, 40) }));
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, sheetName);
-    XLSX.writeFile(wb, fileName);
+    await downloadRowsAsExcel(sheetData, sheetName, fileName);
   };
 
   const renderTable = () => {

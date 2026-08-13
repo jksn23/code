@@ -61,10 +61,10 @@ async function main() {
 
     await tx.nilaiAset.createMany({
       data: [
-        { asetId: aset1.id, kriteriaId: kriteria1.id, nilai: 80 },
-        { asetId: aset1.id, kriteriaId: kriteria2.id, nilai: 100 },
-        { asetId: aset2.id, kriteriaId: kriteria1.id, nilai: 90 },
-        { asetId: aset2.id, kriteriaId: kriteria2.id, nilai: 50 }, // Cost lower is better
+        { asetId: aset1.id, kriteriaId: kriteria1.id, nilai: 4 },
+        { asetId: aset1.id, kriteriaId: kriteria2.id, nilai: 5 },
+        { asetId: aset2.id, kriteriaId: kriteria1.id, nilai: 5 },
+        { asetId: aset2.id, kriteriaId: kriteria2.id, nilai: 2 }, // Cost lower is better
       ]
     });
 
@@ -78,8 +78,9 @@ async function main() {
     const sawResult = hitungSAW(asetList, kriteriaWithBobot);
     
     assert.strictEqual(sawResult.ranking.length, 2);
-    // Aset 1: Krit 1 (80/90)*0.6 + Krit 2 (50/100)*0.4 = 0.5333 + 0.2 = 0.7333
-    // Aset 2: Krit 1 (90/90)*0.6 + Krit 2 (50/50)*0.4 = 0.6 + 0.4 = 1.0 -> Rank 1
+    // Fixed scale: benefit = score/5, cost = (6-score)/5.
+    // Aset 1 = 0.8*0.6 + 0.2*0.4 = 0.56.
+    // Aset 2 = 1.0*0.6 + 0.8*0.4 = 0.92 -> Rank 1.
     assert.strictEqual(sawResult.ranking[0].id, aset2.id); // Aset 2 must be rank 1
     assert.ok(sawResult.ranking[0].nilaiLimit > 0);
 

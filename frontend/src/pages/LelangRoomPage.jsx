@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
-import api, { konfirmasiTerimaBarang, getNextLelang, getQuickBids, saveQuickBids } from '../services/api';
+import api, { konfirmasiTerimaBarang, getNextLelang, getQuickBids, saveQuickBids, submitBid } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
 import CurrencyInput from '../components/CurrencyInput';
-import { SOCKET_URL, assetUrl } from '../config/env.js';
+import { assetUrl } from '../config/env.js';
 
 const formatRp = (value) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -43,21 +42,21 @@ export default function LelangRoomPage() {
   const [konfirmLoading, setKonfirmLoading] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [nextCountdown, setNextCountdown] = useState('');
-  const [socketStatus, setSocketStatus] = useState('connecting');
+  const [nextLelang, setNextLelang] = useState(null);
+  const [pollingStatus, setPollingStatus] = useState('syncing');
   const [syncMessage, setSyncMessage] = useState('');
   const [quickBidPresets, setQuickBidPresets] = useState(null);
   const [showQuickBidSettings, setShowQuickBidSettings] = useState(false);
   const [qbForm, setQbForm] = useState({ quickBid1: '', quickBid2: '', quickBid3: '' });
   const [qbSaving, setQbSaving] = useState(false);
 
-  const socketRef = useRef(null);
   const hasTriggeredEnd = useRef(false);
   const currentIdRef = useRef(id);
 
   useEffect(() => {
     currentIdRef.current = id;
     hasTriggeredEnd.current = false;
-    setSocketStatus('connecting');
+    setPollingStatus('syncing');
     setSyncMessage('');
   }, [id]);
 
@@ -68,6 +67,7 @@ export default function LelangRoomPage() {
       setLelang(data);
       setBids(data.penawaran || []);
       setError('');
+      setPollingStatus('online');
       setSyncMessage(`Data sinkron ${new Date().toLocaleTimeString('id-ID')}`);
       if (data.status === 'FINISHED') {
         setIsClosed(true);
@@ -77,6 +77,7 @@ export default function LelangRoomPage() {
       return data;
     } catch (err) {
       setError(err.message);
+      setPollingStatus('offline');
       return null;
     } finally {
       setLoading(false);
@@ -110,46 +111,8 @@ export default function LelangRoomPage() {
 
   useEffect(() => {
     loadLelang();
-
-    const socket = io(SOCKET_URL, {
-      reconnection: true,
-      reconnectionAttempts: 10,
-      reconnectionDelay: 1000,
-    });
-
-    socketRef.current = socket;
-
-    socket.on('connect', async () => {
-      setSocketStatus('connected');
-      socket.emit('join_lelang', currentIdRef.current);
-      await loadLelang();
-    });
-
-    socket.on('disconnect', () => {
-      setSocketStatus('disconnected');
-    });
-
-    socket.on('connect_error', () => {
-      setSocketStatus('error');
-    });
-
-    socket.io.on('reconnect_attempt', () => {
-      setSocketStatus('reconnecting');
-    });
-
-    socket.io.on('reconnect', async () => {
-      setSocketStatus('connected');
-      socket.emit('join_lelang', currentIdRef.current);
-      await loadLelang();
-    });
-
-    socket.on('new_bid', (newBid) => {
-      setBids((prev) => [newBid, ...prev].sort((a, b) => Number(b.nominal) - Number(a.nominal)));
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    const interval = setInterval(loadLelang, 2000);
+    return () => clearInterval(interval);
   }, [id, loadLelang]);
 
   useEffect(() => {
@@ -196,7 +159,7 @@ export default function LelangRoomPage() {
     return () => clearInterval(interval);
   }, [nextLelang, transitioning]);
 
-  const handleBid = (event) => {
+  const handleBid = async (event) => {
     event.preventDefault();
     if (!user) return showAlert('Anda harus login untuk bidding', 'warning');
     if (user.role === 'ADMIN') return showAlert('Admin tidak bisa bidding', 'warning');
@@ -204,22 +167,22 @@ export default function LelangRoomPage() {
     if (user.buyerVerificationStatus !== 'APPROVED') {
       return showAlert('Akun pembeli Anda belum lolos verifikasi KYC. Bidding dikunci sampai admin menyetujui identitas Anda.', 'warning');
     }
-    if (socketStatus !== 'connected') {
-      return showAlert('Koneksi realtime belum stabil. Tunggu sampai room kembali terhubung.', 'warning');
+    if (pollingStatus !== 'online') {
+      return showAlert('Koneksi server belum stabil. Tunggu sinkronisasi berikutnya.', 'warning');
     }
     if (!canBid) return showAlert(isNotStarted ? 'Lelang belum dibuka. Tunggu sampai waktu mulai.' : 'Lelang belum aktif atau sudah ditutup.', 'warning');
     if (!nominal || nominal <= 0) return showAlert('Masukkan nominal yang valid', 'warning');
 
-    socketRef.current.emit('submit_bid', { lelangId: id, userId: user.id, nominal }, (response) => {
-      if (!response.success) {
-        showAlert(response.message, 'error');
-      } else {
-        setNominal(0);
-      }
-    });
+    try {
+      await submitBid(id, nominal);
+      setNominal(0);
+      await loadLelang();
+    } catch (bidError) {
+      showAlert(bidError.message, 'error');
+    }
   };
 
-  const handleQuickBid = (presetValue) => {
+  const handleQuickBid = async (presetValue) => {
     const val = Number(presetValue);
     setNominal(val);
     
@@ -228,13 +191,13 @@ export default function LelangRoomPage() {
     if (!canBid) return showAlert(isNotStarted ? 'Lelang belum dibuka. Tunggu sampai waktu mulai.' : 'Lelang belum aktif atau sudah ditutup.', 'warning');
     if (!val || val <= 0) return showAlert('Nominal quick bid tidak valid', 'warning');
 
-    socketRef.current.emit('submit_bid', { lelangId: id, userId: user.id, nominal: val }, (response) => {
-      if (!response.success) {
-        showAlert(response.message, 'error');
-      } else {
-        setNominal(0);
-      }
-    });
+    try {
+      await submitBid(id, val);
+      setNominal(0);
+      await loadLelang();
+    } catch (bidError) {
+      showAlert(bidError.message, 'error');
+    }
   };
 
   const loadQuickBids = useCallback(async () => {
@@ -335,11 +298,9 @@ export default function LelangRoomPage() {
           <div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Status koneksi room</div>
             <div style={{ fontWeight: 700 }}>
-              {socketStatus === 'connected' && '🟢 Connected'}
-              {socketStatus === 'connecting' && '🟡 Connecting'}
-              {socketStatus === 'reconnecting' && '🟠 Reconnecting'}
-              {socketStatus === 'disconnected' && '🔴 Disconnected'}
-              {socketStatus === 'error' && '🔴 Error'}
+              {pollingStatus === 'online' && '🟢 Tersinkron'}
+              {pollingStatus === 'syncing' && '🟡 Sinkronisasi'}
+              {pollingStatus === 'offline' && '🔴 Koneksi terputus'}
             </div>
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{syncMessage || 'Menunggu sinkronisasi data'}</div>
@@ -524,7 +485,7 @@ export default function LelangRoomPage() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                     {[quickBidPresets.quickBid1, quickBidPresets.quickBid2, quickBidPresets.quickBid3].map((val, idx) => (
                       <button key={idx} type="button" className="btn btn-secondary btn-sm" style={{ fontSize: 13, fontWeight: 600, padding: '8px 4px' }}
-                        onClick={() => handleQuickBid(val)} disabled={buyerBlocked || socketStatus !== 'connected' || !canBid}>
+                        onClick={() => handleQuickBid(val)} disabled={buyerBlocked || pollingStatus !== 'online' || !canBid}>
                         {formatRp(val)}
                       </button>
                     ))}
@@ -549,9 +510,9 @@ export default function LelangRoomPage() {
                   type="submit"
                   className="btn btn-primary"
                   style={{ width: '100%', padding: '14px', fontSize: 15, fontWeight: 600 }}
-                  disabled={buyerBlocked || socketStatus !== 'connected' || !canBid}
+                  disabled={buyerBlocked || pollingStatus !== 'online' || !canBid}
                 >
-                  {buyerBlocked ? 'KYC Belum Disetujui' : isNotStarted ? 'Lelang Belum Dibuka' : socketStatus !== 'connected' ? 'Menunggu Koneksi' : canBid ? 'AJUKAN PENAWARAN MANUAL' : 'Bidding Tidak Aktif'}
+                  {buyerBlocked ? 'KYC Belum Disetujui' : isNotStarted ? 'Lelang Belum Dibuka' : pollingStatus !== 'online' ? 'Menunggu Sinkronisasi' : canBid ? 'AJUKAN PENAWARAN MANUAL' : 'Bidding Tidak Aktif'}
                 </button>
               </form>
             </div>

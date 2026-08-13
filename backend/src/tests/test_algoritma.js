@@ -218,10 +218,10 @@ try {
       nama: 'Rumah A',
       hargaPasar: 850000000,
       nilaiAset: [
-        { kriteriaId: 1, nilai: 88 },
-        { kriteriaId: 2, nilai: 120 },
-        { kriteriaId: 3, nilai: 82 },
-        { kriteriaId: 4, nilai: 90 },
+        { kriteriaId: 1, nilai: 5 },
+        { kriteriaId: 2, nilai: 4 },
+        { kriteriaId: 3, nilai: 4 },
+        { kriteriaId: 4, nilai: 5 },
       ],
     },
     {
@@ -229,10 +229,10 @@ try {
       nama: 'Rumah B',
       hargaPasar: 760000000,
       nilaiAset: [
-        { kriteriaId: 1, nilai: 75 },
-        { kriteriaId: 2, nilai: 150 },
-        { kriteriaId: 3, nilai: 78 },
-        { kriteriaId: 4, nilai: 72 },
+        { kriteriaId: 1, nilai: 4 },
+        { kriteriaId: 2, nilai: 5 },
+        { kriteriaId: 3, nilai: 4 },
+        { kriteriaId: 4, nilai: 3 },
       ],
     },
     {
@@ -240,10 +240,10 @@ try {
       nama: 'Rumah C',
       hargaPasar: 920000000,
       nilaiAset: [
-        { kriteriaId: 1, nilai: 92 },
-        { kriteriaId: 2, nilai: 110 },
-        { kriteriaId: 3, nilai: 88 },
-        { kriteriaId: 4, nilai: 85 },
+        { kriteriaId: 1, nilai: 5 },
+        { kriteriaId: 2, nilai: 4 },
+        { kriteriaId: 3, nilai: 5 },
+        { kriteriaId: 4, nilai: 4 },
       ],
     },
     {
@@ -251,10 +251,10 @@ try {
       nama: 'Rumah D',
       hargaPasar: 680000000,
       nilaiAset: [
-        { kriteriaId: 1, nilai: 70 },
-        { kriteriaId: 2, nilai: 95 },
-        { kriteriaId: 3, nilai: 65 },
-        { kriteriaId: 4, nilai: 80 },
+        { kriteriaId: 1, nilai: 3 },
+        { kriteriaId: 2, nilai: 3 },
+        { kriteriaId: 3, nilai: 3 },
+        { kriteriaId: 4, nilai: 4 },
       ],
     },
     {
@@ -262,10 +262,10 @@ try {
       nama: 'Rumah E',
       hargaPasar: 810000000,
       nilaiAset: [
-        { kriteriaId: 1, nilai: 84 },
-        { kriteriaId: 2, nilai: 135 },
-        { kriteriaId: 3, nilai: 90 },
-        { kriteriaId: 4, nilai: 76 },
+        { kriteriaId: 1, nilai: 4 },
+        { kriteriaId: 2, nilai: 5 },
+        { kriteriaId: 3, nilai: 5 },
+        { kriteriaId: 4, nilai: 3 },
       ],
     },
   ];

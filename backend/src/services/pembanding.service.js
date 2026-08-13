@@ -5,7 +5,7 @@
  *
  * Alur (sesuai panduan P0):
  *   1. Keyword Generator
- *   2. Puppeteer Real Web Scraping (OLX + Carmudi)
+ *   2. Lightweight HTTP Scraping (OLX + Carmudi)
  *   3. URL Integrity Check (canonicalize, classify, hash)
  *   4. Deduplication via canonicalUrlHash
  *   5. Comparable Matching (hard gates + fuzzy similarity)
@@ -24,7 +24,7 @@
 'use strict';
 
 import Fuse from 'fuse.js';
-import { puppeteerScraperService } from './puppeteer_scraper.service.js';
+import { marketplaceScraperService } from './marketplace_scraper.service.js';
 import { processUrl } from './url_integrity.js';
 import { matchPembanding, STATUS_KECOCOKAN } from './comparable_matching.service.js';
 import {
@@ -181,7 +181,7 @@ class PembandingService {
   }
 
   /**
-   * Cari data pembanding menggunakan Puppeteer + URL Integrity + Matching.
+   * Cari data pembanding menggunakan HTTP scraper + URL Integrity + Matching.
    * TIDAK ADA fallback harga sintetis. Jika data kurang, generate saran pencarian.
    *
    * @param {object} asset — data aset beserta relasi
@@ -194,15 +194,15 @@ class PembandingService {
   async findComparableAssets(asset) {
     const keyword = this.generateSearchKeyword(asset);
 
-    logger.spk('Mulai scraping data pembanding via Puppeteer', { asetId: asset.id, keyword });
+    logger.spk('Mulai pencarian data pembanding via HTTP scraper', { asetId: asset.id, keyword });
 
     let rawData = [];
 
-    // ── Tahap 1: Puppeteer Real Web Scraping ──────────────────────────────
+    // Tahap 1: lightweight HTTP scraping (tanpa browser/Chromium).
     try {
-      rawData = await puppeteerScraperService.scrapeAll(asset, keyword);
+      rawData = await marketplaceScraperService.scrapeAll(asset, keyword);
     } catch (err) {
-      logger.error('Puppeteer scraper error', { asetId: asset.id, message: err.message });
+      logger.error('Marketplace scraper error', { asetId: asset.id, message: err.message });
     }
 
     // ── Tahap 2: URL Integrity + Canonicalize ─────────────────────────────

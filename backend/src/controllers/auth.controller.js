@@ -7,8 +7,7 @@ import {
   resolveSellerVerificationStatus,
   toLegacySellerVerifiedFlag,
 } from '../utils/seller-verification.util.js';
-
-const SECRET = process.env.JWT_SECRET || 'secret_key_lelang_spk_2026';
+import { jwtSecret } from '../config/env.js';
 
 const buildUserPayload = (user) => {
   const sellerStatus = user.penjual
@@ -122,7 +121,7 @@ export const login = async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, role: user.role, email: user.email },
-      SECRET,
+      jwtSecret,
       { expiresIn: '24h' }
     );
 
