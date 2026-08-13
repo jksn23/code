@@ -10,6 +10,17 @@ WebSocket, Redis, dan Chromium tidak diperlukan. Bidding menggunakan REST dengan
 
 ## 1. Database
 
+Database production yang sudah dibuat:
+
+```text
+Nama database: u878272139_elelang_prod
+User database: u878272139_elelang_app
+Website: api.e-lelangdigital.my.id
+Host lokal aplikasi: localhost
+```
+
+Password dibuat acak dan hanya disimpan di server. Empat migrasi Prisma sudah diterapkan dan schema telah diverifikasi tanpa drift. Remote MySQL dinonaktifkan setelah verifikasi.
+
 Buat database dan user MySQL melalui hPanel. Jangan simpan password di Git. Setelah Hostinger menampilkan host, port, nama database, user, dan password, susun nilai berikut di environment website backend:
 
 ```text
@@ -28,11 +39,17 @@ Database lama pada akun Hostinger tidak digunakan oleh deployment ini. Buat data
 
 ## 2. Environment backend
 
-Isi melalui halaman Environment Variables website `api.e-lelangdigital.my.id`:
+Konfigurasi production saat ini disimpan pada file server-only berikut dengan permission `600`:
+
+```text
+/home/u878272139/domains/api.e-lelangdigital.my.id/.env.production
+```
+
+`backend/bootstrap.js` membacanya sebelum memulai aplikasi. File ini berada di luar direktori release, tidak ikut Git/deployment archive, dan tetap tersedia ketika release baru dibuat. Nilai yang dikonfigurasi:
 
 ```text
 NODE_ENV=production
-DATABASE_URL=mysql://USER:PASSWORD@HOST:PORT/DATABASE
+DATABASE_URL=mysql://u878272139_elelang_app:PASSWORD@localhost/u878272139_elelang_prod
 JWT_SECRET=RANDOM_SECRET_MINIMUM_32_BYTES
 FRONTEND_URL=https://app.e-lelangdigital.my.id
 CORS_ORIGINS=https://app.e-lelangdigital.my.id
@@ -54,7 +71,7 @@ Start command: npm start
 Health check: /health
 ```
 
-Deployment connector otomatis menjalankan instalasi dependency sebelum `npm run build`. Setelah environment diisi, jalankan `npm run migrate:prod` satu kali melalui terminal/SSH hPanel, kemudian redeploy atau restart aplikasi Node.js. Jangan memasukkan migrasi ke build pertama sebelum `DATABASE_URL` tersedia.
+Deployment connector otomatis menjalankan instalasi dependency sebelum `npm run build`. Migrasi production sudah dijalankan. Untuk migrasi berikutnya, jalankan `npm run migrate:prod` satu kali melalui terminal/SSH hPanel setelah environment tersedia, kemudian redeploy atau restart aplikasi Node.js.
 
 ## 3. Environment dan build frontend
 
