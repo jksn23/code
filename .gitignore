@@ -4,6 +4,7 @@
 # Local credentials and agent settings
 .env
 **/.env
+**/.env.production
 ssh/
 *.pem
 .claude/settings.local.json
