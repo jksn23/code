@@ -83,6 +83,15 @@ Health check: /health
 
 Deployment connector otomatis menjalankan instalasi dependency sebelum `npm run build`. Migrasi production sudah dijalankan. Untuk migrasi berikutnya, jalankan `npm run migrate:prod` satu kali melalui terminal/SSH hPanel setelah environment tersedia, kemudian redeploy atau restart aplikasi Node.js.
 
+Paket Business ini juga menjalankan beberapa aplikasi Node lain pada akun yang sama. Sesudah setiap archive deployment, pastikan `public_html/.htaccess` website API memuat batas thread berikut sebelum aplikasi di-restart:
+
+```apache
+SetEnv NODE_OPTIONS "--v8-pool-size=1 --require /home/u878272139/domains/api.e-lelangdigital.my.id/hbuilds/config/preload-timestamp.js"
+SetEnv UV_THREADPOOL_SIZE 1
+```
+
+Connector dapat membuat ulang `.htaccess`, jadi pengaturan ini perlu diperiksa pada setiap rilis. Tanpanya, Passenger dapat menghabiskan kuota thread akun dan mengembalikan HTTP 503 meskipun build berhasil.
+
 ## 3. Environment dan build frontend
 
 Variabel Vite dibaca saat build, bukan saat runtime. Isi sebelum menjalankan build:
